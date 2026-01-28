@@ -1,0 +1,65 @@
+# 环境变量和敏感信息
+.env
+.env.*
+*.key
+*_key.json
+*.pem
+*credentials*.json
+service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# 音频文件
+*.mp3
+*.wav
+
+# 数据文件（排除配置文件）
+batch_output*/
+output/
+data/*
+!data/README.md
+to_delete_archive/
+batch_progress*.json
+podcast_list.json
+
+# 日志
+*.log
+
+# 临时脚本
+check_git_files.sh
+fix_claude_code.sh
+process_remaining.sh
+batch_sv101.sh
+remaining_episodes.txt
+skipped_low_relevance.txt
+recent_3months.txt
+
+# Batch处理脚本（暂不上传）
+batch_process_3months.sh
+scripts/batch_process.py
+scripts/batch_process_smart.py
+scripts/batch_process_from_list.py
+scripts/filter_podcasts.py
+scripts/filter_podcasts_smart.py
+scripts/list_podcasts.py
+scripts/SYSTEM_ANALYSIS.md
+CONTRIBUTING.md
+QUICKSTART.md
+data/README.md
+scripts/README.md
+
+# 前端展示（暂不上传）
+viewer_final.html
+signals_data_from_md.js
+
+# 系统文件
+.DS_Store
+.claude/
+.gitkeep

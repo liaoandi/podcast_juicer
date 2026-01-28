@@ -1,0 +1,22 @@
+# AI 和机器学习
+openai>=1.0.0
+google-genai>=0.2.0
+anthropic>=0.18.0
+
+# 音频处理
+openai-whisper>=20230918
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# Web 和网络
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+feedparser>=6.0.10
+aiohttp>=3.9.0
+
+# 数据处理
+python-dotenv>=1.0.0
+pydub>=0.25.1
+
+# 工具类
+tqdm>=4.66.0
