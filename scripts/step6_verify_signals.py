@@ -335,8 +335,25 @@ def verify_all_signals(input_file, output_file, max_signals=None):
             print(f"   [{i}] {status_map.get(st, '?')} {st} — {entity_names}")
         return i, signal
 
+    if not signals:
+        print(f"   ○ 无信号需要验证")
+        output_data = {
+            'metadata': {
+                **data.get('metadata', {}),
+                'verification_date': datetime.now().strftime('%Y-%m-%d'),
+                'verification_method': 'gemini_3_pro + google_search + yahoo_finance',
+                'verification_status': 'completed',
+                'verified_signals_count': 0
+            },
+            'signals': []
+        }
+        print(f"💾 保存验证结果: {output_file}")
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(output_data, f, ensure_ascii=False, indent=2)
+        return
+
     verified_signals = [None] * len(signals)
-    max_workers = min(3, len(signals))  # 验证用 Google Search，不宜太多并发
+    max_workers = min(3, len(signals))
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {}

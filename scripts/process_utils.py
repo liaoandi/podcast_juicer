@@ -341,19 +341,22 @@ def process_single(url, audio_url=None, force=False):
     verified_file = os.path.join(episode_dir, f'{prefix}_verified_signals.json')
     notes_file = os.path.join(episode_dir, f'{prefix}_investment_notes.md')
 
-    # 保存 metadata
-    metadata = {
-        'podcast_id': podcast_id,
-        'podcast_name': podcast_config.get('name', podcast_id),
-        'episode_id': episode_id,
-        'url': url,
-        'base_url': podcast_config.get('base_url', ''),
-        'hosts': podcast_config.get('hosts', []),
-        'language': podcast_config.get('language', 'en'),
-        'publish_date': None,
-        'record_date': None,
-        'date_notes': None
-    }
+    # 加载已有 metadata 或创建新的（避免覆盖已有的日期等信息）
+    metadata = {}
+    if os.path.exists(metadata_file):
+        with open(metadata_file, 'r', encoding='utf-8') as f:
+            metadata = json.load(f)
+    # 更新基础字段（始终更新），保留已有的日期字段
+    metadata['podcast_id'] = podcast_id
+    metadata['podcast_name'] = podcast_config.get('name', podcast_id)
+    metadata['episode_id'] = episode_id
+    metadata['url'] = url
+    metadata['base_url'] = podcast_config.get('base_url', '')
+    metadata['hosts'] = podcast_config.get('hosts', [])
+    metadata['language'] = podcast_config.get('language', 'en')
+    metadata.setdefault('publish_date', None)
+    metadata.setdefault('record_date', None)
+    metadata.setdefault('date_notes', None)
     with open(metadata_file, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=2)
 
