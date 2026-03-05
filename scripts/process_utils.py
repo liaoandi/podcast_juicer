@@ -362,8 +362,12 @@ def process_single(url, audio_url=None, force=False):
     else:
         print(f"\n  [跳过] 音频和参与者已存在")
 
-    # 移动 participants.json
+    # 移动 participants.json (use episode_id in temp name to avoid race conditions)
     temp_participants = os.path.join(SCRIPTS_DIR, 'participants.json')
+    temp_participants_safe = os.path.join(SCRIPTS_DIR, f'participants_{episode_id}.json')
+    if os.path.exists(temp_participants):
+        shutil.move(temp_participants, temp_participants_safe)
+    temp_participants = temp_participants_safe
     if os.path.exists(temp_participants):
         shutil.move(temp_participants, participants_file)
         print(f"  [移动] participants.json -> {participants_file}")
@@ -481,6 +485,7 @@ def process_single(url, audio_url=None, force=False):
     # ── Step 4: 提取重点公司 ──（依赖: polished）
     if force or _needs_rerun([polished_file], featured_companies_file):
         if not run_step("Step 4: 提取重点公司",
+                       # '' = no existing featured companies to merge with
                        [PYTHON_BIN, 'step4_extract_featured_companies.py', polished_file, '', featured_companies_file]):
             return False
     else:

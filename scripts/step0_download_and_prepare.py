@@ -281,8 +281,7 @@ def extract_page_info(url):
                 if attr == 'datePublished' and el.string:
                     # JSON-LD
                     try:
-                        import json as json_module
-                        data = json_module.loads(el.string)
+                        data = json.loads(el.string)
                         if isinstance(data, dict):
                             publish_date = data.get('datePublished') or data.get('uploadDate')
                             if publish_date:
@@ -425,17 +424,16 @@ def extract_participants_with_llm(page_info):
         )
 
         # 提取JSON（Gemini可能返回带markdown的内容）
-        response_text = response.text or ""
-        if '```json' in response_text:
-            start = response_text.find('```json') + 7
-            end = response_text.find('```', start)
-            response_text = response_text[start:end].strip()
-        elif '{' in response_text:
-            start = response_text.find('{')
-            end = response_text.rfind('}') + 1
-            response_text = response_text[start:end]
+        try:
+            response_text = response.text or ""
+        except Exception:
+            response_text = ""
 
-        result = json.loads(response_text)
+        from gemini_utils import clean_json
+        result = clean_json(response_text)
+        if result is None:
+            print(f"   ⚠️ JSON 解析失败")
+            return None
 
         # 如果 LLM 没提取到发布日期，用页面提取的
         if not result.get('publish_date') and publish_date:

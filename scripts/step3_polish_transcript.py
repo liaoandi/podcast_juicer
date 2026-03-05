@@ -111,7 +111,9 @@ def _polish_one_segment(idx, seg, total):
         'start_seconds': seg['start_seconds'],
         'end_seconds': seg['end_seconds'],
         'text': polished_text,
-        'speaker': seg['speaker']
+        'speaker': seg['speaker'],
+        'speaker_role': seg.get('speaker_role', 'unknown'),
+        'speaker_confidence': seg.get('speaker_confidence', 'low'),
     }
     print(f"   [{idx}/{total}] {seg['start']} - {seg['end']} ({len(text)}字) ✓ ({len(polished_text)}字)")
     return idx, result
@@ -194,8 +196,13 @@ def polish_full_transcript(input_file, output_file, merge_count=15):
                     'start_seconds': seg['start_seconds'],
                     'end_seconds': seg['end_seconds'],
                     'text': seg['text'],
-                    'speaker': seg['speaker']
+                    'speaker': seg['speaker'],
+                    'speaker_role': seg.get('speaker_role', 'unknown'),
+                    'speaker_confidence': seg.get('speaker_confidence', 'low'),
                 }
+
+    # Filter out any None entries (shouldn't happen but safety)
+    polished_segments = [s for s in polished_segments if s is not None]
 
     # 保存
     output = {

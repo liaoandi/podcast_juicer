@@ -250,7 +250,12 @@ def enrich_with_ticker_lookup(companies):
             )
         )
 
-        result = json.loads(response.text or "{}")
+        raw = ""
+        try:
+            raw = response.text or ""
+        except Exception:
+            raw = ""
+        result = json.loads(raw) if raw else {}
         ticker_map = result.get('tickers', {})
 
         for company in companies_without_ticker:
@@ -320,10 +325,10 @@ def extract_featured_companies(transcript_file, existing_featured_companies_file
                 existing_companies.append({
                     'company': new_company['name'],
                     'ticker': new_company.get('ticker'),
-                    'reason': new_company['reason'],
+                    'reason': new_company.get('reason', ''),
                     'importance': new_company['importance'],
                     'sentiment': new_company.get('sentiment', 'neutral'),
-                    'context': new_company['context']
+                    'context': new_company.get('context', 'analysis')
                 })
                 print(f"   + 新增: {new_company['name']} (重要性: {new_company['importance']})")
             else:

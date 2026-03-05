@@ -11,6 +11,7 @@
 """
 
 import os
+import subprocess
 import sys
 import json
 import re
@@ -456,7 +457,6 @@ def _get_audio_duration(audio_path):
     if not audio_path or not os.path.exists(audio_path):
         return None
     try:
-        import subprocess
         result = subprocess.run(
             ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", audio_path],
             capture_output=True,

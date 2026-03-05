@@ -21,7 +21,7 @@ import json
 import os
 import sys
 from google.genai import types
-from gemini_utils import get_gemini_client, get_project_id, ensure_credentials, DEFAULT_MODEL
+from gemini_utils import get_gemini_client, DEFAULT_MODEL
 
 # 配置 — 说话人识别用 flash 模型（速度快，分类任务不需要 thinking）
 LOCATION = "us-central1"
@@ -30,17 +30,15 @@ GEMINI_MODEL = "gemini-2.5-flash"
 class GeminiSpeakerIdentifier:
     def __init__(self, project_id=None, location=None, model=None):
         """初始化 Vertex AI 客户端"""
-        # 设置凭证
-        ensure_credentials(verbose=True)
-        self.project_id = project_id or get_project_id()
         self.location = location or LOCATION
         self.model_name = model or GEMINI_MODEL
 
-        print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location} ({self.project_id})")
+        print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location}")
 
         # 初始化客户端（添加超时保护）
+        # get_gemini_client handles credentials and project_id internally
         self.client = get_gemini_client(
-            project_id=self.project_id,
+            project_id=project_id,
             location=self.location,
             timeout=600
         )
@@ -375,7 +373,7 @@ class GeminiSpeakerIdentifier:
                             temperature=0.1
                         )
                     )
-                    result = self._clean_json(response.text)
+                    result = self._clean_json(response.text if response else None)
                 except Exception as e:
                     print(f"   ⚠️ Gemini 分块调用失败: {e}")
                     import traceback
@@ -432,7 +430,7 @@ class GeminiSpeakerIdentifier:
             )
 
             # 解析 JSON
-            result = self._clean_json(response.text)
+            result = self._clean_json(response.text if response else None)
 
             if result and 'speaker_labels' in result:
                 return result
@@ -477,7 +475,7 @@ class GeminiSpeakerIdentifier:
                 )
             )
 
-            result = self._clean_json(response.text)
+            result = self._clean_json(response.text if response else None)
 
             if result and 'speaker_mapping' in result:
                 mapping = result['speaker_mapping']

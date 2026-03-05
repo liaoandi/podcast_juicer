@@ -28,7 +28,7 @@ def project_root() -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def _strip_quotes(value: str) -> str:
+def _strip_quotes(value: Optional[str]) -> Optional[str]:
     if value is None:
         return value
     return value.strip().strip('"').strip("'")
@@ -70,8 +70,8 @@ def get_project_id() -> str:
                 project_id = data.get("project_id")
                 if project_id:
                     return project_id
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"⚠️ 读取 SA key 失败: {e}")
 
     project_id = load_env_value("GOOGLE_CLOUD_PROJECT")
     if project_id:
@@ -119,23 +119,6 @@ def get_gemini_client(
         location=location,
         http_options=_types.HttpOptions(timeout=timeout_ms),
     )
-
-
-# ---------------------------------------------------------------------------
-# Lazy client singleton
-# ---------------------------------------------------------------------------
-_lazy_client = None
-
-
-def get_gemini_client_lazy(
-    location: str = "global",
-    timeout: Optional[int] = None,
-):
-    """Return a lazily-initialised singleton Gemini client."""
-    global _lazy_client
-    if _lazy_client is None:
-        _lazy_client = get_gemini_client(location=location, timeout=timeout)
-    return _lazy_client
 
 
 # ---------------------------------------------------------------------------

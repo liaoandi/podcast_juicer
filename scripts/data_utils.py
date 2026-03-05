@@ -15,8 +15,6 @@
     change = ds.get_price_change('NVDA', '2025-01-15')
 """
 
-import os
-import sys
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any
 
@@ -55,6 +53,10 @@ class YahooFinance:
             # 00700 -> 0700, 00941 -> 0941
             normalized = ticker[1:]  # 直接去掉第一个字符
             return f"{normalized}.HK"
+
+        # 香港股票：4位数字
+        if ticker.isdigit() and len(ticker) == 4:
+            return f"{ticker}.HK"
 
         # 上海A股：6位数字，以6开头
         if ticker.isdigit() and len(ticker) == 6:

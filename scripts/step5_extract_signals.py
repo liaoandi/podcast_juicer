@@ -19,7 +19,7 @@ import json
 import os
 import sys
 from google.genai import types
-from gemini_utils import get_gemini_client, get_project_id, ensure_credentials, DEFAULT_MODEL
+from gemini_utils import get_gemini_client, DEFAULT_MODEL
 
 # 配置
 LOCATION = "global"
@@ -58,8 +58,18 @@ def calculate_time_range(seg_ids, transcript_segments, buffer_seconds=10):
         return {}
 
     # 计算时间范围
-    start_seconds = min(seg.get('start_seconds', seg.get('start', 0)) for seg in matching_segs) - buffer_seconds
-    end_seconds = max(seg.get('end_seconds', seg.get('end', 0)) for seg in matching_segs) + buffer_seconds
+    def _to_seconds(val):
+        if isinstance(val, (int, float)):
+            return float(val)
+        if isinstance(val, str) and ':' in val:
+            parts = val.split(':')
+            if len(parts) == 3:
+                return float(parts[0]) * 3600 + float(parts[1]) * 60 + float(parts[2])
+            return float(parts[0]) * 60 + float(parts[1])
+        return 0.0
+
+    start_seconds = min(_to_seconds(seg.get('start_seconds', seg.get('start', 0))) for seg in matching_segs) - buffer_seconds
+    end_seconds = max(_to_seconds(seg.get('end_seconds', seg.get('end', 0))) for seg in matching_segs) + buffer_seconds
 
     # 确保不超出边界
     start_seconds = max(0, start_seconds)
@@ -81,15 +91,15 @@ def calculate_time_range(seg_ids, transcript_segments, buffer_seconds=10):
 class GeminiSignalExtractor:
     def __init__(self, project_id=None, location=None, model=None):
         """初始化 Vertex AI 客户端"""
-        self.project_id = project_id or get_project_id()
         self.location = location or LOCATION
         self.model_name = model or GEMINI_MODEL
 
-        print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location} ({self.project_id})")
+        print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location}")
 
         # 初始化客户端
+        # get_gemini_client handles credentials and project_id internally
         self.client = get_gemini_client(
-            project_id=self.project_id,
+            project_id=project_id,
             location=self.location
         )
 
@@ -255,7 +265,7 @@ def load_episode_metadata(transcript_file):
     1. 同目录下的 *_metadata.json
     2. 返回空字典
     """
-    transcript_dir = os.path.dirname(transcript_file)
+    transcript_dir = os.path.dirname(os.path.abspath(transcript_file))
 
     # 查找 metadata 文件
     for f in os.listdir(transcript_dir):
@@ -292,7 +302,7 @@ def extract_all_signals_with_gemini(transcript_file, featured_companies_file, ou
 
     segments = transcript['segments']
     if segments:
-        print(f"   转录总时长: {segments[-1]['end']}")
+        print(f"   转录总时长: {segments[-1].get('end', 'N/A')}")
     else:
         print("   ⚠️ 转录为空")
         return

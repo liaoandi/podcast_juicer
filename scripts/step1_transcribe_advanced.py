@@ -469,6 +469,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     audio_file = sys.argv[1]
+    if not os.path.exists(audio_file):
+        print(f"❌ 音频文件不存在: {audio_file}")
+        sys.exit(1)
     model_size = os.getenv("WHISPER_MODEL", "medium")
     output_file = None
 

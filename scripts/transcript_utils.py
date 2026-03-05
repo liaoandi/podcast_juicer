@@ -8,6 +8,9 @@ import json
 
 def format_timestamp(seconds):
     """将秒数转换为 HH:MM:SS 格式"""
+    if seconds is None:
+        return "00:00:00"
+    seconds = float(seconds)
     hours = int(seconds // 3600)
     minutes = int((seconds % 3600) // 60)
     secs = int(seconds % 60)
@@ -27,6 +30,8 @@ def match_speakers_to_segments(segments, speaker_timeline):
     """
     if not speaker_timeline:
         return segments
+
+    segments = sorted(segments, key=lambda x: x.get("start_seconds", 0))
 
     print("\n🔗 匹配说话人到转录片段...")
 

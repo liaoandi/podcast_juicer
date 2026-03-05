@@ -13,7 +13,7 @@ import sys
 import time
 from datetime import datetime
 from google.genai import types
-from gemini_utils import get_gemini_client, get_project_id, ensure_credentials, DEFAULT_MODEL
+from gemini_utils import get_gemini_client, DEFAULT_MODEL
 
 # 导入数据源模块
 HAS_DATA_SOURCES = False
@@ -44,18 +44,16 @@ class VertexVerifier:
             model: 模型名称
             record_date: 信号发出的日期（用于计算价格变化）
         """
-        # 设置凭证
-        ensure_credentials(verbose=True)
-        self.project_id = project_id or get_project_id()
         self.location = location or LOCATION
         self.model_name = model or GEMINI_MODEL
         self.record_date = record_date
 
-        print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location} ({self.project_id})")
+        print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location}")
 
         # 初始化客户端（使用默认配置）
+        # get_gemini_client handles credentials and project_id internally
         self.client = get_gemini_client(
-            project_id=self.project_id,
+            project_id=project_id,
             location=self.location
         )
 
@@ -166,7 +164,12 @@ class VertexVerifier:
                 )
 
                 # 解析 JSON
-                verification_data = self._clean_json(response.text)
+                raw_text = ""
+                try:
+                    raw_text = response.text or ""
+                except Exception:
+                    raw_text = ""
+                verification_data = self._clean_json(raw_text)
 
                 if verification_data:
                     verification_data['verification_date'] = datetime.now().strftime('%Y-%m-%d')
@@ -396,6 +399,9 @@ def verify_all_signals(input_file, output_file, max_signals=None):
                 print(f"   [{i+1}] 验证异常: {e}")
                 signals[i]['verification'] = verifier._error_verification(str(e))
                 verified_signals[i] = signals[i]
+
+    # Filter out any None entries
+    verified_signals = [s for s in verified_signals if s is not None]
 
     # 保存结果
     output_data = {

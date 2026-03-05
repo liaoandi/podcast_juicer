@@ -10,6 +10,14 @@ import os
 from google.genai import types
 from gemini_utils import get_gemini_client, DEFAULT_MODEL
 
+_gemini_client = None
+
+def _get_client():
+    global _gemini_client
+    if _gemini_client is None:
+        _gemini_client = get_gemini_client()
+    return _gemini_client
+
 # =============================================================================
 # 公司名映射
 # =============================================================================
@@ -80,13 +88,13 @@ def add_tickers_to_text(text, ticker_map=None, featured_companies_file=None):
     """规范化文本中的公司名称"""
     company_map = build_company_map(featured_companies_file)
     sorted_companies = sorted(company_map.items(), key=lambda x: -len(x[0]))
-    replaced_ranges = []
 
     for search_key, info in sorted_companies:
         display = info['display']
         if display in text:
             continue
         pattern = rf'(?<!\$)(?<![a-zA-Z]){re.escape(search_key)}(?!\s*[（(][^）)]*\$[A-Z]+[）)])(?![a-zA-Z])'
+        replaced_ranges = []
 
         def replace_if_not_overlapping(match):
             start, end = match.span()
@@ -114,10 +122,11 @@ def timestamp_to_seconds(ts):
     return parts[0] * 60 + parts[1]
 
 
+# NOTE: Reserved for cross-podcast aggregation. Not called within this file.
 def generate_investment_strategy(signals, ticker_map=None):
     """使用 Gemini 分析所有信号，生成综合投资建议（保留供跨播客聚合使用）"""
     try:
-        client = get_gemini_client()
+        client = _get_client()
     except Exception:
         return None
 
@@ -153,7 +162,7 @@ def generate_investment_strategy(signals, ticker_map=None):
 
 def load_episode_metadata(transcript_file):
     """从转录文件所在目录加载元数据"""
-    episode_dir = os.path.dirname(transcript_file)
+    episode_dir = os.path.dirname(os.path.abspath(transcript_file))
     for filename in os.listdir(episode_dir):
         if filename.endswith('_metadata.json'):
             try:
@@ -209,7 +218,7 @@ def merge_segments_into_paragraphs(segments, start_sec, end_sec, context_sec=15)
 def polish_excerpt_with_llm(paragraphs, ticker_map=None):
     """使用 Gemini 润色原文摘录"""
     try:
-        client = get_gemini_client()
+        client = _get_client()
     except Exception:
         return None
 
