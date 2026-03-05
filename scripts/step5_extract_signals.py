@@ -18,57 +18,16 @@
 import json
 import os
 import sys
-from google import genai
 from google.genai import types
+from gemini_utils import get_gemini_client, get_project_id, ensure_credentials, DEFAULT_MODEL
 
 # 配置
 LOCATION = "global"
-GEMINI_MODEL = "gemini-3-pro-preview"
+GEMINI_MODEL = DEFAULT_MODEL
 
-def get_sa_key_path():
-    """从环境变量或 .env 获取 service account key 路径"""
-    # 先尝试环境变量
-    key_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-    if key_path and os.path.exists(key_path):
-        return key_path
-
-    # 尝试从 .env 读取
-    env_file = '.env'
-    if os.path.exists(env_file):
-        with open(env_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith('GOOGLE_APPLICATION_CREDENTIALS='):
-                    key_path = line.split('=', 1)[1].strip()
-                    if os.path.exists(key_path):
-                        return key_path
-
-    return None
-
-def get_project_id():
-    """获取 Google Cloud Project ID"""
-    # 从 service account key 读取
-    sa_key_path = get_sa_key_path()
-    if sa_key_path and os.path.exists(sa_key_path):
-        try:
-            with open(sa_key_path, 'r') as f:
-                data = json.load(f)
-                project_id = data.get('project_id')
-                if project_id:
-                    return project_id
-        except:
-            pass
-
-    # 从环境变量读取
-    project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-    if project_id:
-        return project_id
-
-    raise ValueError("未找到 project_id，请设置 GOOGLE_CLOUD_PROJECT 环境变量或配置 service account key")
-
-def load_watchlist(watchlist_file='default_watchlist.json'):
+def load_featured_companies(featured_companies_file='default_featured_companies.json'):
     """加载关注公司列表"""
-    with open(watchlist_file, 'r', encoding='utf-8') as f:
+    with open(featured_companies_file, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def calculate_time_range(seg_ids, transcript_segments, buffer_seconds=10):
@@ -88,19 +47,19 @@ def calculate_time_range(seg_ids, transcript_segments, buffer_seconds=10):
 
     # 查找对应的 segments
     matching_segs = []
-    seg_id_set = set(seg_ids)
+    seg_id_set = set(int(x) for x in seg_ids)
 
     for seg in transcript_segments:
         seg_id = seg.get('seg_id') if 'seg_id' in seg else seg.get('id')
-        if seg_id in seg_id_set:
+        if seg_id is not None and int(seg_id) in seg_id_set:
             matching_segs.append(seg)
 
     if not matching_segs:
         return {}
 
     # 计算时间范围
-    start_seconds = min(seg['start_seconds'] for seg in matching_segs) - buffer_seconds
-    end_seconds = max(seg['end_seconds'] for seg in matching_segs) + buffer_seconds
+    start_seconds = min(seg.get('start_seconds', seg.get('start', 0)) for seg in matching_segs) - buffer_seconds
+    end_seconds = max(seg.get('end_seconds', seg.get('end', 0)) for seg in matching_segs) + buffer_seconds
 
     # 确保不超出边界
     start_seconds = max(0, start_seconds)
@@ -122,14 +81,6 @@ def calculate_time_range(seg_ids, transcript_segments, buffer_seconds=10):
 class GeminiSignalExtractor:
     def __init__(self, project_id=None, location=None, model=None):
         """初始化 Vertex AI 客户端"""
-        # 设置凭证
-        sa_key_path = get_sa_key_path()
-        if sa_key_path:
-            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = sa_key_path
-        else:
-            print("⚠️  未找到 GOOGLE_APPLICATION_CREDENTIALS")
-            print("   请在 .env 文件中配置或设置环境变量")
-
         self.project_id = project_id or get_project_id()
         self.location = location or LOCATION
         self.model_name = model or GEMINI_MODEL
@@ -137,13 +88,12 @@ class GeminiSignalExtractor:
         print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location} ({self.project_id})")
 
         # 初始化客户端
-        self.client = genai.Client(
-            vertexai=True,
-            project=self.project_id,
+        self.client = get_gemini_client(
+            project_id=self.project_id,
             location=self.location
         )
 
-    def build_extraction_prompt(self, segments, watchlist):
+    def build_extraction_prompt(self, segments, featured_companies):
         """构建信号提取 prompt"""
         # 为每个 segment 添加 seg_id（如果还没有）
         for i, seg in enumerate(segments):
@@ -157,17 +107,17 @@ class GeminiSignalExtractor:
             speaker = seg.get('speaker', 'Unknown')
             # 格式：[seg=187|00:20:12] 说话人: 文本
             text_with_timestamps.append(
-                f"[seg={seg_id}|{seg['start']}] {speaker}: {seg['text']}"
+                f"[seg={seg_id}|{seg.get('start', '00:00:00')}] {speaker}: {seg['text']}"
             )
 
         transcript_text = '\n'.join(text_with_timestamps)
 
-        # 构建 watchlist 字符串
-        watchlist_str = ', '.join([f"{c['company']} ({c.get('ticker', '')})" for c in watchlist['watchlist']])
+        # 构建 featured_companies 字符串
+        featured_companies_str = ', '.join([f"{c['company']} ({c.get('ticker', '')})" for c in featured_companies['featured_companies']])
 
         prompt = f"""你是"投资研究信号提取器"。目标：从播客转录中提取【可验证的投资线索】而不是摘要。
 
-关注公司：{watchlist_str}
+关注公司：{featured_companies_str}
 
 输入格式：每行为 [seg=ID|HH:MM:SS] 说话人: 文本
 注意：输入文本已经过轻度润色（添加标点、删除填充词），但保留了所有概率判断词（"我觉得"、"可能"、"相对来说"）和核心信息。
@@ -179,6 +129,11 @@ class GeminiSignalExtractor:
 4) **你可以看到完整播客对话，充分利用前后文信息**，识别跨段落的完整论证。
 5) 提取所有高质量信号，有多少提取多少；没有就输出空数组。
 6) 严格输出 JSON，不要输出任何解释。
+7) **实体必须是可投资的公司**：
+   - 如果提及的是品牌/子公司（如 Gucci、淘宝、YouTube、Instagram），必须识别其母公司（Kering、阿里巴巴、Google、Meta）
+   - ticker 必须是母公司的股票代码，不是品牌名
+   - 私有公司（如 SpaceX、字节跳动）ticker 填 null，type 填 "private"
+   - 不确定母公司时，尽力推断；实在不知道就保留原名并标注 type: "unknown"
 
 评估维度（每个维度只分两档，提高区分度）：
 
@@ -203,7 +158,7 @@ class GeminiSignalExtractor:
 {{
   "signal_candidates": [
     {{
-      "entities": [{{"name":"NVIDIA", "ticker": "NVDA"}}, {{"name":"Google", "ticker":"GOOGL"}}],
+      "entities": [{{"name":"...", "ticker": "...", "parent": "...(如有)", "type": "public|private|unknown"}}],
       "signal_type": "competition|product|valuation|demand|risk|supply_chain|regulation|capital_action|other",
       "claim": "详细判断（包含：核心事实 + 驱动因素/背景 + 投资意义，80-120字）",
       "evidence_seg_ids": [187, 188, 190],
@@ -232,9 +187,9 @@ class GeminiSignalExtractor:
 """
         return prompt
 
-    def extract_signals(self, segments, watchlist):
+    def extract_signals(self, segments, featured_companies):
         """一次性提取所有投资信号"""
-        prompt = self.build_extraction_prompt(segments, watchlist)
+        prompt = self.build_extraction_prompt(segments, featured_companies)
 
         try:
             print(f"   调用 Gemini 3 Pro（处理 {len(segments)} 段，约 {sum(len(s['text']) for s in segments)} 字）...")
@@ -292,26 +247,58 @@ class GeminiSignalExtractor:
             print(f"   原始文本: {text[:200]}...")
             return None
 
-def extract_all_signals_with_gemini(transcript_file, watchlist_file, output_file):
+def load_episode_metadata(transcript_file):
+    """
+    从 transcript 文件路径推断并加载 episode metadata
+
+    查找顺序：
+    1. 同目录下的 *_metadata.json
+    2. 返回空字典
+    """
+    transcript_dir = os.path.dirname(transcript_file)
+
+    # 查找 metadata 文件
+    for f in os.listdir(transcript_dir):
+        if f.endswith('_metadata.json'):
+            metadata_path = os.path.join(transcript_dir, f)
+            try:
+                with open(metadata_path, 'r', encoding='utf-8') as mf:
+                    metadata = json.load(mf)
+                    print(f"   ✓ 加载 metadata: {f}")
+                    return metadata
+            except Exception as e:
+                print(f"   ⚠️ 加载 metadata 失败: {e}")
+
+    return {}
+
+
+def extract_all_signals_with_gemini(transcript_file, featured_companies_file, output_file):
     """
     使用 Gemini 3 Pro 提取投资信号（一次性处理）
 
     Args:
         transcript_file: 转录文件路径
-        watchlist_file: 关注列表文件路径
+        featured_companies_file: 关注列表文件路径
         output_file: 输出文件路径
     """
     print("📖 加载转录和关注列表...")
     with open(transcript_file, 'r', encoding='utf-8') as f:
         transcript = json.load(f)
 
-    watchlist = load_watchlist(watchlist_file)
+    # 加载 episode metadata（包含日期信息）
+    episode_metadata = load_episode_metadata(transcript_file)
+
+    featured_companies = load_featured_companies(featured_companies_file)
 
     segments = transcript['segments']
-    print(f"   转录总时长: {segments[-1]['end']}")
+    if segments:
+        print(f"   转录总时长: {segments[-1]['end']}")
+    else:
+        print("   ⚠️ 转录为空")
+        return
     print(f"   总片段数: {len(segments)}")
     print(f"   总字符数: {sum(len(s['text']) for s in segments)}")
-    print(f"   关注公司: {len(watchlist['watchlist'])} 家")
+    print(f"   关注公司: {len(featured_companies['featured_companies'])} 家")
 
     # 初始化 Gemini
     extractor = GeminiSignalExtractor()
@@ -319,7 +306,7 @@ def extract_all_signals_with_gemini(transcript_file, watchlist_file, output_file
 
     # 一次性提取所有信号
     print(f"🔍 使用 Gemini 3 Pro 一次性提取所有投资信号...")
-    final_signals = extractor.extract_signals(segments, watchlist)
+    final_signals = extractor.extract_signals(segments, featured_companies)
 
     if final_signals:
         print(f"   ✓ 提取 {len(final_signals)} 个信号")
@@ -342,7 +329,12 @@ def extract_all_signals_with_gemini(transcript_file, watchlist_file, output_file
             'model': GEMINI_MODEL,
             'total_signals': len(final_signals),
             'companies_mentioned': sorted(list(all_companies)),
-            'context_length': sum(len(s['text']) for s in segments)
+            'context_length': sum(len(s['text']) for s in segments),
+            # 时间信息（用于后续验证）
+            'publish_date': episode_metadata.get('publish_date'),
+            'record_date': episode_metadata.get('record_date'),
+            'podcast_id': episode_metadata.get('podcast_id'),
+            'episode_id': episode_metadata.get('episode_id'),
         },
         'signals': final_signals
     }
@@ -398,16 +390,16 @@ def extract_all_signals_with_gemini(transcript_file, watchlist_file, output_file
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("用法: python step5_extract_signals.py <transcript_json> [watchlist_json] [output_json]")
+        print("用法: python step5_extract_signals.py <transcript_json> [featured_companies_json] [output_json]")
         print("")
         print("参数:")
         print("  transcript_json : 输入的润色后转录 JSON")
-        print("  watchlist_json  : 关注公司列表（可选，默认 default_watchlist.json）")
+        print("  featured_companies_json  : 关注公司列表（可选，默认 default_featured_companies.json）")
         print("  output_json     : 输出的信号 JSON（可选，默认 extracted_signals.json）")
         print("")
         print("示例:")
         print("  python step5_extract_signals.py transcript_polished.json")
-        print("  python step5_extract_signals.py transcript.json watchlist.json signals.json")
+        print("  python step5_extract_signals.py transcript.json featured_companies.json signals.json")
         print("")
         print("需要:")
         print("  - Vertex AI Service Account Key")
@@ -415,7 +407,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     transcript_file = sys.argv[1]
-    watchlist_file = sys.argv[2] if len(sys.argv) > 2 else 'default_watchlist.json'
+    featured_companies_file = sys.argv[2] if len(sys.argv) > 2 else 'default_featured_companies.json'
     output_file = sys.argv[3] if len(sys.argv) > 3 else 'extracted_signals.json'
 
-    extract_all_signals_with_gemini(transcript_file, watchlist_file, output_file)
+    extract_all_signals_with_gemini(transcript_file, featured_companies_file, output_file)

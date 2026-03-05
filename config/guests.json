@@ -1,0 +1,1039 @@
+{
+  "guests": {
+    "嘉宾（整体）": {
+      "id": "嘉宾（整体）",
+      "name": "嘉宾（整体）",
+      "profiles": [
+        {
+          "episode": "sv101_ep233",
+          "profile": {
+            "investment_style": {
+              "primary_type": "macro",
+              "description": "嘉宾注重宏观经济政策对市场的影响，结合增长和估值进行投资判断。",
+              "evidence": [
+                "其实大家可以想一想，过去多少年，哪一年宏观没有影响呢？",
+                "我们一直觉得这个增长，2026年其实可能，尤其是美股，你估值相对来说在一个高位置上面了。"
+              ]
+            },
+            "risk_preference": {
+              "level": "moderate",
+              "description": "嘉宾在投资中表现出谨慎态度，关注估值和增长的平衡。",
+              "evidence": [
+                "我们其实是相对来说谨慎的，谨慎原因是两点，一个就是我们的financial conditions市场过紧了。"
+              ]
+            },
+            "expertise_areas": [
+              "AI相关投资",
+              "宏观经济政策"
+            ],
+            "focus_topics": [
+              "AI泡沫",
+              "芯片与黑天鹅"
+            ],
+            "speech_characteristics": {
+              "confidence_level": "medium",
+              "hedging_frequency": "medium",
+              "data_driven": true,
+              "typical_phrases": [
+                "我觉得",
+                "其实"
+              ]
+            },
+            "investment_philosophy": "嘉宾强调宏观经济政策对市场的影响，注重估值与增长的平衡，关注AI相关投资机会，同时保持对市场变化的敏感性。"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sv101_ep233",
+          "topics": [
+            "AMD",
+            "OpenAI",
+            "Oracle",
+            "NVIDIA",
+            "Synopsis",
+            "Broadcom",
+            "SpaceX",
+            "Google",
+            "NEOCloud"
+          ]
+        }
+      ],
+      "aggregated_profile": {
+        "investment_style": {
+          "primary_type": "macro",
+          "description": "嘉宾注重宏观经济政策对市场的影响，结合增长和估值进行投资判断。",
+          "evidence": [
+            "其实大家可以想一想，过去多少年，哪一年宏观没有影响呢？",
+            "我们一直觉得这个增长，2026年其实可能，尤其是美股，你估值相对来说在一个高位置上面了。"
+          ]
+        },
+        "risk_preference": {
+          "level": "moderate",
+          "description": "嘉宾在投资中表现出谨慎态度，关注估值和增长的平衡。",
+          "evidence": [
+            "我们其实是相对来说谨慎的，谨慎原因是两点，一个就是我们的financial conditions市场过紧了。"
+          ]
+        },
+        "expertise_areas": [
+          "AI相关投资",
+          "宏观经济政策"
+        ],
+        "focus_topics": [
+          "AI泡沫",
+          "芯片与黑天鹅"
+        ],
+        "speech_characteristics": {
+          "confidence_level": "medium",
+          "hedging_frequency": "medium",
+          "data_driven": true,
+          "typical_phrases": [
+            "我觉得",
+            "其实"
+          ]
+        },
+        "investment_philosophy": "嘉宾强调宏观经济政策对市场的影响，注重估值与增长的平衡，关注AI相关投资机会，同时保持对市场变化的敏感性。"
+      }
+    },
+    "齿牙": {
+      "id": "齿牙",
+      "name": "齿牙",
+      "background": {
+        "name": "齿牙",
+        "current_role": "淘宝服饰趋势小二",
+        "company": "淘宝",
+        "social_media": {
+          "twitter": "",
+          "linkedin": ""
+        },
+        "credibility_notes": "由于信息来源有限，无法找到关于齿牙的详细背景资料。齿牙可能是淘宝内部的职位名称或昵称，而非个人的真实姓名。"
+      },
+      "profiles": [
+        {
+          "episode": "sv101_ep235",
+          "profile": {
+            "investment_style": {
+              "primary_type": "trend",
+              "description": "关注市场趋势和流行文化变化进行投资决策",
+              "evidence": [
+                "所以我們最終給到商家輸出的行業方向就是往寬鬆和溶爛的方向去走。",
+                "流行文化是最直接能應射在我們服飾品類上的，就是當時在流行什麼樣的文化，就會立馬應射到我們穿的衣服上面。"
+              ]
+            },
+            "risk_preference": {
+              "level": "moderate",
+              "description": "在不确定因素增加时采取防御性策略，但仍关注趋势机会",
+              "evidence": [
+                "擴對庫可以是配很多種場景，可以是配很多種生產，所以從使用價值和它是配的場景來說，這非常高的，也就是成了這個週期裡面大家會選擇的品類。"
+              ]
+            },
+            "expertise_areas": [
+              "服饰趋势分析",
+              "流行文化"
+            ],
+            "focus_topics": [
+              "服装品类发展历史",
+              "流行文化对服饰的影响"
+            ],
+            "speech_characteristics": {
+              "confidence_level": "medium",
+              "hedging_frequency": "medium",
+              "data_driven": true,
+              "typical_phrases": [
+                "其實",
+                "剛好",
+                "這個時候"
+              ]
+            },
+            "investment_philosophy": "通过分析市场趋势和流行文化的变化来指导投资决策，关注消费者行为和社会思潮的转变，以适应市场需求。"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sv101_ep235",
+          "topics": []
+        }
+      ],
+      "aggregated_profile": {
+        "investment_style": {
+          "primary_type": "trend",
+          "description": "关注市场趋势和流行文化变化进行投资决策",
+          "evidence": [
+            "所以我們最終給到商家輸出的行業方向就是往寬鬆和溶爛的方向去走。",
+            "流行文化是最直接能應射在我們服飾品類上的，就是當時在流行什麼樣的文化，就會立馬應射到我們穿的衣服上面。"
+          ]
+        },
+        "risk_preference": {
+          "level": "moderate",
+          "description": "在不确定因素增加时采取防御性策略，但仍关注趋势机会",
+          "evidence": [
+            "擴對庫可以是配很多種場景，可以是配很多種生產，所以從使用價值和它是配的場景來說，這非常高的，也就是成了這個週期裡面大家會選擇的品類。"
+          ]
+        },
+        "expertise_areas": [
+          "服饰趋势分析",
+          "流行文化"
+        ],
+        "focus_topics": [
+          "服装品类发展历史",
+          "流行文化对服饰的影响"
+        ],
+        "speech_characteristics": {
+          "confidence_level": "medium",
+          "hedging_frequency": "medium",
+          "data_driven": true,
+          "typical_phrases": [
+            "其實",
+            "剛好",
+            "這個時候"
+          ]
+        },
+        "investment_philosophy": "通过分析市场趋势和流行文化的变化来指导投资决策，关注消费者行为和社会思潮的转变，以适应市场需求。"
+      }
+    },
+    "老马": {
+      "id": "老马",
+      "name": "老马",
+      "background": {
+        "name": "老马",
+        "current_role": "时尚博主",
+        "company": "Marius",
+        "career_history": [
+          "女装品牌Marius创始人"
+        ],
+        "expertise_domains": [
+          "时尚",
+          "女装设计"
+        ],
+        "social_media": {
+          "twitter": "",
+          "linkedin": ""
+        },
+        "credibility_notes": "由于缺乏具体的公开信息，无法确认更多详细背景。"
+      },
+      "profiles": [
+        {
+          "episode": "sv101_ep235",
+          "profile": {
+            "investment_style": {
+              "primary_type": "trend",
+              "description": "关注流行趋势和市场变化，结合自身品牌理念进行投资。",
+              "evidence": [
+                "我會經常跟一些國外的設計師, 創意總監去交流, 去不斷的獲取國外的一些流行趨勢。",
+                "對於潮流的理解應該進行二次加工。"
+              ]
+            },
+            "risk_preference": {
+              "level": "moderate",
+              "description": "在追求流行趋势的同时，保持对品牌长期主张的坚持。",
+              "evidence": [
+                "我始終堅信的是在未來的五年十年修身庫還會回歸, 那這是我的主張。"
+              ]
+            },
+            "expertise_areas": [
+              "时尚",
+              "女装设计"
+            ],
+            "focus_topics": [
+              "流行趋势",
+              "品牌长期主张"
+            ],
+            "speech_characteristics": {
+              "confidence_level": "high",
+              "hedging_frequency": "low",
+              "data_driven": true,
+              "typical_phrases": [
+                "我始終堅信",
+                "我覺得"
+              ]
+            },
+            "investment_philosophy": "结合流行趋势和品牌长期主张进行投资，注重产品的创新和市场需求的变化。坚持品牌的核心理念，同时灵活应对市场的快速变化。"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sv101_ep235",
+          "topics": []
+        }
+      ],
+      "aggregated_profile": {
+        "investment_style": {
+          "primary_type": "trend",
+          "description": "关注流行趋势和市场变化，结合自身品牌理念进行投资。",
+          "evidence": [
+            "我會經常跟一些國外的設計師, 創意總監去交流, 去不斷的獲取國外的一些流行趨勢。",
+            "對於潮流的理解應該進行二次加工。"
+          ]
+        },
+        "risk_preference": {
+          "level": "moderate",
+          "description": "在追求流行趋势的同时，保持对品牌长期主张的坚持。",
+          "evidence": [
+            "我始終堅信的是在未來的五年十年修身庫還會回歸, 那這是我的主張。"
+          ]
+        },
+        "expertise_areas": [
+          "时尚",
+          "女装设计"
+        ],
+        "focus_topics": [
+          "流行趋势",
+          "品牌长期主张"
+        ],
+        "speech_characteristics": {
+          "confidence_level": "high",
+          "hedging_frequency": "low",
+          "data_driven": true,
+          "typical_phrases": [
+            "我始終堅信",
+            "我覺得"
+          ]
+        },
+        "investment_philosophy": "结合流行趋势和品牌长期主张进行投资，注重产品的创新和市场需求的变化。坚持品牌的核心理念，同时灵活应对市场的快速变化。"
+      }
+    },
+    "星辰": {
+      "id": "星辰",
+      "name": "星辰",
+      "background": {
+        "name": "星辰",
+        "social_media": {
+          "twitter": "",
+          "linkedin": ""
+        },
+        "credibility_notes": "由于缺乏具体信息和唯一标识，无法确认星辰的背景资料。"
+      },
+      "profiles": [
+        {
+          "episode": "sandianxiaban_ep6989aaab66e2c303779f2f90",
+          "profile": {
+            "investment_style": {
+              "primary_type": "value",
+              "description": "星辰倾向于投资具有长期价值和稳定收益的股票，尤其是在低估时买入。",
+              "evidence": [
+                "我感觉我身边可能现在偏价值的比较多。",
+                "我最近不是说的那个移动运营商嘛，等等那我就看有人做了策略嘛，说你现在拿的话可能是十四年回本对吧。"
+              ]
+            },
+            "risk_preference": {
+              "level": "moderate",
+              "description": "星辰在投资时注重安全边际，选择不容易亏损的股票。",
+              "evidence": [
+                "我现在考虑主要是安全编辑。",
+                "我追求的是我买的是这十几个品种都不亏钱。"
+              ]
+            },
+            "expertise_areas": [
+              "消费品",
+              "商业航天"
+            ],
+            "focus_topics": [
+              "信息不对称",
+              "商业航天",
+              "消费行业"
+            ],
+            "speech_characteristics": {
+              "confidence_level": "medium",
+              "hedging_frequency": "medium",
+              "data_driven": true,
+              "typical_phrases": [
+                "我觉得",
+                "在我看来",
+                "其实"
+              ]
+            },
+            "investment_philosophy": "星辰认为在市场低估时应乐观投资，而在市场高估时应保持谨慎。通过价值投资和安全边际来实现长期稳定的收益。"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sandianxiaban_ep6989aaab66e2c303779f2f90",
+          "topics": []
+        }
+      ],
+      "aggregated_profile": {
+        "investment_style": {
+          "primary_type": "value",
+          "description": "星辰倾向于投资具有长期价值和稳定收益的股票，尤其是在低估时买入。",
+          "evidence": [
+            "我感觉我身边可能现在偏价值的比较多。",
+            "我最近不是说的那个移动运营商嘛，等等那我就看有人做了策略嘛，说你现在拿的话可能是十四年回本对吧。"
+          ]
+        },
+        "risk_preference": {
+          "level": "moderate",
+          "description": "星辰在投资时注重安全边际，选择不容易亏损的股票。",
+          "evidence": [
+            "我现在考虑主要是安全编辑。",
+            "我追求的是我买的是这十几个品种都不亏钱。"
+          ]
+        },
+        "expertise_areas": [
+          "消费品",
+          "商业航天"
+        ],
+        "focus_topics": [
+          "信息不对称",
+          "商业航天",
+          "消费行业"
+        ],
+        "speech_characteristics": {
+          "confidence_level": "medium",
+          "hedging_frequency": "medium",
+          "data_driven": true,
+          "typical_phrases": [
+            "我觉得",
+            "在我看来",
+            "其实"
+          ]
+        },
+        "investment_philosophy": "星辰认为在市场低估时应乐观投资，而在市场高估时应保持谨慎。通过价值投资和安全边际来实现长期稳定的收益。"
+      }
+    },
+    "陈哲": {
+      "id": "陈哲",
+      "name": "陈哲",
+      "background": {
+        "name": "陈哲",
+        "current_role": "创始人",
+        "company": "Alphaist Partners",
+        "social_media": {
+          "twitter": "",
+          "linkedin": ""
+        },
+        "credibility_notes": "由于缺乏公开的详细信息，无法提供完整的背景资料。"
+      },
+      "profiles": [
+        {
+          "episode": "sv101_ep185",
+          "profile": {
+            "investment_style": {
+              "primary_type": "growth",
+              "description": "关注技术创新和市场需求驱动的增长型投资",
+              "evidence": [
+                "我在去年底的時候成立了一家新的早期投資機構，關注海外全球華人的AI和機身領域的創業",
+                "隨著大遠模型的成熟，這樣一個錄音產品打破了傳統錄音筆只能錄音和transcribe的這個價值"
+              ]
+            },
+            "risk_preference": {
+              "level": "aggressive",
+              "description": "愿意投资于早期和创新型企业，承担较高风险以获取高回报",
+              "evidence": [
+                "成立了一家新的早期投資機構",
+                "中國公司的創新速度和跌代速度可以達到海外廠商的多倍"
+              ]
+            },
+            "expertise_areas": [
+              "AI技术",
+              "消费电子"
+            ],
+            "focus_topics": [
+              "AI赋能产品",
+              "中国品牌的国际化"
+            ],
+            "speech_characteristics": {
+              "confidence_level": "high",
+              "hedging_frequency": "low",
+              "data_driven": true,
+              "typical_phrases": [
+                "我覺得",
+                "這是一個非常好的信號"
+              ]
+            },
+            "investment_philosophy": "陈哲关注技术创新和市场需求的结合，尤其是AI技术如何赋能传统产品。他相信中国品牌在国际市场上的崛起，并且愿意承担高风险以获取潜在的高回报。"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sv101_ep185",
+          "topics": []
+        }
+      ],
+      "aggregated_profile": {
+        "investment_style": {
+          "primary_type": "growth",
+          "description": "关注技术创新和市场需求驱动的增长型投资",
+          "evidence": [
+            "我在去年底的時候成立了一家新的早期投資機構，關注海外全球華人的AI和機身領域的創業",
+            "隨著大遠模型的成熟，這樣一個錄音產品打破了傳統錄音筆只能錄音和transcribe的這個價值"
+          ]
+        },
+        "risk_preference": {
+          "level": "aggressive",
+          "description": "愿意投资于早期和创新型企业，承担较高风险以获取高回报",
+          "evidence": [
+            "成立了一家新的早期投資機構",
+            "中國公司的創新速度和跌代速度可以達到海外廠商的多倍"
+          ]
+        },
+        "expertise_areas": [
+          "AI技术",
+          "消费电子"
+        ],
+        "focus_topics": [
+          "AI赋能产品",
+          "中国品牌的国际化"
+        ],
+        "speech_characteristics": {
+          "confidence_level": "high",
+          "hedging_frequency": "low",
+          "data_driven": true,
+          "typical_phrases": [
+            "我覺得",
+            "這是一個非常好的信號"
+          ]
+        },
+        "investment_philosophy": "陈哲关注技术创新和市场需求的结合，尤其是AI技术如何赋能传统产品。他相信中国品牌在国际市场上的崛起，并且愿意承担高风险以获取潜在的高回报。"
+      }
+    },
+    "周健工": {
+      "id": "周健工",
+      "name": "周健工",
+      "background": {
+        "name": "周健工",
+        "current_role": "创始人",
+        "company": "未尽研究",
+        "education": [
+          "约翰·霍普金斯大学高级国际问题研究院 (SAIS) 国际公共政策硕士"
+        ],
+        "career_history": [
+          "未尽研究 创始人 (当前)",
+          "第一财经 (Yicai) 首席执行官 (CEO)",
+          "《福布斯》中文版 (Forbes China) 总编辑、总裁",
+          "《南风窗》杂志 主笔"
+        ],
+        "expertise_domains": [
+          "人工智能与前沿科技趋势",
+          "商业与宏观经济研究",
+          "科技企业战略与创新分析",
+          "媒体与内容产业"
+        ],
+        "known_views": [
+          "生成式AI（AIGC）是通用目的技术，将深刻重塑劳动力市场、企业组织架构与全球经济结构。",
+          "中国在AI应用层和商业化落地方面具有巨大潜力，但在底层大模型基础研究和算力生态上仍面临挑战。",
+          "AI时代的竞争不仅是技术的竞争，更是数据质量、算力基础设施以及与垂直行业深度融合能力的竞争。"
+        ],
+        "social_media": {
+          "twitter": "",
+          "linkedin": ""
+        },
+        "credibility_notes": "信息来源于其在《福布斯》中文版、第一财经的公开高管履历，以及近期作为智库机构“未尽研究”创始人的公开演讲、研究报告和出版物。其核心背景为资深媒体人与科技商业研究者，无公开的职业基金管理或风险投资记录，因此投资经历为空。"
+      },
+      "profiles": [
+        {
+          "episode": "sv101_ep239",
+          "profile": {
+            "investment_style": {
+              "primary_type": "trend",
+              "description": "偏好前沿科技与宏观产业趋势驱动的长期价值挖掘，注重底层技术路线演进与通用目的技术对经济的重塑。",
+              "evidence": [
+                "生成式AI（AIGC）是通用目的技术，将深刻重塑劳动力市场、企业组织架构与全球经济结构。",
+                "AGI它作为一个技术也好，或者我也称之为一个技术浪潮也好，确实是从哈萨比斯和他这个创业团队，还有DeepMind这家公司发起的。"
+              ]
+            },
+            "risk_preference": {
+              "level": "moderate",
+              "description": "看重技术愿景与实际落地能力的结合，警惕脱离算力基础与工程实践的纯理论空谈。",
+              "evidence": [
+                "因为他们的算力有限，资源有限，最后就没有能够兑现他们的承诺。",
+                "如果你不能把一个东西造出来，你就不能真正理解它，所以他真正是一个知行合一的人...他实际上不是一个空谈的科学家，他是一个实践的一个科学家。"
+              ]
+            },
+            "expertise_areas": [
+              "人工智能与前沿科技趋势",
+              "科技企业战略与创新分析",
+              "商业与宏观经济研究",
+              "媒体与内容产业"
+            ],
+            "focus_topics": [
+              "AGI (通用人工智能) 的演进路径",
+              "强化学习与底层大模型技术",
+              "AI算力生态与商业化落地",
+              "科技领军人物的创业史与动机"
+            ],
+            "speech_characteristics": {
+              "confidence_level": "high",
+              "hedging_frequency": "low",
+              "data_driven": true,
+              "typical_phrases": [
+                "我觉得",
+                "我印象最深的",
+                "非常典型的",
+                "最底层的"
+              ]
+            },
+            "investment_philosophy": "坚信生成式AI是重塑全球经济的通用目的技术，研究与投资应聚焦于引领技术浪潮的核心人物及底层技术路线（如强化学习）。强调“知行合一”，看重技术在实际环境中的工程化落地能力以及底层算力生态的支撑，而非单纯的理论空谈。"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sv101_ep239",
+          "topics": []
+        }
+      ],
+      "aggregated_profile": {
+        "investment_style": {
+          "primary_type": "trend",
+          "description": "偏好前沿科技与宏观产业趋势驱动的长期价值挖掘，注重底层技术路线演进与通用目的技术对经济的重塑。",
+          "evidence": [
+            "生成式AI（AIGC）是通用目的技术，将深刻重塑劳动力市场、企业组织架构与全球经济结构。",
+            "AGI它作为一个技术也好，或者我也称之为一个技术浪潮也好，确实是从哈萨比斯和他这个创业团队，还有DeepMind这家公司发起的。"
+          ]
+        },
+        "risk_preference": {
+          "level": "moderate",
+          "description": "看重技术愿景与实际落地能力的结合，警惕脱离算力基础与工程实践的纯理论空谈。",
+          "evidence": [
+            "因为他们的算力有限，资源有限，最后就没有能够兑现他们的承诺。",
+            "如果你不能把一个东西造出来，你就不能真正理解它，所以他真正是一个知行合一的人...他实际上不是一个空谈的科学家，他是一个实践的一个科学家。"
+          ]
+        },
+        "expertise_areas": [
+          "人工智能与前沿科技趋势",
+          "科技企业战略与创新分析",
+          "商业与宏观经济研究",
+          "媒体与内容产业"
+        ],
+        "focus_topics": [
+          "AGI (通用人工智能) 的演进路径",
+          "强化学习与底层大模型技术",
+          "AI算力生态与商业化落地",
+          "科技领军人物的创业史与动机"
+        ],
+        "speech_characteristics": {
+          "confidence_level": "high",
+          "hedging_frequency": "low",
+          "data_driven": true,
+          "typical_phrases": [
+            "我觉得",
+            "我印象最深的",
+            "非常典型的",
+            "最底层的"
+          ]
+        },
+        "investment_philosophy": "坚信生成式AI是重塑全球经济的通用目的技术，研究与投资应聚焦于引领技术浪潮的核心人物及底层技术路线（如强化学习）。强调“知行合一”，看重技术在实际环境中的工程化落地能力以及底层算力生态的支撑，而非单纯的理论空谈。"
+      }
+    },
+    "徐栋": {
+      "id": "徐栋",
+      "name": "徐栋",
+      "background": {
+        "name": "徐栋",
+        "current_role": "千问大模型业务总经理",
+        "company": "阿里云",
+        "career_history": [
+          "阿里云千问大模型业务总经理",
+          "阿里云智能集团业务线高级管理职务"
+        ],
+        "expertise_domains": [
+          "人工智能 (AI)",
+          "大语言模型 (LLM)",
+          "云计算",
+          "企业级AI应用与商业化落地",
+          "MaaS (模型即服务) 架构"
+        ],
+        "known_views": [
+          "开源开放是繁荣大模型生态的关键，阿里云致力于通过全面开源通义千问（Qwen）系列模型，降低开发者和企业的使用门槛。",
+          "大模型技术正在重塑企业IT架构，MaaS（模型即服务）将成为云计算的核心服务模式。",
+          "大模型的真正商业价值在于产业落地，必须与千行百业的具体业务场景深度结合，推动企业构建专属大模型和AI智能体（Agent）以实现智能化转型。"
+        ],
+        "social_media": {
+          "twitter": "",
+          "linkedin": ""
+        },
+        "credibility_notes": "徐栋作为阿里云通义千问大模型业务的商业化与业务负责人，多次代表阿里云出席各类AI、云计算行业大会（如云栖大会等）并发表主题演讲。其公开信息多集中于阿里云大模型的商业化落地、开源生态建设及MaaS服务战略。由于其主要身份为科技企业高管而非职业投资人，故无公开的基金管理与投资记录；此外，其早期教育背景及详细的个人过往履历在公开渠道披露较少，因此部分个人背景信息留空。"
+      },
+      "profiles": [
+        {
+          "episode": "sv101_ep236",
+          "profile": {
+            "investment_style": {
+              "primary_type": "trend",
+              "description": "聚焦AI前沿技术演进趋势，看重技术在真实生产环节的商业化落地与ROI闭环。",
+              "evidence": [
+                "最近这一年有大量AI Native公司，他们通过模型获取了不少非常不错的一些成果，他们在很多碎片化的一些市场里面都达到了非常好的一个Ry (ROI)",
+                "今天我们看到视频生成模型可以进入到一些生产化的领域，比如说最近很火的AI曼居"
+              ]
+            },
+            "risk_preference": {
+              "level": "moderate",
+              "description": "在拥抱前沿技术创新的同时，高度关注成本控制、模型可控性及商业变现的确定性。",
+              "evidence": [
+                "AI的成本能够控制在10元以下或者15元以下，那他其实就可以在市场上有比较好的一个商业的空间",
+                "今天在变大的同时，它的模型的可控性变高了，所以我们今天看到很多复杂指令的能力越来越强"
+              ]
+            },
+            "expertise_areas": [
+              "人工智能与大语言模型 (LLM)",
+              "多模态大模型 (视觉生成、音频)",
+              "企业级AI应用与商业化落地",
+              "云计算与MaaS架构"
+            ],
+            "focus_topics": [
+              "视频生成模型与AI短剧/广告商业化",
+              "Agent与复杂工具调用 (Tool use)",
+              "模型推理成本优化与性能提升",
+              "AI多模态交互与硬件结合"
+            ],
+            "speech_characteristics": {
+              "confidence_level": "high",
+              "hedging_frequency": "medium",
+              "data_driven": true,
+              "typical_phrases": [
+                "今天我们看到",
+                "我个人体感上来说",
+                "这是一个非常明显的趋势",
+                "精耕细作"
+              ]
+            },
+            "investment_philosophy": "坚信大模型技术将重塑企业生产环节，看好AI在多模态生成和Agent领域的商业化潜力。主张通过底层技术迭代（如模型稀疏化、长上下文）降低推理成本、提升模型可控性，从而赋能企业实现高ROI的商业闭环。"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sv101_ep236",
+          "topics": []
+        }
+      ],
+      "aggregated_profile": {
+        "investment_style": {
+          "primary_type": "trend",
+          "description": "聚焦AI前沿技术演进趋势，看重技术在真实生产环节的商业化落地与ROI闭环。",
+          "evidence": [
+            "最近这一年有大量AI Native公司，他们通过模型获取了不少非常不错的一些成果，他们在很多碎片化的一些市场里面都达到了非常好的一个Ry (ROI)",
+            "今天我们看到视频生成模型可以进入到一些生产化的领域，比如说最近很火的AI曼居"
+          ]
+        },
+        "risk_preference": {
+          "level": "moderate",
+          "description": "在拥抱前沿技术创新的同时，高度关注成本控制、模型可控性及商业变现的确定性。",
+          "evidence": [
+            "AI的成本能够控制在10元以下或者15元以下，那他其实就可以在市场上有比较好的一个商业的空间",
+            "今天在变大的同时，它的模型的可控性变高了，所以我们今天看到很多复杂指令的能力越来越强"
+          ]
+        },
+        "expertise_areas": [
+          "人工智能与大语言模型 (LLM)",
+          "多模态大模型 (视觉生成、音频)",
+          "企业级AI应用与商业化落地",
+          "云计算与MaaS架构"
+        ],
+        "focus_topics": [
+          "视频生成模型与AI短剧/广告商业化",
+          "Agent与复杂工具调用 (Tool use)",
+          "模型推理成本优化与性能提升",
+          "AI多模态交互与硬件结合"
+        ],
+        "speech_characteristics": {
+          "confidence_level": "high",
+          "hedging_frequency": "medium",
+          "data_driven": true,
+          "typical_phrases": [
+            "今天我们看到",
+            "我个人体感上来说",
+            "这是一个非常明显的趋势",
+            "精耕细作"
+          ]
+        },
+        "investment_philosophy": "坚信大模型技术将重塑企业生产环节，看好AI在多模态生成和Agent领域的商业化潜力。主张通过底层技术迭代（如模型稀疏化、长上下文）降低推理成本、提升模型可控性，从而赋能企业实现高ROI的商业闭环。"
+      }
+    },
+    "吕瀛杰": {
+      "id": "吕瀛杰",
+      "name": "吕瀛杰",
+      "background": {
+        "name": "吕瀛杰",
+        "current_role": "联合创始人",
+        "company": "语忆科技 (Yuyi Technology)",
+        "education": [
+          "罗格斯大学 (Rutgers University) 学士"
+        ],
+        "career_history": [
+          "2016年至今：联合创立杭州语忆科技有限公司，深耕自然语言处理（NLP）技术在企业服务及客户沟通管理领域的商业化落地"
+        ],
+        "expertise_domains": [
+          "自然语言处理 (NLP)",
+          "人工智能 (AI) 与大模型应用",
+          "SaaS企业服务",
+          "客户沟通管理 (CCM)",
+          "电商与消费品行业数字化赋能"
+        ],
+        "known_views": [
+          "AI技术能够帮助企业将客服与销售部门从单纯的'成本中心'转化为'利润中心'。",
+          "通过对全量对话数据进行细粒度的情绪与语义分析，企业能有效提升销售转化率、降低客户流失率并优化管理流程。",
+          "垂直领域的AI落地不仅需要底层算法能力，更需要与实际业务场景、行业Know-how以及高质量的行业数据深度结合。"
+        ],
+        "social_media": {
+          "twitter": "",
+          "linkedin": ""
+        },
+        "credibility_notes": "信息基于语忆科技公开的创业与融资报道整理。注：公开资料显示语忆科技的CEO通常为孙宇琦，吕瀛杰为核心联合创始人，部分外部资料可能存在Title混用。此外，吕瀛杰主要身份为科技领域的创业者而非职业投资人，故无基金管理和投资案例记录。"
+      },
+      "profiles": [
+        {
+          "episode": "sv101_ep236",
+          "profile": {
+            "investment_style": {
+              "primary_type": "value",
+              "description": "关注前沿技术（AI/NLP）在垂直商业场景中的实际落地与价值创造，注重商业模式的健康度与底层逻辑的改善。",
+              "evidence": [
+                "AI技术能够帮助企业将客服与销售部门从单纯的'成本中心'转化为'利润中心'。",
+                "AI其实对2B SaaS这个行业来说在客户收费意识教育上是起到了非常好的效果...就是中国2B SaaS的收费底层逻辑的一个改善。"
+              ]
+            },
+            "risk_preference": {
+              "level": "moderate",
+              "description": "在拥抱AI新技术的同时注重实际效果与成本控制，不盲目依赖通用大模型，而是结合垂直模型解决具体商业问题。",
+              "evidence": [
+                "他们自己做的话他们的准确率其实是连70%都没有办法达到，我们其实就是想帮他去解决这个问题。",
+                "我们只做了一个非常垂直的，就是不同行业的消费者意图识别的这样一个小模型。"
+              ]
+            },
+            "expertise_areas": [
+              "自然语言处理 (NLP) 与大模型应用",
+              "SaaS企业服务",
+              "消费者洞察与客户沟通管理 (CCM)",
+              "电商与消费品行业数字化赋能"
+            ],
+            "focus_topics": [
+              "大模型在B端的垂直应用与意图识别",
+              "2B SaaS的收费模式与商业化落地",
+              "消费品企业的流量与消费者思维转换",
+              "人机协同与AI时代的数据洞察"
+            ],
+            "speech_characteristics": {
+              "confidence_level": "high",
+              "hedging_frequency": "medium",
+              "data_driven": true,
+              "typical_phrases": [
+                "其实",
+                "举个例子",
+                "底层逻辑",
+                "意图识别"
+              ]
+            },
+            "investment_philosophy": "坚信AI等前沿技术的核心价值在于垂直场景的商业化落地，能够切实解决企业痛点并重塑商业模式（如SaaS收费逻辑）。同时认为技术本质是工具，真正的商业壁垒和竞争力依然来源于人类对数据的深度洞察与优秀的产品体验。"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sv101_ep236",
+          "topics": []
+        }
+      ],
+      "aggregated_profile": {
+        "investment_style": {
+          "primary_type": "value",
+          "description": "关注前沿技术（AI/NLP）在垂直商业场景中的实际落地与价值创造，注重商业模式的健康度与底层逻辑的改善。",
+          "evidence": [
+            "AI技术能够帮助企业将客服与销售部门从单纯的'成本中心'转化为'利润中心'。",
+            "AI其实对2B SaaS这个行业来说在客户收费意识教育上是起到了非常好的效果...就是中国2B SaaS的收费底层逻辑的一个改善。"
+          ]
+        },
+        "risk_preference": {
+          "level": "moderate",
+          "description": "在拥抱AI新技术的同时注重实际效果与成本控制，不盲目依赖通用大模型，而是结合垂直模型解决具体商业问题。",
+          "evidence": [
+            "他们自己做的话他们的准确率其实是连70%都没有办法达到，我们其实就是想帮他去解决这个问题。",
+            "我们只做了一个非常垂直的，就是不同行业的消费者意图识别的这样一个小模型。"
+          ]
+        },
+        "expertise_areas": [
+          "自然语言处理 (NLP) 与大模型应用",
+          "SaaS企业服务",
+          "消费者洞察与客户沟通管理 (CCM)",
+          "电商与消费品行业数字化赋能"
+        ],
+        "focus_topics": [
+          "大模型在B端的垂直应用与意图识别",
+          "2B SaaS的收费模式与商业化落地",
+          "消费品企业的流量与消费者思维转换",
+          "人机协同与AI时代的数据洞察"
+        ],
+        "speech_characteristics": {
+          "confidence_level": "high",
+          "hedging_frequency": "medium",
+          "data_driven": true,
+          "typical_phrases": [
+            "其实",
+            "举个例子",
+            "底层逻辑",
+            "意图识别"
+          ]
+        },
+        "investment_philosophy": "坚信AI等前沿技术的核心价值在于垂直场景的商业化落地，能够切实解决企业痛点并重塑商业模式（如SaaS收费逻辑）。同时认为技术本质是工具，真正的商业壁垒和竞争力依然来源于人类对数据的深度洞察与优秀的产品体验。"
+      }
+    },
+    "亓鲁": {
+      "id": "亓鲁",
+      "name": "亓鲁",
+      "background": {
+        "name": "亓鲁",
+        "current_role": "研究院总监",
+        "company": "Insta360 (影石创新)",
+        "career_history": [
+          "Insta360 (影石创新) 研究院总监"
+        ],
+        "expertise_domains": [
+          "计算机视觉 (Computer Vision)",
+          "计算摄影 (Computational Photography)",
+          "人工智能与图像处理算法",
+          "全景影像与运动相机技术"
+        ],
+        "known_views": [
+          "AI技术（如自动取景、AI智能剪辑、隐形自拍杆算法等）能够大幅降低全景视频和运动相机的创作与后期门槛",
+          "计算摄影和AI算法是突破传统硬件与光学限制、提升全景相机画质及用户体验的核心驱动力"
+        ],
+        "social_media": {
+          "twitter": "",
+          "linkedin": ""
+        },
+        "credibility_notes": "亓鲁为影石创新（Insta360）的技术研发高管，主要负责AI与计算机视觉算法的研发管理。由于其属于企业内部技术专家而非职业投资人或高频曝光的公众人物，公开渠道关于其具体的教育背景、早期职业经历较少，且无投资经历。其专业领域与观点主要基于Insta360研究院公开的技术成果与行业方向进行总结推导。"
+      },
+      "profiles": [
+        {
+          "episode": "sv101_ep236",
+          "profile": {
+            "investment_style": {
+              "primary_type": "growth",
+              "description": "以用户需求和产品体验为导向，重点投入前沿AI技术（多模态、大模型）与核心算法研发，构建企业长期技术壁垒。",
+              "evidence": [
+                "如何把这些零散的片段能够智能的剪成一条拿得出手或者愿意分享的一些视频，是对于我们整个公司的战略是非常关键的一步",
+                "这正是影视的一个核心的技术壁垒吧，就是我们会通过自研的一套全景理解的模型，先对全景素材中进行一些更为高光的提取"
+              ]
+            },
+            "risk_preference": {
+              "level": "moderate",
+              "description": "在核心垂直领域坚持自研以把控风险和建立护城河，在通用技术领域积极寻求外部合作以提高效率、降低研发试错成本。",
+              "evidence": [
+                "影视这边会分为一些自研还有可以直接调用API的两部分吧",
+                "我们自研的部分的话更多的是基于全景的这一套多模态的理解模型吧，后面就是我们会更倾向于会用通用的这些大模型来帮助我们对平面素材的一些理解"
+              ]
+            },
+            "expertise_areas": [
+              "计算机视觉与计算摄影",
+              "多模态理解与视频生成模型",
+              "全景影像与运动相机技术",
+              "人工智能与图像处理算法"
+            ],
+            "focus_topics": [
+              "AI自动剪辑与用户意图识别",
+              "全景素材的高光提取与结构化编排",
+              "大模型在影像处理中的应用与落地",
+              "云端算力与世界模型的持续迭代"
+            ],
+            "speech_characteristics": {
+              "confidence_level": "high",
+              "hedging_frequency": "medium",
+              "data_driven": true,
+              "typical_phrases": [
+                "其实",
+                "对",
+                "就是说",
+                "核心的技术壁垒"
+              ]
+            },
+            "investment_philosophy": "技术研发与战略投资应以降低用户创作门槛、提升产品体验为核心目的。在垂直核心领域（如全景影像理解）坚持自研以构筑技术壁垒，在通用领域（如平面理解、云端算力）积极拥抱大模型生态与外部合作，通过“自研+生态”的务实模式推动技术落地与商业价值增长。"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sv101_ep236",
+          "topics": []
+        }
+      ],
+      "aggregated_profile": {
+        "investment_style": {
+          "primary_type": "growth",
+          "description": "以用户需求和产品体验为导向，重点投入前沿AI技术（多模态、大模型）与核心算法研发，构建企业长期技术壁垒。",
+          "evidence": [
+            "如何把这些零散的片段能够智能的剪成一条拿得出手或者愿意分享的一些视频，是对于我们整个公司的战略是非常关键的一步",
+            "这正是影视的一个核心的技术壁垒吧，就是我们会通过自研的一套全景理解的模型，先对全景素材中进行一些更为高光的提取"
+          ]
+        },
+        "risk_preference": {
+          "level": "moderate",
+          "description": "在核心垂直领域坚持自研以把控风险和建立护城河，在通用技术领域积极寻求外部合作以提高效率、降低研发试错成本。",
+          "evidence": [
+            "影视这边会分为一些自研还有可以直接调用API的两部分吧",
+            "我们自研的部分的话更多的是基于全景的这一套多模态的理解模型吧，后面就是我们会更倾向于会用通用的这些大模型来帮助我们对平面素材的一些理解"
+          ]
+        },
+        "expertise_areas": [
+          "计算机视觉与计算摄影",
+          "多模态理解与视频生成模型",
+          "全景影像与运动相机技术",
+          "人工智能与图像处理算法"
+        ],
+        "focus_topics": [
+          "AI自动剪辑与用户意图识别",
+          "全景素材的高光提取与结构化编排",
+          "大模型在影像处理中的应用与落地",
+          "云端算力与世界模型的持续迭代"
+        ],
+        "speech_characteristics": {
+          "confidence_level": "high",
+          "hedging_frequency": "medium",
+          "data_driven": true,
+          "typical_phrases": [
+            "其实",
+            "对",
+            "就是说",
+            "核心的技术壁垒"
+          ]
+        },
+        "investment_philosophy": "技术研发与战略投资应以降低用户创作门槛、提升产品体验为核心目的。在垂直核心领域（如全景影像理解）坚持自研以构筑技术壁垒，在通用领域（如平面理解、云端算力）积极拥抱大模型生态与外部合作，通过“自研+生态”的务实模式推动技术落地与商业价值增长。"
+      }
+    }
+  },
+  "_description": "嘉宾画像数据库，随着处理更多播客自动丰富",
+  "_schema": {
+    "guest_id": {
+      "id": "guest_id",
+      "name": "嘉宾姓名",
+      "profiles": [
+        {
+          "episode": "sv101_ep233",
+          "profile": {
+            "investment_style": {
+              "primary_type": "growth/value/trend/contrarian/macro",
+              "description": "投资风格描述",
+              "evidence": [
+                "原话证据"
+              ]
+            },
+            "risk_preference": {
+              "level": "aggressive/moderate/conservative",
+              "description": "风险偏好描述"
+            },
+            "expertise_areas": [
+              "专业领域"
+            ],
+            "focus_topics": [
+              "关注话题"
+            ],
+            "investment_philosophy": "投资理念"
+          }
+        }
+      ],
+      "appearances": [
+        {
+          "episode": "sv101_ep233",
+          "topics": [
+            "NVIDIA",
+            "AI"
+          ]
+        }
+      ],
+      "aggregated_profile": "聚合后的画像"
+    }
+  }
+}

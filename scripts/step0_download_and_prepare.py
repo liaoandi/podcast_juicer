@@ -18,32 +18,15 @@ import json
 import sys
 import os
 import subprocess
-from openai import AzureOpenAI
+from google.genai import types
+from gemini_utils import get_gemini_client, DEFAULT_MODEL, clean_json
 
-# Azure OpenAI 客户端
-api_key = os.environ.get('AZURE_OPENAI_API_KEY')
-if not api_key:
-    env_file = '.env'
-    if os.path.exists(env_file):
-        with open(env_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith('AZURE_OPENAI_API_KEY='):
-                    api_key = line.split('=', 1)[1].strip()
-                    break
+# 项目根目录
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-if not api_key:
-    print("⚠️  未找到 AZURE_OPENAI_API_KEY")
-    print("   请在 .env 文件中配置或设置环境变量")
-    sys.exit(1)
-
-client = AzureOpenAI(
-    api_key=api_key,
-    azure_endpoint="https://aigc-japan-east.openai.azure.com/",
-    api_version="2025-04-01-preview",
-    max_retries=2,
-    timeout=60.0,
-)
+# Gemini 配置
+GEMINI_MODEL = DEFAULT_MODEL
+LOCATION = "global"
 
 def download_audio(url, output_name):
     """
@@ -135,11 +118,12 @@ def extract_structured_show_notes(soup, url):
                 result['extraction_method'] = 'json-ld'
                 print(f"   ✓ JSON-LD: 找到结构化数据")
                 break
-        except:
+        except Exception:
             continue
 
     # 2. 尝试平台特定的 CSS selectors
-    if not result['show_notes']:
+    # 即使 JSON-LD 有内容，如果太短（<300字）也尝试 CSS 获取更完整的 show notes
+    if not result['show_notes'] or len(result['show_notes']) < 300:
         platform_selectors = {
             # Fireside (sv101.fireside.fm)
             'fireside': [
@@ -216,8 +200,8 @@ def extract_structured_show_notes(soup, url):
                         print(f"   ✓ 正则提取 {role}: {result[role]}")
                         break
 
-    # 4. Fallback: 使用 main/article
-    if not result['show_notes']:
+    # 4. Fallback: 使用 main/article（如果 show notes 仍然太短）
+    if not result['show_notes'] or len(result['show_notes']) < 300:
         main_content = (
             soup.find('main') or
             soup.find('article') or
@@ -274,13 +258,68 @@ def extract_page_info(url):
         # 3. **结构化提取 show notes**
         structured = extract_structured_show_notes(soup, url)
 
+        # 4. **提取发布日期**
+        publish_date = None
+        # 尝试多种来源
+        date_sources = [
+            # JSON-LD
+            ('script[type="application/ld+json"]', 'datePublished'),
+            # Meta tags
+            ('meta[property="article:published_time"]', 'content'),
+            ('meta[name="publish_date"]', 'content'),
+            ('meta[name="date"]', 'content'),
+            # Time tag
+            ('time[datetime]', 'datetime'),
+            ('time.published', 'datetime'),
+        ]
+
+        for selector, attr in date_sources:
+            if publish_date:
+                break
+            elements = soup.select(selector)
+            for el in elements:
+                if attr == 'datePublished' and el.string:
+                    # JSON-LD
+                    try:
+                        import json as json_module
+                        data = json_module.loads(el.string)
+                        if isinstance(data, dict):
+                            publish_date = data.get('datePublished') or data.get('uploadDate')
+                            if publish_date:
+                                break
+                    except Exception:
+                        pass
+                else:
+                    publish_date = el.get(attr)
+                    if publish_date:
+                        break
+
+        # 尝试从文本中提取日期
+        if not publish_date:
+            import re
+            # 常见日期格式
+            date_patterns = [
+                r'(\d{4}[-/]\d{1,2}[-/]\d{1,2})',  # 2025-01-15
+                r'(\d{1,2}[-/]\d{1,2}[-/]\d{4})',  # 01-15-2025
+                r'((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{1,2},? \d{4})',  # Jan 15, 2025
+            ]
+            page_text = soup.get_text()[:2000]
+            for pattern in date_patterns:
+                match = re.search(pattern, page_text, re.IGNORECASE)
+                if match:
+                    publish_date = match.group(1)
+                    break
+
         print(f"   ✓ 标题: {title_text[:80]}...")
         print(f"   ✓ 描述: {description[:100]}..." if description else "   - 未找到描述")
+        print(f"   ✓ 发布日期: {publish_date}" if publish_date else "   - 未找到发布日期")
         print(f"   ✓ 提取方法: {structured['extraction_method']}")
 
         # 合并所有信息（结构化）
         combined = f"标题: {title_text}\n\n描述: {description}\n\n"
 
+        if publish_date:
+            combined += f"发布日期: {publish_date}\n"
         if structured['hosts']:
             combined += f"主持人: {', '.join(structured['hosts'])}\n"
         if structured['guests']:
@@ -288,7 +327,16 @@ def extract_page_info(url):
 
         combined += f"\nShow Notes:\n{structured['show_notes']}"
 
-        return combined
+        # 返回结构化数据（而不只是文本）
+        return {
+            'text': combined,
+            'title': title_text,
+            'description': description,
+            'publish_date': publish_date,
+            'hosts': structured['hosts'],
+            'guests': structured['guests'],
+            'show_notes': structured['show_notes']
+        }
 
     except ImportError:
         print("   ⚠️ 需要安装 requests 和 beautifulsoup4:")
@@ -298,16 +346,27 @@ def extract_page_info(url):
         print(f"   ⚠️ 抓取失败: {e}")
         return None
 
-def extract_participants_with_llm(page_text):
+def extract_participants_with_llm(page_info):
     """
-    使用 GPT-4o 从页面信息中提取参与者
+    使用 Gemini 从页面信息中提取参与者和时间信息
+
+    Args:
+        page_info: dict 或 str，页面信息
 
     Returns:
-        参与者信息字典
+        参与者信息字典（包含日期）
     """
-    system_prompt = """你是播客信息提取专家，负责从网页内容中提取参与者信息。
+    # 兼容旧格式（纯文本）
+    if isinstance(page_info, str):
+        page_text = page_info
+        publish_date = None
+    else:
+        page_text = page_info.get('text', '')
+        publish_date = page_info.get('publish_date')
 
-任务：识别播客的主持人、嘉宾和节目信息
+    system_prompt = """你是播客信息提取专家，负责从网页内容中提取参与者和时间信息。
+
+任务：识别播客的主持人、嘉宾、节目信息和时间
 
 识别规则：
 1. **主持人**：
@@ -324,6 +383,10 @@ def extract_participants_with_llm(page_text):
    - 节目名称、期数（如 #233、EP233）
    - 话题/主题
 
+4. **时间信息**：
+   - 发布日期：从页面元数据提取
+   - 录制日期：从 show notes 中寻找（如"录制于2025年1月15日"）
+
 输出 JSON 格式：
 {
   "host": ["主持人1", "主持人2"],
@@ -332,33 +395,57 @@ def extract_participants_with_llm(page_text):
   "guest_background": {
     "嘉宾1": "背景信息（职位、公司等）",
     "嘉宾2": "背景信息"
-  }
+  },
+  "publish_date": "2025-01-20",
+  "record_date": "2025-01-15",
+  "date_notes": "如果日期是推断的，说明推断依据"
 }
 
 注意：
 - 中文名字用中文，英文名字用英文
-- 如果信息不完整，尽量推断
+- 日期格式统一为 YYYY-MM-DD
+- 如果找不到录制日期，可以留空或用发布日期估算
 - 严格输出 JSON，不要添加其他说明
 """
 
     try:
-        print(f"\n🤖 使用 GPT-4o 分析参与者信息...")
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": page_text}
-            ],
-            temperature=0.3,
-            max_tokens=1000,
-            response_format={"type": "json_object"}
+        client = get_gemini_client(location=LOCATION)
+        print(f"\n🤖 使用 Gemini 3-Pro 分析参与者信息...")
+
+        # 合并system prompt和user content
+        full_prompt = f"{system_prompt}\n\n{page_text}"
+
+        response = client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=full_prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.3,
+                max_output_tokens=65536
+            )
         )
 
-        result = json.loads(response.choices[0].message.content)
+        # 提取JSON（Gemini可能返回带markdown的内容）
+        response_text = response.text or ""
+        if '```json' in response_text:
+            start = response_text.find('```json') + 7
+            end = response_text.find('```', start)
+            response_text = response_text[start:end].strip()
+        elif '{' in response_text:
+            start = response_text.find('{')
+            end = response_text.rfind('}') + 1
+            response_text = response_text[start:end]
+
+        result = json.loads(response_text)
+
+        # 如果 LLM 没提取到发布日期，用页面提取的
+        if not result.get('publish_date') and publish_date:
+            result['publish_date'] = publish_date
 
         print(f"   ✓ 主持人: {', '.join(result.get('host', []))}")
         print(f"   ✓ 嘉宾: {', '.join(result.get('guests', []))}")
         print(f"   ✓ 节目: {result.get('episode_info', '未知')}")
+        print(f"   ✓ 发布日期: {result.get('publish_date', '未知')}")
+        print(f"   ✓ 录制日期: {result.get('record_date', '未知')}")
 
         return result
 
@@ -404,12 +491,16 @@ def main():
     if page_text:
         participants = extract_participants_with_llm(page_text)
 
-    # 保存参与者信息
-    if participants:
-        participants_file = "participants.json"
-        print(f"\n💾 保存参与者信息: {participants_file}")
-        with open(participants_file, 'w', encoding='utf-8') as f:
-            json.dump(participants, f, ensure_ascii=False, indent=2)
+    # 如果 LLM 提取失败，退出（后续步骤依赖参与者信息）
+    if not participants:
+        print("\n❌ 无法从页面提取参与者信息，请检查 Gemini API 连接")
+        sys.exit(1)
+
+    # 保存参与者信息（始终保存，即使是默认结构）
+    participants_file = "participants.json"
+    print(f"\n💾 保存参与者信息: {participants_file}")
+    with open(participants_file, 'w', encoding='utf-8') as f:
+        json.dump(participants, f, ensure_ascii=False, indent=2)
 
     # 总结
     print("\n" + "=" * 60)
@@ -422,10 +513,8 @@ def main():
     else:
         print("✗ 音频下载失败")
 
-    if participants:
-        print(f"✓ 参与者信息: participants.json")
-    else:
-        print("✗ 参与者提取失败")
+    # 参与者信息始终会保存
+    print(f"✓ 参与者信息: participants.json")
 
     print("\n下一步:")
     if audio_file:
@@ -433,6 +522,9 @@ def main():
     else:
         print("  请手动下载音频，然后运行:")
         print("  python step1_transcribe_advanced.py <audio_file>")
+
+    if not audio_file:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

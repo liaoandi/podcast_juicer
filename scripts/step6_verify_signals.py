@@ -1,203 +1,326 @@
 #!/usr/bin/env python3
 """
-使用 Vertex AI (Gemini 3 Pro) + Google Search 验证投资信号
+使用 Vertex AI (Gemini 3 Pro) + Google Search + 实时数据源 验证投资信号
 
-基于 medical_ocr 的实现方式
+数据源：
+1. Google Search - 新闻和事件验证
+2. Yahoo Finance - 股价和财务数据验证
 """
 
 import json
 import os
 import sys
+import time
 from datetime import datetime
-from google import genai
 from google.genai import types
+from gemini_utils import get_gemini_client, get_project_id, ensure_credentials, DEFAULT_MODEL
 
-# 配置（从环境变量读取）
+# 导入数据源模块
+HAS_DATA_SOURCES = False
+try:
+    from data_utils import DataSources
+    HAS_DATA_SOURCES = True
+except ImportError:
+    try:
+        # 尝试从同目录导入
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from data_utils import DataSources
+        HAS_DATA_SOURCES = True
+    except ImportError:
+        pass
+
+# 配置 — 验证用 pro 模型（需要深度推理判断信号真伪）
 LOCATION = "global"
-GEMINI_MODEL = "gemini-3-pro-preview"
-
-def get_sa_key_path():
-    """从环境变量或 .env 获取 service account key 路径"""
-    # 先尝试环境变量
-    key_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-    if key_path and os.path.exists(key_path):
-        return key_path
-
-    # 尝试从 .env 读取
-    env_file = '.env'
-    if os.path.exists(env_file):
-        with open(env_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith('GOOGLE_APPLICATION_CREDENTIALS='):
-                    key_path = line.split('=', 1)[1].strip()
-                    if os.path.exists(key_path):
-                        return key_path
-
-    return None
+GEMINI_MODEL = DEFAULT_MODEL
 
 class VertexVerifier:
-    def __init__(self, project_id=None, location=None, model=None):
-        """初始化 Vertex AI 客户端"""
+    def __init__(self, project_id=None, location=None, model=None, record_date=None):
+        """
+        初始化 Vertex AI 客户端
+
+        Args:
+            project_id: GCP 项目 ID
+            location: Vertex AI 位置
+            model: 模型名称
+            record_date: 信号发出的日期（用于计算价格变化）
+        """
         # 设置凭证
-        sa_key_path = get_sa_key_path()
-        if sa_key_path:
-            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = sa_key_path
-        else:
-            print("⚠️  未找到 GOOGLE_APPLICATION_CREDENTIALS")
-            print("   请在 .env 文件中配置或设置环境变量")
-            print("   例如：GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json")
-
-        # 确定 Project ID
-        if not project_id:
-            # 尝试从 service account key 读取
-            if sa_key_path and os.path.exists(sa_key_path):
-                try:
-                    with open(sa_key_path, 'r') as f:
-                        data = json.load(f)
-                        project_id = data.get('project_id')
-                except:
-                    pass
-
-            # 从环境变量读取
-            if not project_id:
-                project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-
-            # 最后的兜底
-            if not project_id:
-                raise ValueError("未找到 project_id，请设置 GOOGLE_CLOUD_PROJECT 环境变量")
-
-        self.project_id = project_id
+        ensure_credentials(verbose=True)
+        self.project_id = project_id or get_project_id()
         self.location = location or LOCATION
         self.model_name = model or GEMINI_MODEL
+        self.record_date = record_date
 
         print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location} ({self.project_id})")
 
-        # 初始化客户端
-        self.client = genai.Client(
-            vertexai=True,
-            project=self.project_id,
+        # 初始化客户端（使用默认配置）
+        self.client = get_gemini_client(
+            project_id=self.project_id,
             location=self.location
         )
 
-    def build_verification_prompt(self, signal):
-        """构建验证 prompt"""
+        # 初始化数据源
+        self.data_sources = None
+        if HAS_DATA_SOURCES:
+            try:
+                self.data_sources = DataSources()
+                print("   ✓ 实时数据源已启用 (Yahoo Finance)")
+            except Exception as e:
+                print(f"   ⚠️ 实时数据源初始化失败: {e}")
+        else:
+            print("   ⚠️ 实时数据源未启用 (pip install yfinance)")
+
+    def get_market_data_for_signal(self, signal):
+        """
+        获取信号相关的实时市场数据
+
+        Returns:
+            {
+                'NVDA': {
+                    'current': {'price': 850, 'change_percent': 1.5},
+                    'since_signal': {'from_price': 800, 'to_price': 850, 'change_percent': 6.25},
+                    'financials': {'pe_ratio': 65, 'market_cap': 2100000000000}
+                }
+            }
+        """
+        if not self.data_sources:
+            return {}
+
+        market_data = {}
+        entities = signal.get('entities', [])
+
+        for entity in entities:
+            ticker = entity.get('ticker')
+            if not ticker:
+                continue
+
+            data = {}
+
+            # 当前价格
+            current = self.data_sources.get_stock_price(ticker)
+            if current:
+                data['current'] = {
+                    'price': current['price'],
+                    'change_percent': current['change_percent'],
+                    'market_cap': current.get('market_cap'),
+                    'name': current.get('name')
+                }
+
+            # 从信号日期到现在的变化
+            if self.record_date:
+                change = self.data_sources.get_price_change(ticker, self.record_date)
+                if change:
+                    data['since_signal'] = {
+                        'from_date': change['from_date'],
+                        'to_date': change['to_date'],
+                        'from_price': change['from_price'],
+                        'to_price': change['to_price'],
+                        'change': change['change'],
+                        'change_percent': change['change_percent'],
+                        'trading_days': change['trading_days']
+                    }
+
+            # 财务数据
+            financials = self.data_sources.get_financials(ticker)
+            if financials:
+                data['financials'] = {
+                    'pe_ratio': financials.get('pe_ratio'),
+                    'forward_pe': financials.get('forward_pe'),
+                    'profit_margin': financials.get('profit_margin'),
+                    'revenue_growth': financials.get('revenue_growth'),
+                    '52_week_high': financials.get('52_week_high'),
+                    '52_week_low': financials.get('52_week_low')
+                }
+
+            if data:
+                market_data[ticker] = data
+
+        return market_data
+
+    def verify_signal(self, signal):
+        """验证单个信号（使用Gemini + Google Search + 市场数据）"""
+        # 获取实时市场数据
+        market_data = self.get_market_data_for_signal(signal)
+
+        if market_data:
+            tickers = list(market_data.keys())
+            print(f"   📊 获取市场数据: {', '.join(tickers)}")
+
+        # 构建 prompt
+        prompt = self._build_simple_prompt(signal, market_data)
+
+        # 重试机制（3次，指数退避）
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                print(f"   [尝试 {attempt + 1}/{max_retries}]")
+
+                response = self.client.models.generate_content(
+                    model=self.model_name,  # 使用配置的模型
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        tools=[types.Tool(google_search=types.GoogleSearch())],
+                        temperature=0.1,
+                        max_output_tokens=65536
+                    )
+                )
+
+                # 解析 JSON
+                verification_data = self._clean_json(response.text)
+
+                if verification_data:
+                    verification_data['verification_date'] = datetime.now().strftime('%Y-%m-%d')
+                    verification_data['signal_date'] = self.record_date
+                    verification_data['market_data'] = market_data
+
+                    # 规范化置信度
+                    if 'verification_confidence' in verification_data:
+                        value = verification_data['verification_confidence']
+                        if value not in ['high', 'low']:
+                            verification_data['verification_confidence'] = 'low'
+
+                    return verification_data
+                else:
+                    if attempt < max_retries - 1:
+                        print(f"   ⚠️ JSON解析失败，重试...")
+                        continue
+                    return self._error_verification("JSON 解析失败")
+
+            except Exception as e:
+                error_msg = str(e)
+                print(f"   ⚠️ 错误: {error_msg[:100]}")
+
+                # 429错误，等待更长时间
+                if '429' in error_msg:
+                    if attempt < max_retries - 1:
+                        wait_time = 30 * (attempt + 1)  # 30秒、60秒、90秒
+                        print(f"   ⏳ API配额限制，等待 {wait_time} 秒...")
+                        time.sleep(wait_time)
+                    else:
+                        return self._error_verification(error_msg)
+                # 其他错误，短时间重试
+                else:
+                    if attempt < max_retries - 1:
+                        wait_time = (attempt + 1) * 5
+                        print(f"   ⏳ 等待 {wait_time} 秒后重试...")
+                        time.sleep(wait_time)
+                    else:
+                        return self._error_verification(error_msg)
+
+        # Safety: should not reach here, but just in case
+        return self._error_verification("max retries exhausted")
+
+    def _build_simple_prompt(self, signal, market_data):
+        """构建简化prompt（使用Google Search验证）"""
         entities = signal.get('entities', [])
         entity_names = ', '.join([e['name'] for e in entities])
         claim = signal.get('claim', '')
-        signal_type = signal.get('signal_type', 'unknown')
 
-        prompt = f"""你是专业的投资研究分析师。请验证以下投资信号的真实性。
+        # 市场数据摘要
+        market_summary = ""
+        if market_data:
+            for ticker, data in market_data.items():
+                if 'since_signal' in data:
+                    chg = data['since_signal']['change_percent']
+                    days = data['since_signal']['trading_days']
+                    market_summary += f"{ticker}: {chg:+.1f}% ({days}日); "
 
-**待验证信号**
-- 公司：{entity_names}
-- 类型：{signal_type}
-- 判断：{claim}
-- 原始置信度：{signal.get('confidence', 'unknown')}
+        prompt = f"""你是投资研究分析师。使用 Google Search 验证以下投资信号，提供详细的验证报告。
 
-**验证任务**
-使用 Google Search 搜索 2025-2026 年的最新信息：
-1. 核查判断是否准确（是否有新闻/财报/数据支持）
-2. 分析真实的影响路径（基于实际数据，不是推测）
-3. 提供可追溯的信息来源（带 URL）
+**信号内容**
+公司：{entity_names}
+判断：{claim}
+信号日期：{self.record_date or '未知'}
+市场数据：{market_summary or '无'}
 
-**输出格式**（严格 JSON，不要输出其他内容）
+**验证要求**
+1. 使用 Google Search 搜索最新的新闻、财报、行业报告来验证
+2. 每个来源必须提供具体的 URL 链接
+3. 分析信号发出后的真实影响路径
+4. 详细说明验证依据
+
+**输出JSON格式**：
 {{
-  "verification_status": "verified|partially_verified|unverified|contradicted",
-  "verified_claim": "修正后的判断（如果原判断有误，必须修正；如果准确，重复原判断）",
+  "verification_status": "verified|contradicted|unverified",
+  "verified_claim": "详细总结验证后的判断（2-3句话）",
   "verified_impact_path": [
-    "真实影响1（基于搜索到的具体数据）",
-    "真实影响2（基于搜索到的具体数据）",
-    "真实影响3（如果有）"
+    "影响路径1：从X到Y的传导机制",
+    "影响路径2：对产业链的具体影响",
+    "影响路径3：对投资者的实际意义"
   ],
   "verified_data": [
     {{
-      "source": "来源名称 + 日期（例：Bloomberg 2025-12-09）",
-      "finding": "发现的具体事实（带数据）",
-      "url": "链接（如果搜索到）"
-    }},
-    {{
-      "source": "来源2",
-      "finding": "事实2",
-      "url": "链接2"
+      "source": "来源名称（如 Bloomberg, Reuters）",
+      "finding": "关键发现（详细描述，100-200字）",
+      "url": "https://具体链接"
     }}
   ],
   "verification_confidence": "high|low",
-  "verification_notes": "验证总结（标注哪些准确/不准确/未找到证据）"
+  "verification_notes": "验证总结（2-3句话，包含关键数据）"
 }}
 
-**⚠️ 重要：verification_confidence 评分规则**
-- high: 找到多个权威来源证实，数据准确可靠
-- low: 来源不足、数据不完整、或存在矛盾
-- 必须且只能从 ["high", "low"] 中选择一个值，不要使用 "medium"
-
-**重要规则**
-- verified_impact_path 必须基于搜索到的真实数据，不能是空泛推测
-- verified_data 至少提供 2 个来源
-- 如果搜索不到相关信息，verification_status 应为 "unverified"
-- 如果原判断与搜索结果矛盾，verification_status 应为 "contradicted"
-
-**信源分类（source_type）**
-- **primary**：一手信源（公司公告、监管文件、SEC filings、财报、官方博客）
-- **tier1_media**：T1 权威媒体（WSJ, Bloomberg, Reuters, FT, Forbes, CNBC）
-- **tier2_media**：T2 主流媒体（TechCrunch, The Verge, Business Insider, Nikkei）
-- **company_filing**：监管披露（10-K, 8-K, S-1, proxy statements）
-- **unknown**：来源不明或二手转述
-
-**信源可信度评级（credibility）**
-- **high**：primary 或 tier1_media，有明确作者和日期
-- **medium**：tier2_media，或 tier1 但无明确日期
-- **low**：unknown 或社交媒体/论坛转述
-"""
+规则：
+- verified_data 提供 3-4 条来源，每条必须有 url
+- verified_impact_path 提供 2-3 条影响路径
+- 不要使用 markdown 格式
+- 直接返回纯 JSON"""
         return prompt
 
-    def verify_signal(self, signal):
-        """验证单个信号"""
-        prompt = self.build_verification_prompt(signal)
-
-        try:
-            # 调用 Gemini 3 Pro + Google Search
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    tools=[types.Tool(google_search=types.GoogleSearch())],  # 启用 Google Search
-                    thinking_config=types.ThinkingConfig(thinking_budget=4096)  # 启用推理增强
-                )
-            )
-
-            # 解析 JSON
-            verification_data = self._clean_json(response.text)
-
-            if verification_data:
-                verification_data['verification_date'] = datetime.now().strftime('%Y-%m-%d')
-
-                # 规范化 verification_confidence：强制将 medium 转换为 low（保守策略）
-                if 'verification_confidence' in verification_data:
-                    value = verification_data['verification_confidence']
-                    if value not in ['high', 'low']:
-                        print(f"   ⚠️ 发现非标准验证置信度 '{value}'，已转换为 'low'")
-                        verification_data['verification_confidence'] = 'low'
-
-                return verification_data
-            else:
-                return self._error_verification("JSON 解析失败")
-
-        except Exception as e:
-            return self._error_verification(str(e))
-
     def _clean_json(self, text):
-        """清理和解析 JSON"""
+        """清理和解析 JSON（增强版，处理各种格式问题）"""
         if not text:
             return None
+
+        # 提取JSON文本
+        json_text = None
+
+        # 方法1：尝试找到```json代码块
+        if '```json' in text:
+            start = text.find('```json') + 7
+            end = text.find('```', start)
+            if end > start:
+                json_text = text[start:end].strip()
+
+        # 方法2：尝试找到第一个{到最后一个}
+        if not json_text and '{' in text and '}' in text:
+            start = text.find('{')
+            end = text.rfind('}') + 1
+            json_text = text[start:end].strip()
+
+        # 方法3：直接使用原文本
+        if not json_text:
+            json_text = text.strip()
+
+        # 清理常见格式问题
+        json_text = self._fix_json_format(json_text)
+
+        # 尝试解析
         try:
-            cleaned = text.replace("```json", "").replace("```", "").strip()
-            return json.loads(cleaned)
+            return json.loads(json_text)
         except json.JSONDecodeError as e:
             print(f"   ⚠️ JSON 解析错误: {e}")
             print(f"   原始文本: {text[:200]}...")
             return None
+
+    def _fix_json_format(self, json_text):
+        """修复常见的JSON格式问题"""
+        import re
+
+        # 1. 替换中文引号为英文引号
+        json_text = json_text.replace('"', '"').replace('"', '"')
+        json_text = json_text.replace(''', "'").replace(''', "'")
+
+        # 2. 修复未转义的引号（在字符串值中）
+        # 这个比较复杂，暂时跳过，让Gemini自己处理
+
+        # 3. 移除多余的逗号（JSON末尾的逗号）
+        json_text = re.sub(r',(\s*[}\]])', r'\1', json_text)
+
+        # 4. 修复换行符
+        # JSON字符串中的换行应该是\n而不是实际换行
+        # 但这个很难自动修复，因为需要区分字符串内外
+
+        return json_text
 
     def _error_verification(self, error_msg):
         """生成错误验证结果"""
@@ -218,63 +341,68 @@ def verify_all_signals(input_file, output_file, max_signals=None):
         data = json.load(f)
 
     signals = data['signals']
+    metadata = data.get('metadata', {})
+
+    # 获取信号日期（用于计算价格变化）
+    record_date = metadata.get('record_date') or metadata.get('publish_date')
+    if record_date:
+        print(f"   信号日期: {record_date}")
+    else:
+        print(f"   ⚠️ 未找到信号日期，无法计算价格变化")
+
     if max_signals:
         signals = signals[:max_signals]
         print(f"   只验证前 {max_signals} 个信号")
 
     print(f"   共 {len(signals)} 个信号需要验证\n")
 
-    # 初始化 Vertex AI
-    verifier = VertexVerifier()
+    # 初始化 Vertex AI（传入信号日期）
+    verifier = VertexVerifier(record_date=record_date)
     print("   ✓ 连接成功\n")
 
-    verified_signals = []
+    # 并发验证所有信号（互相独立）
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    for i, signal in enumerate(signals, 1):
+    def _verify_one(i, signal):
         entities = signal.get('entities', [])
         entity_names = ', '.join([e['name'] for e in entities])
         claim = signal.get('claim', '')
-
-        print(f"🔍 [{i}/{len(signals)}] 验证中...")
-        print(f"   公司: {entity_names}")
-        print(f"   判断: {claim[:70]}...")
-
-        # 调用验证
+        print(f"🔍 [{i}/{len(signals)}] 验证: {entity_names} — {claim[:50]}...")
         verification = verifier.verify_signal(signal)
-
-        # 添加验证结果
         signal['verification'] = verification
-
-        # 显示结果
         status_map = {
-            'verified': '✅ 已验证',
-            'partially_verified': '⚠️ 部分验证',
-            'unverified': '❌ 未验证',
-            'contradicted': '❌ 与事实矛盾',
-            'error': '⚠️ 验证出错'
+            'verified': '✅', 'partially_verified': '⚠️',
+            'unverified': '❌', 'contradicted': '❌', 'error': '⚠️'
         }
-        status_text = status_map.get(verification.get('verification_status'), '未知')
-        confidence = verification.get('verification_confidence', 'N/A')
+        st = verification.get('verification_status', '?')
+        print(f"   [{i}] {status_map.get(st, '?')} {st} — {entity_names}")
+        return i, signal
 
-        print(f"   结果: {status_text}")
-        print(f"   置信度: {confidence}")
+    verified_signals = [None] * len(signals)
+    max_workers = min(3, len(signals))  # 验证用 Google Search，不宜太多并发
 
-        # 显示验证备注
-        if 'verification_notes' in verification:
-            notes = verification['verification_notes']
-            if notes and len(notes) < 100:
-                print(f"   备注: {notes}")
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {}
+        for i, signal in enumerate(signals):
+            future = executor.submit(_verify_one, i + 1, signal)
+            futures[future] = i
 
-        print()
-
-        verified_signals.append(signal)
+        for future in as_completed(futures):
+            try:
+                idx, signal = future.result()
+                verified_signals[idx - 1] = signal
+            except Exception as e:
+                i = futures[future]
+                print(f"   [{i+1}] 验证异常: {e}")
+                signals[i]['verification'] = verifier._error_verification(str(e))
+                verified_signals[i] = signals[i]
 
     # 保存结果
     output_data = {
         'metadata': {
             **data['metadata'],
             'verification_date': datetime.now().strftime('%Y-%m-%d'),
-            'verification_method': 'vertex_ai_gemini_3_pro + google_search',
+            'verification_method': 'gemini_3_pro + google_search + yahoo_finance',
             'verification_status': 'completed',
             'verified_signals_count': len(verified_signals)
         },
@@ -307,7 +435,7 @@ def verify_all_signals(input_file, output_file, max_signals=None):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("用法: python step4b_verify_signals_vertex.py <signals_json> [output_json] [max_signals]")
+        print("用法: python step6_verify_signals.py <signals_json> [output_json] [max_signals]")
         print("")
         print("参数:")
         print("  signals_json : 输入的信号 JSON 文件")
@@ -315,11 +443,11 @@ if __name__ == "__main__":
         print("  max_signals  : 最多验证几个信号（可选，默认全部）")
         print("")
         print("示例:")
-        print("  python step4b_verify_signals_vertex.py extracted_signals_fast.json")
-        print("  python step4b_verify_signals_vertex.py extracted_signals_fast.json verified.json 3")
+        print("  python step6_verify_signals.py extracted_signals_fast.json")
+        print("  python step6_verify_signals.py extracted_signals_fast.json verified.json 3")
         print("")
         print("需要:")
-        print("  - Vertex AI Service Account Key: /Users/antonio/Desktop/liaoandi-vertex-ai-key.json")
+        print("  - Vertex AI Service Account Key (via GOOGLE_APPLICATION_CREDENTIALS)")
         print("  - 已安装: pip install google-genai")
         sys.exit(1)
 

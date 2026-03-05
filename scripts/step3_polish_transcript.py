@@ -1,61 +1,33 @@
 #!/usr/bin/env python3
 """
 润色转录文本：添加标点符号 + 轻度书面化
-使用 GPT-4o 进行智能润色（无硬编码规则）
+使用 Gemini Flash 进行智能润色（并发加速）
 """
 
 import re
+import json
 import os
 import sys
-import json
-from openai import AzureOpenAI
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from google.genai import types
+from gemini_utils import get_gemini_client
 
-# 初始化 Azure OpenAI 客户端
+# 润色用 flash 模型（轻量任务，不需要 thinking）
+POLISH_MODEL = "gemini-2.5-flash"
+POLISH_LOCATION = "us-central1"
+MAX_WORKERS = 5  # 并发数
+
+# 初始化 Gemini 客户端
 client = None
 
 def get_client():
-    """获取或初始化 Azure OpenAI 客户端"""
+    """获取或初始化 Gemini 客户端"""
     global client
     if client is None:
-        api_key = os.environ.get('AZURE_OPENAI_API_KEY')
-
-        # 如果环境变量没有，尝试从 .env 文件读取
-        if not api_key:
-            env_file = '.env'
-            if os.path.exists(env_file):
-                with open(env_file, 'r') as f:
-                    for line in f:
-                        line = line.strip()
-                        if line.startswith('AZURE_OPENAI_API_KEY='):
-                            api_key = line.split('=', 1)[1].strip()
-                            break
-
-        if not api_key:
-            print("⚠️  未找到 AZURE_OPENAI_API_KEY")
-            print("   请在 .env 文件中配置或设置环境变量")
-            sys.exit(1)
-
-        client = AzureOpenAI(
-            api_key=api_key,
-            azure_endpoint="https://aigc-japan-east.openai.azure.com/",
-            api_version="2025-04-01-preview",
-            max_retries=1,
-            timeout=60.0,
-        )
+        client = get_gemini_client(location=POLISH_LOCATION)
     return client
 
-def polish_with_llm(text, max_retries=3):
-    """
-    使用 GPT-4o 添加标点符号和轻度书面化
-
-    Args:
-        text: 待润色的文本
-        max_retries: 最大重试次数
-
-    Returns:
-        润色后的文本
-    """
-    system_prompt = """你是专业的播客转录润色专家，负责为转录添加标点并轻度书面化。
+SYSTEM_PROMPT = """你是专业的播客转录润色专家，负责为转录添加标点并轻度书面化。
 
 任务：添加标点、适当断句、删除口头禅
 
@@ -90,21 +62,27 @@ def polish_with_llm(text, max_retries=3):
 输入：我会觉得其实Google其实是对我来说一个被市场教育的过程吧因为我们相对来说一直都比较对Google偏悲观
 输出：我会觉得 Google 对我来说是一个被市场教育的过程，因为我们相对来说一直都比较对 Google 偏悲观。"""
 
+
+def polish_with_llm(text, max_retries=3):
+    """使用 Gemini Flash 添加标点符号和轻度书面化"""
     for attempt in range(max_retries):
         try:
-            response = get_client().chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": text}
-                ],
-                temperature=0.3,  # 降低随机性，保持一致性
-                max_tokens=2000
+            full_prompt = f"{SYSTEM_PROMPT}\n\n要润色的文本：\n{text}"
+
+            response = get_client().models.generate_content(
+                model=POLISH_MODEL,
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.3,
+                    max_output_tokens=max(2000, len(text) * 3)
+                )
             )
 
-            polished = response.choices[0].message.content.strip()
+            polished = (response.text or "").strip()
+            if not polished:
+                return text
 
-            # 清理可能的说明性文字（如果 LLM 没遵守指令）
+            # 清理可能的说明性文字
             if polished.startswith('润色后') or polished.startswith('以下是'):
                 lines = polished.split('\n')
                 polished = '\n'.join([l for l in lines if l and not l.startswith(('润色', '以下', '原文'))])
@@ -115,61 +93,70 @@ def polish_with_llm(text, max_retries=3):
             if attempt == max_retries - 1:
                 print(f"⚠️ API 调用失败，使用原文: {e}")
                 return text
-            print(f"⚠️ API 调用失败 (尝试 {attempt+1}/{max_retries}): {e}")
+            import time
+            time.sleep(2 * (attempt + 1))
             continue
 
     return text
 
-def merge_segments_for_polishing(segments, merge_count=8):
-    """
-    将相邻 segments 合并成段落
 
-    Args:
-        segments: 原始 segments 列表
-        merge_count: 每几个 segments 合并一次
+def _polish_one_segment(idx, seg, total):
+    """润色单个 segment（供并发调用）"""
+    text = re.sub(r'[ \t]+', ' ', seg['text']).strip()
+    polished_text = polish_with_llm(text)
+    result = {
+        'id': seg['id'],
+        'start': seg['start'],
+        'end': seg['end'],
+        'start_seconds': seg['start_seconds'],
+        'end_seconds': seg['end_seconds'],
+        'text': polished_text,
+        'speaker': seg['speaker']
+    }
+    print(f"   [{idx}/{total}] {seg['start']} - {seg['end']} ({len(text)}字) ✓ ({len(polished_text)}字)")
+    return idx, result
 
-    Returns:
-        合并后的段落列表
-    """
+
+def _flush_chunk(merged, chunk):
+    """Flush a chunk of segments into a merged segment."""
+    combined_text = ''.join([seg['text'].strip() for seg in chunk])
+    speaker = chunk[0].get('speaker', 'Unknown')
+    merged.append({
+        'id': len(merged),
+        'start': chunk[0].get('start', '00:00:00'),
+        'end': chunk[-1].get('end', '00:00:00'),
+        'start_seconds': chunk[0].get('start_seconds', 0),
+        'end_seconds': chunk[-1].get('end_seconds', 0),
+        'text': combined_text,
+        'speaker': speaker,
+        'original_ids': [seg.get('id', i) for i, seg in enumerate(chunk)]
+    })
+
+
+def merge_segments_for_polishing(segments, merge_count=15):
+    """将相邻 segments 合并成段落（speaker 变化时强制分割）"""
     merged = []
-    for i in range(0, len(segments), merge_count):
-        chunk = segments[i:i + merge_count]
+    current_chunk = []
 
-        # 合并文本
-        combined_text = ''.join([seg['text'].strip() for seg in chunk])
+    for seg in segments:
+        if current_chunk and seg.get('speaker', 'Unknown') != current_chunk[-1].get('speaker', 'Unknown'):
+            _flush_chunk(merged, current_chunk)
+            current_chunk = []
 
-        # 保留说话人信息（取 chunk 中最常见的 speaker，或第一个）
-        speakers = [seg.get('speaker', 'Unknown') for seg in chunk]
-        # 如果所有 speaker 相同，使用该 speaker；否则使用第一个
-        unique_speakers = list(set(speakers))
-        if len(unique_speakers) == 1:
-            speaker = unique_speakers[0]
-        else:
-            # 如果有多个说话人，取第一个（或者可以标记为 "Multiple"）
-            speaker = speakers[0]
+        current_chunk.append(seg)
 
-        merged.append({
-            'id': len(merged),
-            'start': chunk[0]['start'],
-            'end': chunk[-1]['end'],
-            'start_seconds': chunk[0]['start_seconds'],
-            'end_seconds': chunk[-1]['end_seconds'],
-            'text': combined_text,
-            'speaker': speaker,
-            'original_ids': [seg['id'] for seg in chunk]  # 保留原始 ID
-        })
+        if len(current_chunk) >= merge_count:
+            _flush_chunk(merged, current_chunk)
+            current_chunk = []
+
+    if current_chunk:
+        _flush_chunk(merged, current_chunk)
 
     return merged
 
-def polish_full_transcript(input_file, output_file, merge_count=8):
-    """
-    润色整个转录文件（完整流程）
 
-    Args:
-        input_file: 输入的原始 JSON 文件
-        output_file: 输出的润色后 JSON 文件
-        merge_count: 每几个 segments 合并一次
-    """
+def polish_full_transcript(input_file, output_file, merge_count=15):
+    """润色整个转录文件（并发加速）"""
     print(f"📖 读取原始转录: {input_file}")
     with open(input_file, 'r', encoding='utf-8') as f:
         transcript = json.load(f)
@@ -178,52 +165,41 @@ def polish_full_transcript(input_file, output_file, merge_count=8):
     print(f"   总片段数: {len(segments)}")
 
     # 合并 segments
-    print(f"\n🔗 合并 segments (每 {merge_count} 个合并)")
+    print(f"\n🔗 合并 segments (每 {merge_count} 个合并，speaker 变化强制分割)")
     merged = merge_segments_for_polishing(segments, merge_count)
     print(f"   合并后段落数: {len(merged)}")
 
-    # 润色每个段落
-    print(f"\n✨ 开始润色 (调用 GPT-4o)...")
-    polished_segments = []
+    # 并发润色
+    print(f"\n✨ 开始润色 (模型: {POLISH_MODEL}, 并发: {MAX_WORKERS})...")
+    polished_segments = [None] * len(merged)
 
-    for i, seg in enumerate(merged, 1):
-        print(f"   [{i}/{len(merged)}] {seg['start']} - {seg['end']} ({len(seg['text'])} 字)", end=' ')
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = {}
+        for i, seg in enumerate(merged):
+            future = executor.submit(_polish_one_segment, i + 1, seg, len(merged))
+            futures[future] = i
 
-        try:
-            # 去除多余空格
-            text = re.sub(r'\s+', '', seg['text'])
+        for future in as_completed(futures):
+            try:
+                idx, result = future.result()
+                polished_segments[idx - 1] = result
+            except Exception as e:
+                i = futures[future]
+                print(f"   [{i+1}/{len(merged)}] ✗ 失败: {e}")
+                seg = merged[i]
+                polished_segments[i] = {
+                    'id': seg['id'],
+                    'start': seg['start'],
+                    'end': seg['end'],
+                    'start_seconds': seg['start_seconds'],
+                    'end_seconds': seg['end_seconds'],
+                    'text': seg['text'],
+                    'speaker': seg['speaker']
+                }
 
-            # 调用 GPT-4o 润色
-            polished_text = polish_with_llm(text)
-
-            polished_segments.append({
-                'id': seg['id'],
-                'start': seg['start'],
-                'end': seg['end'],
-                'start_seconds': seg['start_seconds'],
-                'end_seconds': seg['end_seconds'],
-                'text': polished_text,
-                'speaker': seg['speaker']
-            })
-
-            print(f"✓ ({len(polished_text)} 字)")
-
-        except Exception as e:
-            print(f"✗ 失败: {e}")
-            # 失败时保留原文
-            polished_segments.append({
-                'id': seg['id'],
-                'start': seg['start'],
-                'end': seg['end'],
-                'start_seconds': seg['start_seconds'],
-                'end_seconds': seg['end_seconds'],
-                'text': seg['text'],
-                'speaker': seg['speaker']
-            })
-
-    # 保存润色后的 JSON
+    # 保存
     output = {
-        'language': transcript['language'],
+        'language': transcript.get('language', 'zh'),
         'segments': polished_segments
     }
 
@@ -243,23 +219,17 @@ if __name__ == "__main__":
         print("参数:")
         print("  input_json   : 输入的转录 JSON 文件")
         print("  output_json  : 输出的润色后 JSON 文件（可选，默认为 input_polished.json）")
-        print("  merge_count  : 每几个 segments 合并一次（可选，默认 8）")
-        print("")
-        print("示例:")
-        print("  python step3_polish_transcript.py sv101_ep233_transcript_advanced.json")
-        print("  python step3_polish_transcript.py input.json output.json 10")
+        print("  merge_count  : 每几个 segments 合并一次（可选，默认 15）")
         sys.exit(1)
 
     input_file = sys.argv[1]
 
-    # 默认输出文件名
     if len(sys.argv) > 2:
         output_file = sys.argv[2]
     else:
-        base_name = input_file.rsplit('.', 1)[0]
+        base_name = os.path.splitext(input_file)[0]
         output_file = f"{base_name}_polished.json"
 
-    # 默认合并数量
-    merge_count = int(sys.argv[3]) if len(sys.argv) > 3 else 8
+    merge_count = int(sys.argv[3]) if len(sys.argv) > 3 else 15
 
     polish_full_transcript(input_file, output_file, merge_count)
