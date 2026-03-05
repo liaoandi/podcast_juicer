@@ -38,10 +38,13 @@ PROGRESS_FILE = os.path.join(PROJECT_ROOT, 'batch_progress.json')
 # 虚拟环境
 VENV_BIN = os.path.join(PROJECT_ROOT, 'venv', 'bin')
 PYTHON_BIN = os.path.join(VENV_BIN, 'python3') if os.path.exists(VENV_BIN) else 'python3'
-ENV = os.environ.copy()
-if os.path.exists(VENV_BIN):
-    ENV['PATH'] = f"{VENV_BIN}:{ENV.get('PATH', '')}"
-    ENV['VIRTUAL_ENV'] = os.path.join(PROJECT_ROOT, 'venv')
+def _build_env():
+    """Build subprocess environment with venv paths."""
+    env = os.environ.copy()
+    if os.path.exists(VENV_BIN):
+        env['PATH'] = f"{VENV_BIN}:{env.get('PATH', '')}"
+        env['VIRTUAL_ENV'] = os.path.join(PROJECT_ROOT, 'venv')
+    return env
 
 
 # =============================================================================
@@ -95,6 +98,12 @@ def _check_polished(polished_file, speakers_file):
     if len(source_speakers - {'Unknown', 'SPEAKER_00'}) > 1 and polished_speakers == {'Unknown'}:
         print(f"  ❌ Sanity check 失败: 润色后说话人全部丢失")
         return False
+    # Check speaker count didn't regress significantly
+    source_named = source_speakers - {'Unknown', 'SPEAKER_00'}
+    polished_named = polished_speakers - {'Unknown', 'SPEAKER_00'}
+    if len(source_named) > 1 and len(polished_named) < len(source_named) // 2:
+        print(f"  ⚠️ 说话人数量回退: {len(source_named)} → {len(polished_named)}")
+
     print(f"  ✓ 润色: {len(polished['segments'])} 段, 说话人: {polished_speakers}")
     return True
 
@@ -284,7 +293,7 @@ def run_step(step_name, cmd):
     print(f"  {step_name}")
     print(f"{'='*60}")
 
-    result = subprocess.run(cmd, cwd=SCRIPTS_DIR, capture_output=True, text=True, env=ENV)
+    result = subprocess.run(cmd, cwd=SCRIPTS_DIR, capture_output=True, text=True, env=_build_env())
 
     if result.returncode != 0:
         print(f"  [失败]")
@@ -396,7 +405,7 @@ def process_single(url, audio_url=None, force=False):
         podcast_name = podcast_config.get('name', podcast_id)
         result = subprocess.run(
             [PYTHON_BIN, 'step0b_search_transcript.py', url, podcast_name, episode_id, official_transcript_file, audio_file],
-            cwd=SCRIPTS_DIR, env=ENV, capture_output=True, text=True
+            cwd=SCRIPTS_DIR, env=_build_env(), capture_output=True, text=True
         )
         if result.returncode == 0 and os.path.exists(official_transcript_file):
             print(f"  ✓ 找到官方文字稿")

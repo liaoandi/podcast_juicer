@@ -270,60 +270,9 @@ class VertexVerifier:
         return prompt
 
     def _clean_json(self, text):
-        """清理和解析 JSON（增强版，处理各种格式问题）"""
-        if not text:
-            return None
-
-        # 提取JSON文本
-        json_text = None
-
-        # 方法1：尝试找到```json代码块
-        if '```json' in text:
-            start = text.find('```json') + 7
-            end = text.find('```', start)
-            if end > start:
-                json_text = text[start:end].strip()
-
-        # 方法2：尝试找到第一个{到最后一个}
-        if not json_text and '{' in text and '}' in text:
-            start = text.find('{')
-            end = text.rfind('}') + 1
-            json_text = text[start:end].strip()
-
-        # 方法3：直接使用原文本
-        if not json_text:
-            json_text = text.strip()
-
-        # 清理常见格式问题
-        json_text = self._fix_json_format(json_text)
-
-        # 尝试解析
-        try:
-            return json.loads(json_text)
-        except json.JSONDecodeError as e:
-            print(f"   ⚠️ JSON 解析错误: {e}")
-            print(f"   原始文本: {text[:200]}...")
-            return None
-
-    def _fix_json_format(self, json_text):
-        """修复常见的JSON格式问题"""
-        import re
-
-        # 1. 替换中文引号为英文引号
-        json_text = json_text.replace('"', '"').replace('"', '"')
-        json_text = json_text.replace(''', "'").replace(''', "'")
-
-        # 2. 修复未转义的引号（在字符串值中）
-        # 这个比较复杂，暂时跳过，让Gemini自己处理
-
-        # 3. 移除多余的逗号（JSON末尾的逗号）
-        json_text = re.sub(r',(\s*[}\]])', r'\1', json_text)
-
-        # 4. 修复换行符
-        # JSON字符串中的换行应该是\n而不是实际换行
-        # 但这个很难自动修复，因为需要区分字符串内外
-
-        return json_text
+        """清理和解析 JSON"""
+        from gemini_utils import clean_json
+        return clean_json(text)
 
     def _error_verification(self, error_msg):
         """生成错误验证结果"""
@@ -364,13 +313,17 @@ def verify_all_signals(input_file, output_file, max_signals=None):
     print("   ✓ 连接成功\n")
 
     # 并发验证所有信号（互相独立）
+    import threading
     from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    print_lock = threading.Lock()
 
     def _verify_one(i, signal):
         entities = signal.get('entities', [])
         entity_names = ', '.join([e['name'] for e in entities])
         claim = signal.get('claim', '')
-        print(f"🔍 [{i}/{len(signals)}] 验证: {entity_names} — {claim[:50]}...")
+        with print_lock:
+            print(f"🔍 [{i}/{len(signals)}] 验证: {entity_names} — {claim[:50]}...")
         verification = verifier.verify_signal(signal)
         signal['verification'] = verification
         status_map = {
@@ -378,7 +331,8 @@ def verify_all_signals(input_file, output_file, max_signals=None):
             'unverified': '❌', 'contradicted': '❌', 'error': '⚠️'
         }
         st = verification.get('verification_status', '?')
-        print(f"   [{i}] {status_map.get(st, '?')} {st} — {entity_names}")
+        with print_lock:
+            print(f"   [{i}] {status_map.get(st, '?')} {st} — {entity_names}")
         return i, signal
 
     verified_signals = [None] * len(signals)

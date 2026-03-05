@@ -183,7 +183,7 @@ def clean_json(text: str):
     # 7. Attempt to fix truncated JSON
     try:
         # If it looks like a truncated array inside an object, close it
-        if '"speaker_labels": [' in json_text or '"signal_candidates": [' in json_text or '"companies": [' in json_text:
+        if json_text.strip().startswith('{'):
             last_complete = json_text.rfind('"}')
             if last_complete < 0:
                 last_complete = json_text.rfind('}')
@@ -205,6 +205,7 @@ def clean_json(text: str):
 # ---------------------------------------------------------------------------
 # Retry wrapper for Gemini API calls
 # ---------------------------------------------------------------------------
+# NOTE: Available for scripts to adopt. Currently each script implements its own retry.
 def call_gemini_with_retry(client, model, contents, config, max_retries=3):
     """Call client.models.generate_content with automatic retry.
 

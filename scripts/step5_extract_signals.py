@@ -27,6 +27,9 @@ GEMINI_MODEL = DEFAULT_MODEL
 
 def load_featured_companies(featured_companies_file='default_featured_companies.json'):
     """加载关注公司列表"""
+    if not os.path.exists(featured_companies_file):
+        print(f"   ⚠️ 未找到关注公司列表: {featured_companies_file}")
+        return {"featured_companies": []}
     with open(featured_companies_file, 'r', encoding='utf-8') as f:
         return json.load(f)
 
@@ -208,12 +211,18 @@ class GeminiSignalExtractor:
                 model=self.model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(
-                    response_mime_type="application/json"
+                    response_mime_type="application/json",
+                    max_output_tokens=65536
                 )
             )
 
             # 解析 JSON
-            result = self._clean_json(response.text)
+            raw_text = ""
+            try:
+                raw_text = response.text or ""
+            except Exception:
+                raw_text = ""
+            result = self._clean_json(raw_text)
 
             if result and 'signal_candidates' in result:
                 candidates = result['signal_candidates']
@@ -247,15 +256,8 @@ class GeminiSignalExtractor:
 
     def _clean_json(self, text):
         """清理和解析 JSON"""
-        if not text:
-            return None
-        try:
-            cleaned = text.replace("```json", "").replace("```", "").strip()
-            return json.loads(cleaned)
-        except json.JSONDecodeError as e:
-            print(f"   ⚠️ JSON 解析错误: {e}")
-            print(f"   原始文本: {text[:200]}...")
-            return None
+        from gemini_utils import clean_json
+        return clean_json(text)
 
 def load_episode_metadata(transcript_file):
     """

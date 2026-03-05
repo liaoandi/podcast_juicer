@@ -10,13 +10,15 @@ import os
 from google.genai import types
 from gemini_utils import get_gemini_client, DEFAULT_MODEL
 
-_gemini_client = None
+POLISH_MODEL = "gemini-2.5-flash"
+POLISH_LOCATION = "us-central1"
 
-def _get_client():
-    global _gemini_client
-    if _gemini_client is None:
-        _gemini_client = get_gemini_client()
-    return _gemini_client
+_gemini_clients = {}
+
+def _get_client(location="global"):
+    if location not in _gemini_clients:
+        _gemini_clients[location] = get_gemini_client(location=location)
+    return _gemini_clients[location]
 
 # =============================================================================
 # 公司名映射
@@ -218,7 +220,7 @@ def merge_segments_into_paragraphs(segments, start_sec, end_sec, context_sec=15)
 def polish_excerpt_with_llm(paragraphs, ticker_map=None):
     """使用 Gemini 润色原文摘录"""
     try:
-        client = _get_client()
+        client = _get_client(location=POLISH_LOCATION)
     except Exception:
         return None
 
@@ -245,7 +247,7 @@ def polish_excerpt_with_llm(paragraphs, ticker_map=None):
 
     try:
         response = client.models.generate_content(
-            model=DEFAULT_MODEL,
+            model=POLISH_MODEL,
             contents=f"{system_prompt}\n\n{combined}",
             config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=65536)
         )
@@ -501,23 +503,17 @@ if __name__ == "__main__":
 
     transcript_file = sys.argv[1]
     signals_file = sys.argv[2]
+    verified_signals_file = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3].endswith('.json') else None
 
+    # Determine featured_companies_file and output_file from remaining args
     featured_companies_file = None
-    verified_signals_file = None
     output_file = 'investment_research_notes.md'
 
-    for i in range(3, len(sys.argv)):
+    start_idx = 4 if verified_signals_file else 3
+    for i in range(start_idx, len(sys.argv)):
         arg = sys.argv[i]
         if arg.endswith('.json'):
-            if 'verified' in arg.lower():
-                verified_signals_file = arg
-            elif 'featured' in arg.lower() or 'companies' in arg.lower():
-                featured_companies_file = arg
-            else:
-                if not verified_signals_file:
-                    verified_signals_file = arg
-                elif not featured_companies_file:
-                    featured_companies_file = arg
+            featured_companies_file = arg
         elif arg.endswith('.md'):
             output_file = arg
 

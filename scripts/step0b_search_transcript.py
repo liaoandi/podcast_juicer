@@ -509,6 +509,7 @@ def convert_to_segments(transcript_text, output_file, audio_path=None):
         'is_official_transcript': True,
         'timing_estimated': True,
         'audio_duration_seconds': audio_duration,
+        'language': 'zh',
         'segments': segments
     }
 

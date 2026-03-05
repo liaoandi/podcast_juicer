@@ -17,7 +17,7 @@ import sys
 import os
 from google.genai import types
 import re
-from gemini_utils import get_gemini_client, get_project_id, DEFAULT_MODEL
+from gemini_utils import get_gemini_client, DEFAULT_MODEL
 
 # 配置
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,8 +31,7 @@ def _get_client():
     global client
     if client is None:
         client = get_gemini_client(location=LOCATION)
-        project_id = get_project_id()
-        print(f"🔧 初始化 Vertex AI: {GEMINI_MODEL} @ {LOCATION} ({project_id})")
+        print(f"🔧 初始化 Vertex AI: {GEMINI_MODEL} @ {LOCATION}")
     return client
 
 def extract_companies_from_full_transcript(segments):

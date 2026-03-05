@@ -465,7 +465,11 @@ def analyze_guests(transcript_file, participants_file, output_file=None, episode
 
     # 初始化 LLM
     print(f"\n🤖 初始化 LLM...")
-    client = get_llm_client()
+    try:
+        client = get_llm_client()
+    except Exception as e:
+        print(f"   ⚠️ 无法获取 LLM 客户端: {e}")
+        client = None
     if not client:
         print("   ⚠️ 无 LLM，跳过画像分析")
         return None

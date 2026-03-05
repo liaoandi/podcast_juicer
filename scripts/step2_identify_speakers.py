@@ -373,7 +373,12 @@ class GeminiSpeakerIdentifier:
                             temperature=0.1
                         )
                     )
-                    result = self._clean_json(response.text if response else None)
+                    raw_text = ""
+                    try:
+                        raw_text = response.text if response else ""
+                    except Exception:
+                        raw_text = ""
+                    result = self._clean_json(raw_text or None)
                 except Exception as e:
                     print(f"   ⚠️ Gemini 分块调用失败: {e}")
                     import traceback
@@ -382,11 +387,11 @@ class GeminiSpeakerIdentifier:
                 if result and "speaker_labels" in result:
                     break
 
-                if attempt_size <= 200:
+                if attempt_size < 100:
                     print(f"   ⚠️ 分块失败，返回已收集的 {len(label_by_index)} 个标签")
                     break
 
-                attempt_size = max(200, attempt_size // 2)
+                attempt_size = max(50, attempt_size // 2)
                 print(f"   ⚠️ 分块结果为空，缩小分块重试为 {attempt_size} 段...")
 
             if result is None:
@@ -430,7 +435,12 @@ class GeminiSpeakerIdentifier:
             )
 
             # 解析 JSON
-            result = self._clean_json(response.text if response else None)
+            raw_text = ""
+            try:
+                raw_text = response.text if response else ""
+            except Exception:
+                raw_text = ""
+            result = self._clean_json(raw_text or None)
 
             if result and 'speaker_labels' in result:
                 return result
@@ -475,7 +485,12 @@ class GeminiSpeakerIdentifier:
                 )
             )
 
-            result = self._clean_json(response.text if response else None)
+            raw_text = ""
+            try:
+                raw_text = response.text if response else ""
+            except Exception:
+                raw_text = ""
+            result = self._clean_json(raw_text or None)
 
             if result and 'speaker_mapping' in result:
                 mapping = result['speaker_mapping']
@@ -530,31 +545,22 @@ class GeminiSpeakerIdentifier:
     @staticmethod
     def _clean_json(text):
         """清理和解析 JSON"""
-        if not text:
-            return None
-        try:
-            cleaned = text.replace("```json", "").replace("```", "").strip()
-            return json.loads(cleaned)
-        except json.JSONDecodeError as e:
-            print(f"   ⚠️ JSON 解析错误: {e}")
-            print(f"   响应长度: {len(text)} 字符")
-            print(f"   原始文本开头: {text[:200]}...")
-            print(f"   原始文本结尾: ...{text[-200:]}")
-
-            # 尝试修复常见的 JSON 截断问题
+        from gemini_utils import clean_json as _cj
+        result = _cj(text)
+        if result is not None:
+            return result
+        # Fallback: try to repair truncated speaker_labels
+        if text and '"speaker_labels": [' in text:
             try:
-                # 如果是数组被截断，尝试手动补全
-                if '"speaker_labels": [' in cleaned and not cleaned.rstrip().endswith(']'):
-                    print("   尝试修复截断的 JSON 数组...")
-                    # 找到最后一个完整的对象
-                    last_complete = cleaned.rfind('"}')
-                    if last_complete > 0:
-                        fixed = cleaned[:last_complete+2] + '], "reasoning": "响应被截断"}'
-                        return json.loads(fixed)
+                cleaned = text.replace("```json", "").replace("```", "").strip()
+                last_complete = cleaned.rfind('"}')
+                if last_complete > 0:
+                    fixed = cleaned[:last_complete+2] + '], "reasoning": "响应被截断"}'
+                    import json
+                    return json.loads(fixed)
             except Exception:
                 pass
-
-            return None
+        return None
 
 def identify_speakers_with_gemini(transcript_file, participants_file, output_file):
     """

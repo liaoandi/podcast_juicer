@@ -8,6 +8,7 @@ import re
 import json
 import os
 import sys
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from google.genai import types
 from gemini_utils import get_gemini_client
@@ -19,12 +20,15 @@ MAX_WORKERS = 5  # 并发数
 
 # 初始化 Gemini 客户端
 client = None
+_client_lock = threading.Lock()
 
 def get_client():
     """获取或初始化 Gemini 客户端"""
     global client
     if client is None:
-        client = get_gemini_client(location=POLISH_LOCATION)
+        with _client_lock:
+            if client is None:  # double-check
+                client = get_gemini_client(location=POLISH_LOCATION)
     return client
 
 SYSTEM_PROMPT = """你是专业的播客转录润色专家，负责为转录添加标点并轻度书面化。
@@ -131,6 +135,8 @@ def _flush_chunk(merged, chunk):
         'end_seconds': chunk[-1].get('end_seconds', 0),
         'text': combined_text,
         'speaker': speaker,
+        'speaker_role': chunk[0].get('speaker_role', 'unknown'),
+        'speaker_confidence': chunk[0].get('speaker_confidence', 'low'),
         'original_ids': [seg.get('id', i) for i, seg in enumerate(chunk)]
     })
 
