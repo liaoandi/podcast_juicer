@@ -203,8 +203,6 @@ def process_single(url, audio_url=None, force=False):
     audio_file = os.path.join(episode_dir, f'{episode_id}.mp3')
     participants_file = os.path.join(episode_dir, f'{prefix}_participants.json')
     transcript_file = os.path.join(episode_dir, f'{episode_id}_transcript_gemini.json')
-    # 使用默认的关注公司列表引导信号提取
-    featured_companies_file = os.path.join(CONFIG_DIR, 'default_featured_companies.json')
     signals_file = os.path.join(episode_dir, f'{prefix}_signals.json')
     verified_file = os.path.join(episode_dir, f'{prefix}_verified_signals.json')
     notes_dir = os.path.join(OUTPUT_DIR, 'notes')
@@ -282,7 +280,7 @@ def process_single(url, audio_url=None, force=False):
     # ── Step 2: 提取投资信号（合并公司提取，依赖: transcript）──
     if force or _needs_rerun([transcript_file], signals_file):
         if not run_step("Step 2: 提取投资信号",
-                       [PYTHON_BIN, 'step2_extract_signals.py', transcript_file, featured_companies_file, signals_file]):
+                       [PYTHON_BIN, 'step2_extract_signals.py', transcript_file, signals_file]):
             return False
         _check_signals(signals_file)
     else:
@@ -299,7 +297,7 @@ def process_single(url, audio_url=None, force=False):
     # ── Step 4: 生成投资笔记（依赖: transcript + signals + verified）──
     if force or _needs_rerun([transcript_file, signals_file, verified_file], notes_file):
         if not run_step("Step 4: 生成投资笔记",
-                       [PYTHON_BIN, 'step4_generate_notes.py', transcript_file, signals_file, verified_file, featured_companies_file, notes_file]):
+                       [PYTHON_BIN, 'step4_generate_notes.py', transcript_file, signals_file, verified_file, notes_file]):
             return False
     else:
         print(f"\n  [跳过] 笔记已存在")

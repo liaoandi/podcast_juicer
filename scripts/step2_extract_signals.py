@@ -402,24 +402,14 @@ def extract_all_signals_with_gemini(transcript_file, featured_companies_file, ou
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("用法: python step5_extract_signals.py <transcript_json> [featured_companies_json] [output_json]")
-        print("")
-        print("参数:")
-        print("  transcript_json : 输入的润色后转录 JSON")
-        print("  featured_companies_json  : 关注公司列表（可选，默认 default_featured_companies.json）")
-        print("  output_json     : 输出的信号 JSON（可选，默认 extracted_signals.json）")
+        print("用法: python step2_extract_signals.py <transcript_json> [output_json]")
         print("")
         print("示例:")
-        print("  python step5_extract_signals.py transcript_polished.json")
-        print("  python step5_extract_signals.py transcript.json featured_companies.json signals.json")
-        print("")
-        print("需要:")
-        print("  - Vertex AI Service Account Key")
-        print("  - 已安装: pip install google-genai")
+        print("  python step2_extract_signals.py transcript.json")
+        print("  python step2_extract_signals.py transcript.json signals.json")
         sys.exit(1)
 
     transcript_file = sys.argv[1]
-    featured_companies_file = sys.argv[2] if len(sys.argv) > 2 else 'default_featured_companies.json'
-    output_file = sys.argv[3] if len(sys.argv) > 3 else 'extracted_signals.json'
+    output_file = sys.argv[2] if len(sys.argv) > 2 else 'extracted_signals.json'
 
-    extract_all_signals_with_gemini(transcript_file, featured_companies_file, output_file)
+    extract_all_signals_with_gemini(transcript_file, None, output_file)
