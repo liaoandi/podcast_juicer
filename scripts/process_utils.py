@@ -171,19 +171,17 @@ def run_step(step_name, cmd):
 
 
 # =============================================================================
-# 单集处理（含依赖链检查 + sanity check + step2b/step3 并行）
+# 单集处理（含依赖链检查 + sanity check）
 # =============================================================================
 
 def process_single(url, audio_url=None, force=False):
-    """处理单个播客的完整流程（新版 6 步）
+    """处理单个播客的完整流程（4 步）
 
     Step 0: 下载音频 + 提取参与者
-    Step 1: Gemini 音频转录（替代 Whisper + 说话人识别 + 润色）
-    Step 2: 嘉宾画像分析（可选，失败不阻塞）
-    Step 3: 提取重点公司
-    Step 4: 提取投资信号
-    Step 5: 验证信号
-    Step 6: 生成投资笔记
+    Step 1: Gemini 音频转录（转录 + 说话人标注 + 书面化）
+    Step 2: 提取投资信号（含公司识别）
+    Step 3: 验证信号（Google Search + 市场数据）
+    Step 4: 生成投资笔记
     """
 
     podcast_id, episode_id, podcast_config = match_podcast(url)
@@ -205,8 +203,8 @@ def process_single(url, audio_url=None, force=False):
     audio_file = os.path.join(episode_dir, f'{episode_id}.mp3')
     participants_file = os.path.join(episode_dir, f'{prefix}_participants.json')
     transcript_file = os.path.join(episode_dir, f'{episode_id}_transcript_gemini.json')
-    guest_profiles_file = os.path.join(episode_dir, f'{prefix}_guest_profiles.json')
-    featured_companies_file = os.path.join(episode_dir, f'{prefix}_featured_companies.json')
+    # 使用默认的关注公司列表引导信号提取
+    featured_companies_file = os.path.join(CONFIG_DIR, 'default_featured_companies.json')
     signals_file = os.path.join(episode_dir, f'{prefix}_signals.json')
     verified_file = os.path.join(episode_dir, f'{prefix}_verified_signals.json')
     notes_file = os.path.join(episode_dir, f'{prefix}_investment_notes.md')
@@ -279,41 +277,26 @@ def process_single(url, audio_url=None, force=False):
     else:
         print(f"\n  [跳过] 转录已存在")
 
-    # ── Step 2: 嘉宾画像分析（可选，失败不阻塞）──
-    if force or _needs_rerun([transcript_file, participants_file], guest_profiles_file):
-        run_step("Step 2: 分析嘉宾画像",
-                [PYTHON_BIN, 'step2b_analyze_guests.py', transcript_file, participants_file, guest_profiles_file, prefix])
-    else:
-        print(f"\n  [跳过] 嘉宾画像已存在")
-
-    # ── Step 3: 提取重点公司（依赖: transcript）──
-    if force or _needs_rerun([transcript_file], featured_companies_file):
-        if not run_step("Step 3: 提取重点公司",
-                       [PYTHON_BIN, 'step4_extract_featured_companies.py', transcript_file, '', featured_companies_file]):
-            return False
-    else:
-        print(f"\n  [跳过] 重点公司已存在")
-
-    # ── Step 4: 提取投资信号（依赖: transcript + featured_companies）──
-    if force or _needs_rerun([transcript_file, featured_companies_file], signals_file):
-        if not run_step("Step 4: 提取投资信号",
+    # ── Step 2: 提取投资信号（合并公司提取，依赖: transcript）──
+    if force or _needs_rerun([transcript_file], signals_file):
+        if not run_step("Step 2: 提取投资信号",
                        [PYTHON_BIN, 'step5_extract_signals.py', transcript_file, featured_companies_file, signals_file]):
             return False
         _check_signals(signals_file)
     else:
         print(f"\n  [跳过] 信号已存在")
 
-    # ── Step 5: 验证信号（依赖: signals）──
+    # ── Step 3: 验证信号（依赖: signals）──
     if force or _needs_rerun([signals_file], verified_file):
-        if not run_step("Step 5: 验证信号",
+        if not run_step("Step 3: 验证信号",
                        [PYTHON_BIN, 'step6_verify_signals.py', signals_file, verified_file]):
             return False
     else:
         print(f"\n  [跳过] 验证已存在")
 
-    # ── Step 6: 生成投资笔记（依赖: transcript + signals + verified + featured_companies）──
-    if force or _needs_rerun([transcript_file, signals_file, verified_file, featured_companies_file], notes_file):
-        if not run_step("Step 6: 生成投资笔记",
+    # ── Step 4: 生成投资笔记（依赖: transcript + signals + verified）──
+    if force or _needs_rerun([transcript_file, signals_file, verified_file], notes_file):
+        if not run_step("Step 4: 生成投资笔记",
                        [PYTHON_BIN, 'step7_generate_notes.py', transcript_file, signals_file, verified_file, featured_companies_file, notes_file]):
             return False
     else:
