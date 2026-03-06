@@ -326,45 +326,19 @@ def generate_research_notes(transcript_file, signals_file, featured_companies_fi
     # ── 生成笔记 ──
     notes = []
 
-    # 标题
+    # 标题 + 元信息
     if episode_title:
         notes.append(f"# {episode_title}\n\n")
     else:
         notes.append(f"# {podcast_name} EP{episode_id}\n\n")
 
-    notes.append(f"**日期**: {today}\n")
+    meta_parts = [f"日期: {today}"]
     if participants_info:
-        notes.append(f"**来源**: {participants_info}\n")
+        meta_parts.append(f"来源: {participants_info}")
     if episode_url:
-        notes.append(f"**链接**: {episode_url}\n")
-    notes.append(f"**信号数量**: {len(signals)} 个\n\n")
-
-    # 嘉宾画像
-    if guest_profiles:
-        notes.append("## 嘉宾画像\n\n")
-        for guest_name, profile in guest_profiles.items():
-            notes.append(f"### {guest_name}\n\n")
-            style = profile.get('investment_style', {})
-            if style:
-                style_type = style.get('primary_type', 'N/A')
-                style_desc = style.get('description', '')
-                notes.append(f"**投资风格**: {style_type}\n")
-                if style_desc:
-                    notes.append(f"> {style_desc}\n\n")
-            risk = profile.get('risk_preference', {})
-            if risk:
-                risk_level = risk.get('level', 'N/A')
-                risk_desc = risk.get('description', '')
-                notes.append(f"**风险偏好**: {risk_level}\n")
-                if risk_desc:
-                    notes.append(f"> {risk_desc}\n\n")
-            expertise = profile.get('expertise_areas', [])
-            if expertise:
-                notes.append(f"**专业领域**: {', '.join(expertise)}\n\n")
-            philosophy = profile.get('investment_philosophy', '')
-            if philosophy:
-                notes.append(f"**投资理念**\n> {philosophy}\n\n")
-        notes.append("---\n\n")
+        meta_parts.append(f"[收听链接]({episode_url})")
+    notes.append(" | ".join(meta_parts) + "\n\n")
+    notes.append("---\n\n")
 
     # 逐条信号
     for i, signal in enumerate(signals, 1):
@@ -378,42 +352,39 @@ def generate_research_notes(transcript_file, signals_file, featured_companies_fi
             transcript['segments'], start_sec, end_sec, context_sec=10
         )
 
-        # 格式化公司名
+        # 格式化公司名（英文名 + $TICKER，不加中文）
         if 'entities' in signal:
             company_parts = []
             for entity in signal['entities']:
                 name = entity.get('name', 'Unknown')
-                if name in company_map:
-                    company_parts.append(company_map[name]['display'])
+                ticker = entity.get('ticker')
+                if not ticker and name in company_map:
+                    ticker = company_map[name].get('ticker')
+                if ticker and ticker.lower() != 'none':
+                    company_parts.append(f"{name} (${ticker})")
                 else:
-                    ticker = entity.get('ticker')
-                    if ticker and ticker.lower() != 'none':
-                        company_parts.append(f"{name} (${ticker})")
-                    else:
-                        company_parts.append(name)
+                    company_parts.append(name)
             company_header = " vs ".join(company_parts)
         else:
             company_name = signal.get('company', 'Unknown')
-            if company_name in company_map:
-                company_header = company_map[company_name]['display']
-            else:
-                ticker = signal.get('ticker')
-                company_header = f"{company_name} (${ticker})" if ticker and ticker.lower() != 'none' else company_name
+            ticker = signal.get('ticker')
+            if not ticker and company_name in company_map:
+                ticker = company_map[company_name].get('ticker')
+            company_header = f"{company_name} (${ticker})" if ticker and ticker.lower() != 'none' else company_name
 
         notes.append(f"## {i}. {company_header}\n\n")
 
-        # Claim
+        # Claim（不做公司名替换，避免和标题重复冗长）
         theme = signal.get('claim', signal.get('theme', '无主题'))
-        theme = add_tickers_to_text(theme, featured_companies_file=featured_companies_file)
-        notes.append(f"### {theme}\n\n")
+        notes.append(f"> {theme}\n\n")
 
         # 三维度
         confidence = signal.get('confidence', 'low').upper()
         novelty = signal.get('novelty', 'low').upper()
         actionability = signal.get('actionability', 'low').upper()
-        notes.append(f"**置信度**: {confidence} | **新颖度**: {novelty} | **可行动性**: {actionability}\n\n")
+        notes.append(f"置信度: {confidence} | 新颖度: {novelty} | 可行动性: {actionability}\n\n")
 
-        # 验证数据
+        # 验证
         if 'verification' in signal:
             verification = signal['verification']
             status_map = {
@@ -421,73 +392,86 @@ def generate_research_notes(transcript_file, signals_file, featured_companies_fi
                 'unverified': '❌ 未验证', 'contradicted': '❌ 与事实矛盾'
             }
             status_text = status_map.get(verification.get('verification_status'), '未知')
-            notes.append(f"**验证状态**: {status_text} ({verification.get('verification_date', 'N/A')})\n\n")
-
-            if 'verified_claim' in verification:
-                vc = add_tickers_to_text(verification['verified_claim'], featured_companies_file=featured_companies_file)
-                notes.append(f"**验证后判断**: {vc}\n\n")
+            notes.append(f"**验证**: {status_text} ({verification.get('verification_date', 'N/A')})\n\n")
 
             if 'verified_impact_path' in verification and verification['verified_impact_path']:
-                notes.append("**真实影响路径**（基于Web搜索）\n")
+                notes.append("**影响路径**\n\n")
                 for path_item in verification['verified_impact_path']:
-                    pi = add_tickers_to_text(path_item, featured_companies_file=featured_companies_file)
-                    notes.append(f"> {pi}\n")
+                    # 去掉 LLM 返回的前缀如 "影响路径1：" "影响路径2："
+                    import re as _re
+                    cleaned = _re.sub(r'^影响路径\d+[：:]\s*', '', path_item)
+                    notes.append(f"- {cleaned}\n")
                 notes.append("\n")
 
-            if 'verified_data' in verification:
-                notes.append("**验证来源**\n")
+            if 'verified_data' in verification and verification['verified_data']:
+                notes.append("**来源**\n\n")
                 for data in verification['verified_data']:
-                    source_name = data.get('source', '').lower()
-                    if any(x in source_name for x in ['bloomberg', 'reuters', 'wsj', 'financial times', 'forbes', 'cnbc']):
-                        label = '[T1媒体][高可信]'
-                    elif any(x in source_name for x in ['trendforce', 'gartner', 'idc']):
-                        label = '[T1媒体][高可信]'
+                    finding = data.get('finding', '')
+                    if len(finding) > 150:
+                        finding = finding[:150] + '...'
+                    source_name = data.get('source', 'N/A')
+                    if 'url' in data and data['url']:
+                        notes.append(f"- [{source_name}]({data['url']}): {finding}\n")
                     else:
-                        label = '[T2媒体][中可信]'
-                    notes.append(f"- {label} **{data.get('source', 'N/A')}**: {data.get('finding', '')}\n")
-                    if 'url' in data:
-                        notes.append(f"  - [链接]({data['url']})\n")
+                        notes.append(f"- {source_name}: {finding}\n")
                 notes.append("\n")
-
-            if 'verification_notes' in verification:
-                notes.append(f"**验证备注**: {verification['verification_notes']}\n\n")
 
         else:
-            # 未验证信号
             if 'impact_path' in signal:
-                notes.append("**影响路径**（未验证）\n")
+                notes.append("**影响路径**（未验证）\n\n")
                 for path_item in signal['impact_path']:
-                    notes.append(f"> {path_item}\n")
-                notes.append("\n")
-            if 'verification_steps' in signal:
-                notes.append("**建议验证步骤**（未执行）\n")
-                for step in signal['verification_steps']:
-                    notes.append(f"- {step}\n")
+                    notes.append(f"- {path_item}\n")
                 notes.append("\n")
 
-        # 原文摘录
-        notes.append(f"**原文摘录** `[{signal.get('time_start', '00:00:00')} - {signal.get('time_end', '00:00:00')}]`\n\n")
-
-        if paragraphs:
-            polished_excerpt = polish_excerpt_with_llm(paragraphs, ticker_map)
-            if polished_excerpt:
-                notes.append(f"{polished_excerpt}\n\n")
-            else:
-                for para in paragraphs:
-                    text = para['text'].strip()
-                    if len(text) < 15:
-                        continue
-                    speaker = para.get('speaker', 'Unknown')
-                    notes.append(f"**{speaker}**: {text}\n\n")
-
-        # 音频跳转
+        # 原文摘录：优先用 evidence_seg_ids 精准定位，过滤过渡语
         audio_link_seconds = int(signal.get('start_seconds', timestamp_to_seconds(signal.get('time_start', '00:00:00'))))
+        time_range = f"{signal.get('time_start', '00:00:00')} - {signal.get('time_end', '00:00:00')}"
+        audio_link = ""
         if episode_url:
             separator = '&' if '?' in episode_url else '?'
-            notes.append(f"[跳转音频]({episode_url}{separator}t={audio_link_seconds})\n\n")
-        notes.append("---\n\n")
+            audio_link = f" · [跳转音频]({episode_url}{separator}t={audio_link_seconds})"
 
-    notes.append("*以上内容基于播客转录自动提取，仅供研究参考。*\n")
+        notes.append(f"**原文摘录** [{time_range}]{audio_link}\n\n")
+
+        # 用 evidence_seg_ids 精准提取关键段落（只取核心段，不取上下文）
+        evidence_ids = set(signal.get('evidence_seg_ids', []))
+        segments = transcript.get('segments', [])
+
+        def _format_excerpt(speaker, text):
+            """格式化原文摘录：长段落按句号分段，保持引用格式"""
+            text = text.strip()
+            if len(text) < 15:
+                return ""
+            # 长段落按句号分成多个短段（每段2-3句）
+            if len(text) > 100:
+                sentences = [s.strip() for s in text.replace('。', '。\n').split('\n') if s.strip()]
+                chunks = []
+                current = []
+                for sent in sentences:
+                    current.append(sent)
+                    if len(''.join(current)) > 80:
+                        chunks.append(''.join(current))
+                        current = []
+                if current:
+                    chunks.append(''.join(current))
+                lines = [f"> **{speaker}**: {chunks[0]}"]
+                for chunk in chunks[1:]:
+                    lines.append(f"> {chunk}")
+                return '\n>\n'.join(lines) + '\n>\n'
+            else:
+                return f"> **{speaker}**: {text}\n>\n"
+
+        if evidence_ids:
+            for seg in segments:
+                if seg.get('id') in evidence_ids:
+                    notes.append(_format_excerpt(seg.get('speaker', 'Unknown'), seg.get('text', '')))
+        elif paragraphs:
+            for para in paragraphs:
+                notes.append(_format_excerpt(para.get('speaker', 'Unknown'), para.get('text', '')))
+
+        notes.append("\n")
+
+        notes.append("---\n\n")
 
     return ''.join(notes)
 
