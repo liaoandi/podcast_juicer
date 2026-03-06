@@ -61,22 +61,26 @@ def split_audio(audio_path, chunk_seconds=MAX_CHUNK_SECONDS, skip_intro=SKIP_INT
     if duration - effective_start <= chunk_seconds:
         return [(audio_path, effective_start, duration)]
 
-    import subprocess
+    import subprocess, glob
+    base = os.path.splitext(audio_path)[0]
+
+    # 清理旧的 chunk 文件（防止上次崩溃残留）
+    for old_chunk in glob.glob(f"{base}_chunk*.mp3"):
+        os.remove(old_chunk)
+
     chunks = []
     start = effective_start
     chunk_idx = 0
-    base = os.path.splitext(audio_path)[0]
 
     while start < duration:
         end = min(start + chunk_seconds, duration)
         chunk_path = f"{base}_chunk{chunk_idx}.mp3"
 
-        if not os.path.exists(chunk_path):
-            subprocess.run([
-                'ffmpeg', '-i', audio_path,
-                '-ss', str(start), '-t', str(end - start),
-                '-y', chunk_path
-            ], capture_output=True, check=True)
+        subprocess.run([
+            'ffmpeg', '-i', audio_path,
+            '-ss', str(start), '-t', str(end - start),
+            '-y', chunk_path
+        ], capture_output=True, check=True)
 
         chunks.append((chunk_path, start, end))
         start = end
@@ -229,6 +233,9 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
                 result = transcribe_chunk(client, audio_bytes, participants_info, chunk_note)
                 if result and 'segments' in result:
                     return i, start_sec, end_sec, result['segments']
+                # LLM 返回了非标准格式
+                if result:
+                    print(f"   [{i+1}] ⚠️ 返回格式异常，缺少 segments 字段: {list(result.keys())}")
                 return i, start_sec, end_sec, None
             except Exception as e:
                 if attempt < max_retries - 1:
@@ -252,16 +259,23 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
             futures[future] = i
 
         for future in as_completed(futures):
-            idx, start_sec, end_sec, segs = future.result()
-            chunk_results[idx] = (start_sec, end_sec, segs)
-            if segs:
-                print(f"   [{idx+1}/{len(chunks)}] ✓ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: {len(segs)} 段")
-            else:
-                print(f"   [{idx+1}/{len(chunks)}] ✗ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: 无结果")
+            try:
+                idx, start_sec, end_sec, segs = future.result()
+                chunk_results[idx] = (start_sec, end_sec, segs)
+                if segs:
+                    print(f"   [{idx+1}/{len(chunks)}] ✓ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: {len(segs)} 段")
+                else:
+                    print(f"   [{idx+1}/{len(chunks)}] ✗ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: 无结果")
+            except Exception as e:
+                i = futures[future]
+                print(f"   [{i+1}/{len(chunks)}] ❌ 异常: {e}")
 
-    # 按顺序合并结果
+    # 按顺序合并结果（跳过 None 条目）
     all_segments = []
-    for start_sec, end_sec, segs in chunk_results:
+    for entry in chunk_results:
+        if entry is None:
+            continue
+        start_sec, end_sec, segs = entry
         if not segs:
             continue
         for j, seg in enumerate(segs):

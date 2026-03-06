@@ -67,12 +67,16 @@ def _needs_rerun(source_files, target_file):
 # Sanity checks
 # =============================================================================
 
-def _check_speakers(speakers_file):
-    """检查说话人识别质量"""
-    with open(speakers_file, 'r', encoding='utf-8') as f:
+def _check_transcript(transcript_file):
+    """检查转录结果质量"""
+    with open(transcript_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
+    segments = data.get('segments', [])
+    if not segments:
+        print(f"  ❌ Sanity check 失败: 转录为空")
+        return False
     speakers = {}
-    for seg in data.get('segments', []):
+    for seg in segments:
         sp = seg.get('speaker', 'Unknown')
         speakers[sp] = speakers.get(sp, 0) + 1
     total = sum(speakers.values())
@@ -80,31 +84,7 @@ def _check_speakers(speakers_file):
     if total > 0 and unknown / total > 0.5:
         print(f"  ❌ Sanity check 失败: {unknown}/{total} 段未识别说话人")
         return False
-    print(f"  ✓ 说话人: {speakers}")
-    return True
-
-
-def _check_polished(polished_file, speakers_file):
-    """检查润色结果保留了说话人"""
-    with open(polished_file, 'r', encoding='utf-8') as f:
-        polished = json.load(f)
-    with open(speakers_file, 'r', encoding='utf-8') as f:
-        speakers_data = json.load(f)
-
-    # 检查说话人是否丢失
-    polished_speakers = set(s.get('speaker', '?') for s in polished.get('segments', []))
-    source_speakers = set(s.get('speaker', '?') for s in speakers_data.get('segments', []))
-    # 如果源有多个说话人但 polished 只有 Unknown，说明丢失了
-    if len(source_speakers - {'Unknown', 'SPEAKER_00'}) > 1 and polished_speakers == {'Unknown'}:
-        print(f"  ❌ Sanity check 失败: 润色后说话人全部丢失")
-        return False
-    # Check speaker count didn't regress significantly
-    source_named = source_speakers - {'Unknown', 'SPEAKER_00'}
-    polished_named = polished_speakers - {'Unknown', 'SPEAKER_00'}
-    if len(source_named) > 1 and len(polished_named) < len(source_named) // 2:
-        print(f"  ⚠️ 说话人数量回退: {len(source_named)} → {len(polished_named)}")
-
-    print(f"  ✓ 润色: {len(polished['segments'])} 段, 说话人: {polished_speakers}")
+    print(f"  ✓ 转录: {len(segments)} 段, 说话人: {speakers}")
     return True
 
 
@@ -117,124 +97,7 @@ def _check_signals(signals_file):
         print(f"  ⚠️ 信号为空（可能是正常的，取决于播客内容）")
     else:
         print(f"  ✓ 信号: {len(signals)} 个")
-    return True  # 空信号不阻塞
-
-
-# =============================================================================
-# 录制日期提取（使用 flash 模型，避免 thinking 模型截断 JSON）
-# =============================================================================
-
-def extract_record_date_from_transcript(transcript_file, metadata_file, participants_file):
-    """从转录开头提取录制日期"""
-    try:
-        # 使用 flash 模型（简单的日期提取不需要 thinking）
-        client = get_gemini_client(location="us-central1")
-    except Exception:
-        print("  ⚠️ 无法获取 Gemini 客户端，跳过录制日期提取")
-        return None
-
-    if not os.path.exists(transcript_file):
-        return None
-
-    with open(transcript_file, 'r', encoding='utf-8') as f:
-        transcript = json.load(f)
-
-    segments = transcript.get('segments', [])
-    if not segments:
-        return None
-
-    # 取前 5 分钟
-    opening_text = []
-    for seg in segments:
-        if seg.get('start_seconds', 0) > 300:
-            break
-        speaker = seg.get('speaker', '')
-        text = seg.get('text', '')
-        opening_text.append(f"[{speaker}] {text}")
-
-    if not opening_text:
-        return None
-
-    opening_content = '\n'.join(opening_text)
-
-    publish_date = None
-    if os.path.exists(metadata_file):
-        with open(metadata_file, 'r', encoding='utf-8') as f:
-            publish_date = json.load(f).get('publish_date')
-
-    prompt = f"""从播客开头对话中提取录制日期。
-
-发布日期（参考）: {publish_date or '未知'}
-
-播客开头内容：
-{opening_content}
-
-任务：寻找主持人提到的录制日期/时间。常见表述如"今天是X月X日"、"我们在X月X号录制"等。
-如果找到相对日期（如"上周三"），用发布日期推算具体日期。
-
-输出 JSON：
-{{
-  "record_date": "YYYY-MM-DD 或 null",
-  "confidence": "high/medium/low",
-  "evidence": "原文引用",
-  "reasoning": "推理过程"
-}}
-
-如果没有明确提到录制日期，返回 null。只输出 JSON。
-"""
-
-    try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=0.1,
-                max_output_tokens=65536,
-                response_mime_type="application/json",
-            )
-        )
-
-        result = clean_json(response.text or "")
-        if not result or not isinstance(result, dict):
-            print(f"  ○ 转录中未找到明确的录制日期")
-            return None
-
-        record_date = result.get('record_date')
-        confidence = result.get('confidence', 'low')
-        evidence = result.get('evidence', '')
-
-        if record_date and confidence in ['high', 'medium']:
-            print(f"  ✓ 从转录提取录制日期: {record_date} (置信度: {confidence})")
-            if evidence:
-                print(f"    证据: {evidence[:80]}")
-
-            # 更新 participants.json
-            if os.path.exists(participants_file):
-                with open(participants_file, 'r', encoding='utf-8') as f:
-                    participants = json.load(f)
-                participants['record_date'] = record_date
-                participants['record_date_source'] = 'transcript'
-                participants['record_date_evidence'] = evidence
-                with open(participants_file, 'w', encoding='utf-8') as f:
-                    json.dump(participants, f, ensure_ascii=False, indent=2)
-
-            # 更新 metadata.json
-            if os.path.exists(metadata_file):
-                with open(metadata_file, 'r', encoding='utf-8') as f:
-                    metadata = json.load(f)
-                metadata['record_date'] = record_date
-                metadata['record_date_source'] = 'transcript'
-                with open(metadata_file, 'w', encoding='utf-8') as f:
-                    json.dump(metadata, f, ensure_ascii=False, indent=2)
-
-            return record_date
-        else:
-            print(f"  ○ 转录中未找到明确的录制日期")
-            return None
-
-    except Exception as e:
-        print(f"  ⚠️ 录制日期提取失败: {e}")
-        return None
+    return True
 
 
 # =============================================================================
@@ -312,7 +175,16 @@ def run_step(step_name, cmd):
 # =============================================================================
 
 def process_single(url, audio_url=None, force=False):
-    """处理单个播客的完整流程"""
+    """处理单个播客的完整流程（新版 6 步）
+
+    Step 0: 下载音频 + 提取参与者
+    Step 1: Gemini 音频转录（替代 Whisper + 说话人识别 + 润色）
+    Step 2: 嘉宾画像分析（可选，失败不阻塞）
+    Step 3: 提取重点公司
+    Step 4: 提取投资信号
+    Step 5: 验证信号
+    Step 6: 生成投资笔记
+    """
 
     podcast_id, episode_id, podcast_config = match_podcast(url)
     if not podcast_id:
@@ -332,21 +204,18 @@ def process_single(url, audio_url=None, force=False):
     metadata_file = os.path.join(episode_dir, f'{prefix}_metadata.json')
     audio_file = os.path.join(episode_dir, f'{episode_id}.mp3')
     participants_file = os.path.join(episode_dir, f'{prefix}_participants.json')
-    transcript_file = os.path.join(episode_dir, f'{episode_id}_transcript_advanced.json')
-    speakers_file = os.path.join(episode_dir, f'{episode_id}_transcript_advanced_with_speakers.json')
-    polished_file = os.path.join(episode_dir, f'{episode_id}_transcript_polished.json')
+    transcript_file = os.path.join(episode_dir, f'{episode_id}_transcript_gemini.json')
     guest_profiles_file = os.path.join(episode_dir, f'{prefix}_guest_profiles.json')
     featured_companies_file = os.path.join(episode_dir, f'{prefix}_featured_companies.json')
     signals_file = os.path.join(episode_dir, f'{prefix}_signals.json')
     verified_file = os.path.join(episode_dir, f'{prefix}_verified_signals.json')
     notes_file = os.path.join(episode_dir, f'{prefix}_investment_notes.md')
 
-    # 加载已有 metadata 或创建新的（避免覆盖已有的日期等信息）
+    # 加载已有 metadata 或创建新的
     metadata = {}
     if os.path.exists(metadata_file):
         with open(metadata_file, 'r', encoding='utf-8') as f:
             metadata = json.load(f)
-    # 更新基础字段（始终更新），保留已有的日期字段
     metadata['podcast_id'] = podcast_id
     metadata['podcast_name'] = podcast_config.get('name', podcast_id)
     metadata['episode_id'] = episode_id
@@ -365,7 +234,7 @@ def process_single(url, audio_url=None, force=False):
         audio_base = os.path.join(episode_dir, episode_id)
         download_url = audio_url if audio_url else url
         if os.path.exists(audio_file):
-            print(f"\n  [跳过] 音频已存在: {audio_file}")
+            print(f"\n  [跳过] 音频已存在")
             print(f"  [继续] 提取参与者信息...")
         if not run_step("Step 0: 下载音频 + 提取参与者",
                        [PYTHON_BIN, 'step0_download_and_prepare.py', download_url, audio_base]):
@@ -374,14 +243,13 @@ def process_single(url, audio_url=None, force=False):
     else:
         print(f"\n  [跳过] 音频和参与者已存在")
 
-    # 移动 participants.json (use episode_id in temp name to avoid race conditions)
+    # 移动 participants.json
     temp_participants = os.path.join(SCRIPTS_DIR, 'participants.json')
     temp_participants_safe = os.path.join(SCRIPTS_DIR, f'participants_{episode_id}.json')
     if os.path.exists(temp_participants):
         shutil.move(temp_participants, temp_participants_safe)
-    temp_participants = temp_participants_safe
-    if os.path.exists(temp_participants):
-        shutil.move(temp_participants, participants_file)
+    if os.path.exists(temp_participants_safe):
+        shutil.move(temp_participants_safe, participants_file)
         print(f"  [移动] participants.json -> {participants_file}")
 
     # 合并日期到 metadata
@@ -397,133 +265,56 @@ def process_single(url, audio_url=None, force=False):
             json.dump(metadata, f, ensure_ascii=False, indent=2)
         print(f"  [更新] metadata: publish={metadata['publish_date']}")
 
-    # ── Step 0b: 搜索官方文字稿 ──
-    official_transcript_file = os.path.join(episode_dir, f'{episode_id}_official_transcript.json')
-    use_official_transcript = False
-
-    if not os.path.exists(transcript_file) and not os.path.exists(official_transcript_file):
-        print(f"\n{'='*60}")
-        print(f"  Step 0b: 搜索官方文字稿")
-        print(f"{'='*60}")
-        podcast_name = podcast_config.get('name', podcast_id)
-        result = subprocess.run(
-            [PYTHON_BIN, 'step0b_search_transcript.py', url, podcast_name, episode_id, official_transcript_file, audio_file],
-            cwd=SCRIPTS_DIR, env=_build_env(), capture_output=True, text=True
-        )
-        if result.returncode == 0 and os.path.exists(official_transcript_file):
-            print(f"  ✓ 找到官方文字稿")
-            use_official_transcript = True
-            shutil.copy(official_transcript_file, transcript_file)
-        else:
-            print(f"  ✗ 未找到官方文字稿")
-
-    if os.path.exists(official_transcript_file) and not os.path.exists(transcript_file):
-        shutil.copy(official_transcript_file, transcript_file)
-        use_official_transcript = True
-
-    # ── Step 1: 转录 ──
-    if force or not os.path.exists(transcript_file):
-        run_step("Step 1: 转录音频",
-                 [PYTHON_BIN, 'step1_transcribe_advanced.py', audio_file])
-        # Whisper 在 Python 3.14 + MPS 下退出码可能非零（semaphore warning）
-        # 以实际输出文件是否生成为准
-        if not os.path.exists(transcript_file):
-            print(f"  ❌ 转录文件未生成")
+    # ── Step 1: Gemini 音频转录（一步到位：转录 + 说话人 + 书面化）──
+    if force or _needs_rerun([audio_file, participants_file], transcript_file):
+        if not run_step("Step 1: Gemini 音频转录",
+                       [PYTHON_BIN, 'step1_transcribe_gemini.py', audio_file, participants_file, transcript_file]):
+            # 检查文件是否生成（进程可能非零退出但文件已生成）
+            if not os.path.exists(transcript_file):
+                print(f"  ❌ 转录文件未生成")
+                return False
+        # Sanity check
+        if not _check_transcript(transcript_file):
             return False
-    elif use_official_transcript:
-        print(f"\n  [使用官方文字稿]")
     else:
         print(f"\n  [跳过] 转录已存在")
 
-    # ── Step 2: 识别说话人 ──（依赖: transcript + participants）
-    if force or _needs_rerun([transcript_file, participants_file], speakers_file):
-        if not run_step("Step 2: 识别说话人",
-                       [PYTHON_BIN, 'step2_identify_speakers.py', transcript_file, participants_file, speakers_file]):
-            return False
-        # Sanity check
-        if not _check_speakers(speakers_file):
-            return False
+    # ── Step 2: 嘉宾画像分析（可选，失败不阻塞）──
+    if force or _needs_rerun([transcript_file, participants_file], guest_profiles_file):
+        run_step("Step 2: 分析嘉宾画像",
+                [PYTHON_BIN, 'step2b_analyze_guests.py', transcript_file, participants_file, guest_profiles_file, prefix])
     else:
-        print(f"\n  [跳过] 说话人识别已存在")
+        print(f"\n  [跳过] 嘉宾画像已存在")
 
-    # ── Step 2a: 录制日期 ──
-    if os.path.exists(metadata_file):
-        with open(metadata_file, 'r', encoding='utf-8') as f:
-            current_metadata = json.load(f)
-        if not current_metadata.get('record_date') or current_metadata.get('record_date_source') != 'transcript':
-            print(f"\n{'='*60}")
-            print(f"  Step 2a: 从转录提取录制日期")
-            print(f"{'='*60}")
-            extract_record_date_from_transcript(speakers_file, metadata_file, participants_file)
-
-    # ── Step 2b + Step 3: 并行执行 ──（都依赖 speakers_file）
-    step2b_needed = force or _needs_rerun([speakers_file, participants_file], guest_profiles_file)
-    step3_needed = force or _needs_rerun([speakers_file], polished_file)
-
-    if step2b_needed or step3_needed:
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            futures = {}
-
-            if step2b_needed:
-                def _run_step2b():
-                    return run_step("Step 2b: 分析嘉宾画像",
-                        [PYTHON_BIN, 'step2b_analyze_guests.py', speakers_file, participants_file, guest_profiles_file, prefix])
-                futures['step2b'] = executor.submit(_run_step2b)
-            else:
-                print(f"\n  [跳过] 嘉宾画像已存在")
-
-            if step3_needed:
-                def _run_step3():
-                    return run_step("Step 3: 润色转录",
-                        [PYTHON_BIN, 'step3_polish_transcript.py', speakers_file, polished_file])
-                futures['step3'] = executor.submit(_run_step3)
-            else:
-                print(f"\n  [跳过] 润色已存在")
-
-            # 等待结果
-            for name, future in futures.items():
-                success = future.result()
-                if name == 'step3' and not success:
-                    return False
-                # step2b 失败不阻塞
-
-        # Sanity check polished
-        if step3_needed and os.path.exists(polished_file):
-            if not _check_polished(polished_file, speakers_file):
-                return False
-    else:
-        print(f"\n  [跳过] 嘉宾画像和润色已存在")
-
-    # ── Step 4: 提取重点公司 ──（依赖: polished）
-    if force or _needs_rerun([polished_file], featured_companies_file):
-        if not run_step("Step 4: 提取重点公司",
-                       # '' = no existing featured companies to merge with
-                       [PYTHON_BIN, 'step4_extract_featured_companies.py', polished_file, '', featured_companies_file]):
+    # ── Step 3: 提取重点公司（依赖: transcript）──
+    if force or _needs_rerun([transcript_file], featured_companies_file):
+        if not run_step("Step 3: 提取重点公司",
+                       [PYTHON_BIN, 'step4_extract_featured_companies.py', transcript_file, '', featured_companies_file]):
             return False
     else:
         print(f"\n  [跳过] 重点公司已存在")
 
-    # ── Step 5: 提取信号 ──（依赖: polished + featured_companies）
-    if force or _needs_rerun([polished_file, featured_companies_file], signals_file):
-        if not run_step("Step 5: 提取投资信号",
-                       [PYTHON_BIN, 'step5_extract_signals.py', polished_file, featured_companies_file, signals_file]):
+    # ── Step 4: 提取投资信号（依赖: transcript + featured_companies）──
+    if force or _needs_rerun([transcript_file, featured_companies_file], signals_file):
+        if not run_step("Step 4: 提取投资信号",
+                       [PYTHON_BIN, 'step5_extract_signals.py', transcript_file, featured_companies_file, signals_file]):
             return False
         _check_signals(signals_file)
     else:
         print(f"\n  [跳过] 信号已存在")
 
-    # ── Step 6: 验证信号 ──（依赖: signals）
+    # ── Step 5: 验证信号（依赖: signals）──
     if force or _needs_rerun([signals_file], verified_file):
-        if not run_step("Step 6: 验证信号",
+        if not run_step("Step 5: 验证信号",
                        [PYTHON_BIN, 'step6_verify_signals.py', signals_file, verified_file]):
             return False
     else:
         print(f"\n  [跳过] 验证已存在")
 
-    # ── Step 7: 生成投资笔记 ──（依赖: polished + signals + verified + featured_companies）
-    if force or _needs_rerun([polished_file, signals_file, verified_file, featured_companies_file], notes_file):
-        if not run_step("Step 7: 生成投资笔记",
-                       [PYTHON_BIN, 'step7_generate_notes.py', polished_file, signals_file, verified_file, featured_companies_file, notes_file]):
+    # ── Step 6: 生成投资笔记（依赖: transcript + signals + verified + featured_companies）──
+    if force or _needs_rerun([transcript_file, signals_file, verified_file, featured_companies_file], notes_file):
+        if not run_step("Step 6: 生成投资笔记",
+                       [PYTHON_BIN, 'step7_generate_notes.py', transcript_file, signals_file, verified_file, featured_companies_file, notes_file]):
             return False
     else:
         print(f"\n  [跳过] 笔记已存在")
