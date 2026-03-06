@@ -25,10 +25,9 @@ from gemini_utils import get_gemini_client, DEFAULT_MODEL
 LOCATION = "global"
 GEMINI_MODEL = DEFAULT_MODEL
 
-def load_featured_companies(featured_companies_file='default_featured_companies.json'):
+def load_featured_companies(featured_companies_file=None):
     """加载关注公司列表"""
-    if not os.path.exists(featured_companies_file):
-        print(f"   ⚠️ 未找到关注公司列表: {featured_companies_file}")
+    if not featured_companies_file or not os.path.exists(featured_companies_file):
         return {"featured_companies": []}
     with open(featured_companies_file, 'r', encoding='utf-8') as f:
         return json.load(f)
