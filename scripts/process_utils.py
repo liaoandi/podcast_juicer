@@ -207,7 +207,9 @@ def process_single(url, audio_url=None, force=False):
     featured_companies_file = os.path.join(CONFIG_DIR, 'default_featured_companies.json')
     signals_file = os.path.join(episode_dir, f'{prefix}_signals.json')
     verified_file = os.path.join(episode_dir, f'{prefix}_verified_signals.json')
-    notes_file = os.path.join(episode_dir, f'{prefix}_investment_notes.md')
+    notes_dir = os.path.join(OUTPUT_DIR, 'notes')
+    os.makedirs(notes_dir, exist_ok=True)
+    notes_file = os.path.join(notes_dir, f'{prefix}_investment_notes.md')
 
     # 加载已有 metadata 或创建新的
     metadata = {}
@@ -280,7 +282,7 @@ def process_single(url, audio_url=None, force=False):
     # ── Step 2: 提取投资信号（合并公司提取，依赖: transcript）──
     if force or _needs_rerun([transcript_file], signals_file):
         if not run_step("Step 2: 提取投资信号",
-                       [PYTHON_BIN, 'step5_extract_signals.py', transcript_file, featured_companies_file, signals_file]):
+                       [PYTHON_BIN, 'step2_extract_signals.py', transcript_file, featured_companies_file, signals_file]):
             return False
         _check_signals(signals_file)
     else:
@@ -289,7 +291,7 @@ def process_single(url, audio_url=None, force=False):
     # ── Step 3: 验证信号（依赖: signals）──
     if force or _needs_rerun([signals_file], verified_file):
         if not run_step("Step 3: 验证信号",
-                       [PYTHON_BIN, 'step6_verify_signals.py', signals_file, verified_file]):
+                       [PYTHON_BIN, 'step3_verify_signals.py', signals_file, verified_file]):
             return False
     else:
         print(f"\n  [跳过] 验证已存在")
@@ -297,7 +299,7 @@ def process_single(url, audio_url=None, force=False):
     # ── Step 4: 生成投资笔记（依赖: transcript + signals + verified）──
     if force or _needs_rerun([transcript_file, signals_file, verified_file], notes_file):
         if not run_step("Step 4: 生成投资笔记",
-                       [PYTHON_BIN, 'step7_generate_notes.py', transcript_file, signals_file, verified_file, featured_companies_file, notes_file]):
+                       [PYTHON_BIN, 'step4_generate_notes.py', transcript_file, signals_file, verified_file, featured_companies_file, notes_file]):
             return False
     else:
         print(f"\n  [跳过] 笔记已存在")
