@@ -2,7 +2,7 @@
 """
 Gemini/Vertex AI shared helpers.
 
-- Resolve GOOGLE_APPLICATION_CREDENTIALS from env or project .env
+- Resolve credentials from env, global api-keys file, or project override
 - Resolve project_id from SA key or GOOGLE_CLOUD_PROJECT
 - Create genai.Client with optional timeout
 - JSON cleanup helper
@@ -28,10 +28,28 @@ def project_root() -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def global_env_file() -> str:
+    return os.path.expanduser("~/.config/api-keys.env")
+
+
 def _strip_quotes(value: Optional[str]) -> Optional[str]:
     if value is None:
         return value
     return value.strip().strip('"').strip("'")
+
+
+def _load_value_from_file(file_path: str, key: str) -> Optional[str]:
+    if not os.path.exists(file_path):
+        return None
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith(f"{key}="):
+                return _strip_quotes(line.split("=", 1)[1].strip())
+    return None
 
 
 def load_env_value(key: str) -> Optional[str]:
@@ -39,19 +57,12 @@ def load_env_value(key: str) -> Optional[str]:
     if value:
         return _strip_quotes(value)
 
+    value = _load_value_from_file(global_env_file(), key)
+    if value:
+        return value
+
     env_file = os.path.join(project_root(), ".env")
-    if not os.path.exists(env_file):
-        return None
-
-    with open(env_file, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if line.startswith(f"{key}="):
-                return _strip_quotes(line.split("=", 1)[1].strip())
-
-    return None
+    return _load_value_from_file(env_file, key)
 
 
 def get_sa_key_path() -> Optional[str]:
@@ -91,7 +102,7 @@ def ensure_credentials(verbose: bool = False) -> Optional[str]:
     else:
         if verbose:
             print("⚠️  未找到 GOOGLE_APPLICATION_CREDENTIALS")
-            print("   请在 .env 文件中配置或设置环境变量")
+            print("   请在 ~/.config/api-keys.env 中配置或设置环境变量")
     return sa_key_path
 
 

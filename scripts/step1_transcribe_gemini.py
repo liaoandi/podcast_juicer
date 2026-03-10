@@ -127,7 +127,7 @@ def build_transcribe_prompt(participants_info=None, chunk_note=None):
     {{
       "speaker": "说话人姓名",
       "text": "说话内容（完整的一段发言）",
-      "start_approx": "大约开始时间 MM:SS"
+      "start_approx": "绝对开始时间 HH:MM:SS"
     }}
   ]
 }}
@@ -168,19 +168,37 @@ def format_timestamp(seconds):
     return f"{h:02d}:{m:02d}:{s:02d}"
 
 
-def parse_approx_time(time_str, offset=0):
-    """解析 LLM 返回的大约时间（MM:SS 或 HH:MM:SS），加上偏移"""
+def parse_approx_time(time_str, offset=0, chunk_end=None):
+    """解析 LLM 返回的大约时间（MM:SS 或 HH:MM:SS），加上偏移。
+
+    期望模型返回相对于整期音频的绝对时间；为兼容旧输出，仍接受 chunk 内相对时间。
+    """
     if not time_str:
         return offset
     try:
         parts = time_str.strip().split(':')
         if len(parts) == 3:
             secs = int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+            if offset > 0 and secs >= offset:
+                return secs
+            return secs + offset
         elif len(parts) == 2:
             secs = int(parts[0]) * 60 + int(parts[1])
         else:
             secs = 0
-        return secs + offset
+
+        if offset <= 0:
+            return secs
+
+        if chunk_end is not None:
+            chunk_duration = max(0, int(chunk_end - offset))
+            if secs <= chunk_duration + 5:
+                return secs + offset
+
+        if secs < offset:
+            return secs + offset
+
+        return secs
     except Exception:
         return offset
 
@@ -279,9 +297,13 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
         if not segs:
             continue
         for j, seg in enumerate(segs):
-            approx_start = parse_approx_time(seg.get('start_approx', ''), offset=start_sec)
+            approx_start = parse_approx_time(seg.get('start_approx', ''), offset=start_sec, chunk_end=end_sec)
             if j + 1 < len(segs):
-                approx_end = parse_approx_time(segs[j + 1].get('start_approx', ''), offset=start_sec)
+                approx_end = parse_approx_time(
+                    segs[j + 1].get('start_approx', ''),
+                    offset=start_sec,
+                    chunk_end=end_sec,
+                )
             else:
                 approx_end = end_sec or (approx_start + 30)
 

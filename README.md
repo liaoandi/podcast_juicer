@@ -121,8 +121,8 @@ git clone https://github.com/liaoandi/podcast_juicer.git
 cd podcast_juicer
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-# 编辑 .env，填入 GOOGLE_APPLICATION_CREDENTIALS 路径
+# 公共密钥统一放在 ~/.config/api-keys.env，并由 shell 自动加载
+# 如需 override，再单独传环境变量，不要新建项目级 .env
 ```
 
 ### 使用
@@ -166,9 +166,10 @@ output/
 
 ### 配置
 
-环境变量 `.env`：
+公共密钥统一存放在 `~/.config/api-keys.env`：
 ```
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json
+GOOGLE_CLOUD_PROJECT=your-gcp-project
 ```
 
 ### 依赖
@@ -286,8 +287,8 @@ git clone https://github.com/liaoandi/podcast_juicer.git
 cd podcast_juicer
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-# Edit .env and set GOOGLE_APPLICATION_CREDENTIALS path
+# Store shared credentials in ~/.config/api-keys.env and let the shell load them
+# Do not create a project-level .env for common keys
 ```
 
 ### Usage
@@ -331,9 +332,10 @@ output/
 
 ### Configuration
 
-Environment variable `.env`:
+Shared credentials live in `~/.config/api-keys.env`:
 ```
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json
+GOOGLE_CLOUD_PROJECT=your-gcp-project
 ```
 
 ### Dependencies
