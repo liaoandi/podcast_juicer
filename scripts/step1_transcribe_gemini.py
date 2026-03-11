@@ -173,32 +173,51 @@ def parse_approx_time(time_str, offset=0, chunk_end=None):
 
     期望模型返回相对于整期音频的绝对时间；为兼容旧输出，仍接受 chunk 内相对时间。
     """
+    def _clamp_to_chunk(seconds):
+        seconds = max(0, int(seconds))
+        chunk_start = max(0, int(offset))
+        if chunk_end is None:
+            return max(chunk_start, seconds)
+        return max(chunk_start, min(seconds, int(chunk_end)))
+
     if not time_str:
         return offset
     try:
         parts = time_str.strip().split(':')
         if len(parts) == 3:
             secs = int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-            if offset > 0 and secs >= offset:
+            if offset <= 0:
+                return _clamp_to_chunk(secs)
+
+            if chunk_end is not None and offset <= secs <= chunk_end + 5:
                 return secs
-            return secs + offset
+
+            relative_secs = secs + offset
+            if chunk_end is not None and offset <= relative_secs <= chunk_end + 5:
+                return relative_secs
+
+            if secs >= offset:
+                return _clamp_to_chunk(secs)
+            return _clamp_to_chunk(relative_secs)
         elif len(parts) == 2:
             secs = int(parts[0]) * 60 + int(parts[1])
         else:
             secs = 0
 
         if offset <= 0:
-            return secs
+            return _clamp_to_chunk(secs)
 
         if chunk_end is not None:
             chunk_duration = max(0, int(chunk_end - offset))
             if secs <= chunk_duration + 5:
                 return secs + offset
+            if offset <= secs <= chunk_end + 5:
+                return secs
 
         if secs < offset:
-            return secs + offset
+            return _clamp_to_chunk(secs + offset)
 
-        return secs
+        return _clamp_to_chunk(secs)
     except Exception:
         return offset
 
@@ -298,6 +317,8 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
             continue
         for j, seg in enumerate(segs):
             approx_start = parse_approx_time(seg.get('start_approx', ''), offset=start_sec, chunk_end=end_sec)
+            if end_sec is not None:
+                approx_start = min(approx_start, int(end_sec))
             if j + 1 < len(segs):
                 approx_end = parse_approx_time(
                     segs[j + 1].get('start_approx', ''),
@@ -306,6 +327,10 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
                 )
             else:
                 approx_end = end_sec or (approx_start + 30)
+
+            if end_sec is not None:
+                approx_end = min(approx_end, int(end_sec))
+            approx_end = max(approx_end, approx_start)
 
             all_segments.append({
                 'id': len(all_segments),
