@@ -283,15 +283,61 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
                     print(f"   [{i+1}] ❌ 失败: {str(e)[:60]}")
                     return i, start_sec, end_sec, None
 
-    total_start = time.time()
+    # ── 增量存储：每个 chunk 完成后立刻写入，支持断点续跑 ──
+    if not output_file:
+        base = os.path.splitext(audio_file)[0]
+        output_file = f"{base}_transcript_gemini.json"
+
+    progress_file = output_file + ".progress"
+
+    # 加载已完成的 chunk（断点续跑）
     chunk_results = [None] * len(chunks)
+    done_chunks = set()
+    if os.path.exists(progress_file):
+        try:
+            with open(progress_file, 'r', encoding='utf-8') as f:
+                progress_data = json.load(f)
+            for cr in progress_data.get('chunk_results', []):
+                idx = cr['chunk_index']
+                # 只恢复有实际 segments 的 chunk，失败的 chunk 重试
+                if idx < len(chunks) and cr.get('segments'):
+                    chunk_results[idx] = (cr['start_sec'], cr['end_sec'], cr['segments'])
+                    done_chunks.add(idx)
+            print(f"\n📂 断点续跑: 已完成 {len(done_chunks)}/{len(chunks)} 个 chunk")
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"\n⚠️ progress 文件损坏 ({e})，从头开始")
+            done_chunks = set()
+            chunk_results = [None] * len(chunks)
+
+    total_start = time.time()
     workers = min(MAX_WORKERS, len(chunks))
 
-    print(f"\n🚀 并行转录 ({workers} 路)...")
+    def _save_progress():
+        """将已完成的 chunk 原子写入 progress 文件"""
+        saved = []
+        for idx, entry in enumerate(chunk_results):
+            if entry is not None:
+                start_sec, end_sec, segs = entry
+                saved.append({
+                    'chunk_index': idx,
+                    'start_sec': start_sec,
+                    'end_sec': end_sec,
+                    'segments': segs,
+                })
+        tmp_file = progress_file + ".tmp"
+        with open(tmp_file, 'w', encoding='utf-8') as f:
+            json.dump({'total_chunks': len(chunks), 'chunk_results': saved}, f, ensure_ascii=False)
+        os.replace(tmp_file, progress_file)
+
+    remaining = [(i, c) for i, c in enumerate(chunks) if i not in done_chunks]
+    if remaining:
+        print(f"\n🚀 转录 ({len(remaining)} 个 chunk 待处理, {workers} 路)...")
+    else:
+        print(f"\n✅ 所有 chunk 已完成，直接合并")
 
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {}
-        for i, (chunk_path, start_sec, end_sec) in enumerate(chunks):
+        for i, (chunk_path, start_sec, end_sec) in remaining:
             future = executor.submit(_transcribe_one, i, chunk_path, start_sec, end_sec)
             futures[future] = i
 
@@ -303,6 +349,8 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
                     print(f"   [{idx+1}/{len(chunks)}] ✓ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: {len(segs)} 段")
                 else:
                     print(f"   [{idx+1}/{len(chunks)}] ✗ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: 无结果")
+                # 每个 chunk 完成后立刻保存进度
+                _save_progress()
             except Exception as e:
                 i = futures[future]
                 print(f"   [{i+1}/{len(chunks)}] ❌ 异常: {e}")
@@ -362,16 +410,14 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
         'segments': all_segments,
     }
 
-    # 保存
-    if not output_file:
-        base = os.path.splitext(audio_file)[0]
-        output_file = f"{base}_transcript_gemini.json"
-
     print(f"\n💾 保存: {output_file}")
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    # 清理临时分段文件
+    # 清理临时文件（progress 完成即删，chunk 文件移到 archive）
+    for f in [progress_file, progress_file + ".tmp"]:
+        if os.path.exists(f):
+            os.remove(f)
     for chunk_path, _, _ in chunks:
         if chunk_path != audio_file and os.path.exists(chunk_path):
             os.remove(chunk_path)
