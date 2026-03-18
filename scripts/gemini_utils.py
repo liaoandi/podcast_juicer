@@ -13,7 +13,6 @@ Gemini/Vertex AI shared helpers.
 import json
 import os
 import re
-import time
 from typing import Optional
 
 from google import genai
@@ -22,6 +21,7 @@ from google import genai
 # Default model – single source of truth for all scripts
 # ---------------------------------------------------------------------------
 DEFAULT_MODEL = "gemini-3.1-pro-preview"
+FLASH_MODEL = "gemini-2.5-flash"
 
 
 def project_root() -> str:
@@ -213,40 +213,3 @@ def clean_json(text: str):
     return None
 
 
-# ---------------------------------------------------------------------------
-# Retry wrapper for Gemini API calls
-# ---------------------------------------------------------------------------
-# NOTE: Available for scripts to adopt. Currently each script implements its own retry.
-def call_gemini_with_retry(client, model, contents, config, max_retries=3):
-    """Call client.models.generate_content with automatic retry.
-
-    - 429 (quota) errors: exponential back-off 30s, 60s, 90s
-    - Other errors: short back-off 5s, 10s, 15s
-    - Returns the response on success, raises on final failure.
-    """
-    last_error = None
-    for attempt in range(max_retries):
-        try:
-            response = client.models.generate_content(
-                model=model,
-                contents=contents,
-                config=config,
-            )
-            return response
-        except Exception as e:
-            last_error = e
-            error_msg = str(e)
-
-            if attempt >= max_retries - 1:
-                raise
-
-            if '429' in error_msg:
-                wait_time = 30 * (attempt + 1)
-                print(f"   ⏳ API 配额限制 (429)，等待 {wait_time}s...")
-            else:
-                wait_time = 5 * (attempt + 1)
-                print(f"   ⚠️ API 调用失败: {error_msg[:100]}，{wait_time}s 后重试...")
-
-            time.sleep(wait_time)
-
-    raise last_error  # type: ignore[misc]

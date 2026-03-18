@@ -1,24 +1,13 @@
 #!/usr/bin/env python3
 """
-生成投资研究笔记 - 从验证后的信号 + 润色转录生成 Markdown 报告
+生成投资研究笔记 - 从验证后的信号 + 转录生成 Markdown 报告
 """
 
 import json
 import re
 import sys
 import os
-from google.genai import types
-from gemini_utils import get_gemini_client, DEFAULT_MODEL
-
-POLISH_MODEL = "gemini-2.5-flash"
-POLISH_LOCATION = "us-central1"
-
-_gemini_clients = {}
-
-def _get_client(location="global"):
-    if location not in _gemini_clients:
-        _gemini_clients[location] = get_gemini_client(location=location)
-    return _gemini_clients[location]
+from datetime import datetime
 
 # =============================================================================
 # 公司名映射
@@ -81,34 +70,6 @@ def build_company_map(featured_companies_file):
     return company_map
 
 
-def build_ticker_map(featured_companies_file):
-    company_map = build_company_map(featured_companies_file)
-    return {k: v['ticker'] for k, v in company_map.items() if v['ticker']}
-
-
-def add_tickers_to_text(text, ticker_map=None, featured_companies_file=None):
-    """规范化文本中的公司名称"""
-    company_map = build_company_map(featured_companies_file)
-    sorted_companies = sorted(company_map.items(), key=lambda x: -len(x[0]))
-
-    for search_key, info in sorted_companies:
-        display = info['display']
-        if display in text:
-            continue
-        pattern = rf'(?<!\$)(?<![a-zA-Z]){re.escape(search_key)}(?!\s*[（(][^）)]*\$[A-Z]+[）)])(?![a-zA-Z])'
-        replaced_ranges = []
-
-        def replace_if_not_overlapping(match):
-            start, end = match.span()
-            for r_start, r_end in replaced_ranges:
-                if not (end <= r_start or start >= r_end):
-                    return match.group(0)
-            replaced_ranges.append((start, start + len(display)))
-            return display
-
-        text = re.sub(pattern, replace_if_not_overlapping, text)
-    return text
-
 
 # =============================================================================
 # 辅助函数
@@ -122,44 +83,6 @@ def timestamp_to_seconds(ts):
     if len(parts) == 3:
         return parts[0] * 3600 + parts[1] * 60 + parts[2]
     return parts[0] * 60 + parts[1]
-
-
-# NOTE: Reserved for cross-podcast aggregation. Not called within this file.
-def generate_investment_strategy(signals, ticker_map=None):
-    """使用 Gemini 分析所有信号，生成综合投资建议（保留供跨播客聚合使用）"""
-    try:
-        client = _get_client()
-    except Exception:
-        return None
-
-    signal_summaries = []
-    for i, sig in enumerate(signals, 1):
-        companies = ', '.join([e['name'] for e in sig.get('entities', [])][:3])
-        claim = sig.get('claim', '')
-        conf = sig.get('confidence', 'low')
-        nov = sig.get('novelty', 'low')
-        act = sig.get('actionability', 'low')
-        summary = f"## 信号 {i}: {companies}\n**判断**: {claim}\n**三维度**: 置信度={conf} | 新颖度={nov} | 可行动性={act}\n"
-        if 'verification' in sig:
-            ver = sig['verification']
-            if 'verified_claim' in ver:
-                summary += f"**验证后判断**: {ver['verified_claim']}\n"
-        signal_summaries.append(summary)
-
-    combined = '\n'.join(signal_summaries)
-    prompt = f"基于以下投资信号，生成综合投资建议：\n\n{combined}"
-
-    try:
-        response = client.models.generate_content(
-            model=DEFAULT_MODEL,
-            contents=prompt,
-            config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=65536)
-        )
-        if response and hasattr(response, 'text') and response.text:
-            return response.text.strip()
-        return None
-    except Exception:
-        return None
 
 
 def load_episode_metadata(transcript_file):
@@ -217,47 +140,6 @@ def merge_segments_into_paragraphs(segments, start_sec, end_sec, context_sec=15)
     return paragraphs
 
 
-def polish_excerpt_with_llm(paragraphs, ticker_map=None):
-    """使用 Gemini 润色原文摘录"""
-    try:
-        client = _get_client(location=POLISH_LOCATION)
-    except Exception:
-        return None
-
-    full_text = []
-    for para in paragraphs:
-        speaker = para.get('speaker', 'Unknown')
-        full_text.append(f"[{speaker}]: {para['text']}")
-    combined = '\n'.join(full_text)
-
-    system_prompt = """你是专业的文本编辑，负责将播客转录的原文摘录改写为紧凑、书面化的研究笔记格式。
-
-核心要求：保持紧凑，不要过度拆分
-- 同一个说话人的连续发言合并为一段（3-6句话）
-- 只在说话人切换时换段
-
-具体要求：
-1. 去除口语化：删除"就是说"、"这个"、"那个"、"然后"等填充词
-2. 格式：**说话人**: 内容
-3. 保持完整：不删减核心观点、数据、专业术语
-4. 重点突出：识别每段最关键的1-2句完整陈述，用 **加粗整句** 突出
-5. 断句：长句（>50字）拆分为短句
-
-直接输出润色后的文本，不要添加任何解释。"""
-
-    try:
-        response = client.models.generate_content(
-            model=POLISH_MODEL,
-            contents=f"{system_prompt}\n\n{combined}",
-            config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=65536)
-        )
-        if response and hasattr(response, 'text') and response.text:
-            return response.text.strip()
-        return None
-    except Exception as e:
-        print(f"   ⚠️ LLM润色失败: {e}")
-        return None
-
 
 # =============================================================================
 # 主函数：生成投资研究笔记
@@ -307,7 +189,6 @@ def generate_research_notes(transcript_file, signals_file, featured_companies_fi
 
     # 构建公司映射（在循环外）
     company_map = build_company_map(featured_companies_file)
-    ticker_map = build_ticker_map(featured_companies_file)
 
     # 加载嘉宾画像
     guest_profiles = {}
@@ -320,7 +201,6 @@ def generate_research_notes(transcript_file, signals_file, featured_companies_fi
                 pass
             break
 
-    from datetime import datetime
     today = datetime.now().strftime('%Y-%m-%d')
 
     # ── 生成笔记 ──
@@ -398,8 +278,7 @@ def generate_research_notes(transcript_file, signals_file, featured_companies_fi
                 notes.append("**影响路径**\n\n")
                 for path_item in verification['verified_impact_path']:
                     # 去掉 LLM 返回的前缀如 "影响路径1：" "影响路径2："
-                    import re as _re
-                    cleaned = _re.sub(r'^影响路径\d+[：:]\s*', '', path_item)
+                    cleaned = re.sub(r'^影响路径\d+[：:]\s*', '', path_item)
                     notes.append(f"- {cleaned}\n")
                 notes.append("\n")
 
@@ -482,7 +361,7 @@ def generate_research_notes(transcript_file, signals_file, featured_companies_fi
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("用法: python step7_generate_notes.py <transcript_json> <signals_json> [verified_signals_json] [featured_companies_json] [output_md]")
+        print("用法: python step4_generate_notes.py <transcript_json> <signals_json> [verified_signals_json] [featured_companies_json] [output_md]")
         sys.exit(1)
 
     transcript_file = sys.argv[1]

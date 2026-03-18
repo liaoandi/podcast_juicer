@@ -24,10 +24,7 @@ import subprocess
 import shutil
 import urllib.parse
 import time
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from google.genai import types
-from gemini_utils import get_gemini_client, DEFAULT_MODEL, clean_json
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPTS_DIR = os.path.join(PROJECT_ROOT, 'scripts')
