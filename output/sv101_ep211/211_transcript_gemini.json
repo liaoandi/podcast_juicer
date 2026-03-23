@@ -1,0 +1,1285 @@
+{
+  "language": "zh",
+  "transcription_method": "gemini_audio",
+  "model": "gemini-3.1-pro-preview",
+  "segments": [
+    {
+      "id": 0,
+      "speaker": "主持人",
+      "text": "Agent 的这个周末，它其实是周五上午发布 ChatGPT Agent 的，我不知道在它发布以后差不多过去一天半的时间，你有没有使用？",
+      "start": "00:02:00",
+      "end": "00:02:10",
+      "start_seconds": 120,
+      "end_seconds": 130
+    },
+    {
+      "id": 1,
+      "speaker": "嘉宾",
+      "text": "对，我们确实上来第一手就使用了它，因为在它发布前一天大家其实都已经看到了他们在 Twitter 上面的一些预热。我们在当天下午的 3 4 点钟就开始试用它了。感觉它的总体效果可能比我们想象中要差一些，速度也比我们想象中要慢很多。核心的原因应该是跟它原生的 Deep Research 和 Operator 本身的速率有关。因为 Deep Research 相对于市面上所有的产品来说它还是相对比较慢的一个 research 产品，再加上 Operator 本身，我们也知道它的 benchmark 上面它速度也很慢，所以它把两者结合了以后，整体速率就更慢了。比如说有一个比较简单的大家都对比的一个用例就是先做 Deep Research ，然后再去创建一个 Slides 。像这种用例的话时间基本上在 35 分钟到一个小时之间。所以它是个非常非常慢的一个过程。我觉得它的一个优势呢是在于它在 browser 上面真的要做 operation 的时候是相对有优势一些。比如说它要去订个定制的衣服，或者定制的旅程的时候，它在 browser 上面的去点击的能力是要超过市面上的大多数的 browser-based agent 。所以非常取决于你的使用的方向是什么。如果是偏运营相关的一些工作的话可能不是很适用，但是如果是偏 consumer 相关的它可能会更适用一些。",
+      "start": "00:02:10",
+      "end": "00:03:15",
+      "start_seconds": 130,
+      "end_seconds": 195
+    },
+    {
+      "id": 2,
+      "speaker": "主持人",
+      "text": "嗯，你可不可以具体举一下例子，具体用了它的哪些方面？因为刚刚其实你有举到在挑衣服或者在做旅行的时候它会看起来比其他的这些基于浏览器的 agent 它会更有优势一点，可不可以讲一下你的整个的一个使用场景，包括我们对比它跟其他的一些使用浏览器的 agent 来比它的不一样是什么？",
+      "start": "00:03:15",
+      "end": "00:03:40",
+      "start_seconds": 195,
+      "end_seconds": 220
+    },
+    {
+      "id": 3,
+      "speaker": "嘉宾",
+      "text": "对，我可以简单举两个例子，一个是我想要去新加坡待 3 天，我就问他说你能不能帮我把整体旅程定下来，然后去找对应的航班酒店信息，然后把它定下来。它确实是花了很长的时间，它一开始先去做了规划，规划呢所有的 LLM 现在都可以做，所以这个没什么可 impressive 的地方。之后就去搜了往返的航班以及所对应的酒店。其实难度也没有很大，但是目前市面上大多数的 browser-based agents 这方面其实做的都不是很好。那 ChatGPT 的这上面会相对的好一些，因为它的 vision 的能力会相对更好。它有点像机器人的那种解决架构，它有 vision language models 在里面，然后它根据 vision 的结果然后它会再有反馈。",
+      "start": "00:03:40",
+      "end": "00:04:35",
+      "start_seconds": 220,
+      "end_seconds": 275
+    },
+    {
+      "id": 4,
+      "speaker": "主持人",
+      "text": "你的 vision model 是指的你在比如说找航班的时候它能看到这个搜索页面的信息，它不一定是要用后台数据 API 接口调用的方式，指的是这个不同吗？",
+      "start": "00:04:35",
+      "end": "00:04:50",
+      "start_seconds": 275,
+      "end_seconds": 290
+    },
+    {
+      "id": 5,
+      "speaker": "嘉宾",
+      "text": "大多数的 browser-based agent 里面都有一些 vision 的部分，我要去看页面到底长什么样...",
+      "start": "00:04:50",
+      "end": "00:05:00",
+      "start_seconds": 290,
+      "end_seconds": 300
+    },
+    {
+      "id": 6,
+      "speaker": "男",
+      "text": "因为很多时候你如果说靠像 browser use 这种，它就完全是靠后端想办法去拉它的页面里面的所有的 HTML 的 components ，然后拿到 components 以后我再去看说每个 component 里面是什么，然后再去选择点哪个地方，然后再去执行。很多时候第一，你有可能去访问页面的时候就会被卡死，因为你是等于是在爬虫爬人家的页面。第二，作为一个 browser-based agent 的话，你是希望说能够看到它整个 visual structure 是什么样子的。那它的 vision 的能力就会有帮助。那当然了，现在很多的 computer use 的 agent 都有 vision 能力，所以也不是一个很大的创新了，但是因为它的 vision 能力相对强一些，所以导致它去真正 take action 的时候，要比我现在看到市面上别的 browser agent 要好一些。",
+      "start": "00:05:00",
+      "end": "00:05:42",
+      "start_seconds": 300,
+      "end_seconds": 342
+    },
+    {
+      "id": 7,
+      "speaker": "女",
+      "text": "它帮你订机票酒店，然后做旅行规划，整体花了多久？",
+      "start": "00:05:42",
+      "end": "00:05:46",
+      "start_seconds": 342,
+      "end_seconds": 346
+    },
+    {
+      "id": 8,
+      "speaker": "男",
+      "text": "我记得应该是二三十分钟吧。",
+      "start": "00:05:46",
+      "end": "00:05:48",
+      "start_seconds": 346,
+      "end_seconds": 348
+    },
+    {
+      "id": 9,
+      "speaker": "女",
+      "text": "它是最后完成支付环节了，还是说只是把所有的航班给你选好了？",
+      "start": "00:05:48",
+      "end": "00:05:52",
+      "start_seconds": 348,
+      "end_seconds": 352
+    },
+    {
+      "id": 10,
+      "speaker": "男",
+      "text": "只是选好了，到了支付环节都是要 human take over 的。我觉得支付的环节是所有的 agent 业务范围内最麻烦的一个点，因为正常的人类不会 trust agent 去做支付环节。所以很多时候所有的 agent 一旦涉及到支付，都会卡死在那里。不是技术上卡死在那里，而是产品上卡死在那里，因为人和 agent 之间的信任其实没有达到那个标准，所以导致大多数的 agent ，像我们也是一样，我们其实有很多跟支付相关的功能是已经集成完的，但是我们一直都没有 release 它们，因为我觉得不会有人那么轻易地信任 Poki 去做这件事情。OpenAI 也有一样的问题，到了支付环节它还是需要人类去 take over ，然后去完成这个支付的任务。等于说它花了 20 多分钟，但当中你还是得要 jump in 说我要去付钱。总体来说，我觉得实用性没有很大，我宁可说自己花点时间，十几分钟全部搞定了。另外一个相对比较常用的用例就是，他们在电商方面也花了很多力气，比如说根据你的要求，然后它去找相对应的产品。我个人还挺不是很喜欢这个产品方式的，因为我感觉它整个帮你去搜索产品，找相对应的产品的形态，比如说是什么颜色，什么样的款式的过程，它其实是一个挺慢的一个过程。而人去选的话也就是点几个键的事情。我一直认为说电商这个方向它的决策链路很短，导致说 agent 真正能够给你带来的优势很小，因为它真正需要人类决策的那个范畴也就是可能 3 到 4 步最多了。它没有像别的那种，比如说你要做个 research ，你要写个 slides ，你要去写一个 spreadsheet ，像这种东西都是很花很花时间的。而 shopping 可能没有那么花时间。",
+      "start": "00:05:52",
+      "end": "00:07:43",
+      "start_seconds": 352,
+      "end_seconds": 463
+    },
+    {
+      "id": 11,
+      "speaker": "女",
+      "text": "我觉得 shopping 它最花时间的地方其实不是在你已经想好了你要什么到下单的这个过程，而是一个你在选择的那个过程。所以刚刚其实你有提到，你用它去订航班跟酒店的时候，我就特别想问你最后自己...",
+      "start": "00:07:43",
+      "end": "00:08:00",
+      "start_seconds": 463,
+      "end_seconds": 480
+    },
+    {
+      "id": 12,
+      "speaker": "主持人",
+      "text": "定的那家酒店，跟他做旅行规划，然后帮你找到的那家酒店，最后是一致的吗？就是你对他找的结果满意吗？",
+      "start": "00:08:00",
+      "end": "00:08:06",
+      "start_seconds": 480,
+      "end_seconds": 486
+    },
+    {
+      "id": 13,
+      "speaker": "嘉宾",
+      "text": "不一致。",
+      "start": "00:08:06",
+      "end": "00:08:07",
+      "start_seconds": 486,
+      "end_seconds": 487
+    },
+    {
+      "id": 14,
+      "speaker": "主持人",
+      "text": "航班呢？",
+      "start": "00:08:07",
+      "end": "00:08:08",
+      "start_seconds": 487,
+      "end_seconds": 488
+    },
+    {
+      "id": 15,
+      "speaker": "嘉宾",
+      "text": "也不是。因为他有很多信息他不知道。我举个例子，我一般出门都住 Hyatt ，飞航班的话，我一般都会选尽可能在直飞里面找可能价格比较低的。但是他在找的时候，他其实没有这个反馈机制。就一开始问你，他说他只会 high level 问你三四个问题，就是 Deep Research 那种问题。他一轮完成了以后，他后面没有再跟你反馈了。他就一直在自己执行。所以他定的就是一个相当于笼统的这么一个解决方案。到最后我得要全部推翻重来，因为他并没有用任何我喜欢的品牌。个性化的部分是我认为目前市面上 Agent 产品，特别是 2C 的 Agent 产品，而且跟 productivity 不相关的 Agent 产品的一个最大痛点。OpenAI 一直在强调他们 memory 的能力，这是很重要的确实，但是他们从哪里去一开始收集这个 memory 就变成了一个 cold start 的问题，我都无法解决的一个事。",
+      "start": "00:08:08",
+      "end": "00:08:58",
+      "start_seconds": 488,
+      "end_seconds": 538
+    },
+    {
+      "id": 16,
+      "speaker": "主持人",
+      "text": "但是其实只要你告诉他一次你喜欢住 Hyatt 的酒店，他可能以后就记住了。跟一个人类的助理一样，你越用才会越顺手。而且假设让你的秘书去帮你订这个机票，你可能也得跟他沟通说我要 Hyatt 的酒店，我在飞机上偏好什么时间段、什么价格、什么舱位。",
+      "start": "00:08:58",
+      "end": "00:09:16",
+      "start_seconds": 538,
+      "end_seconds": 556
+    },
+    {
+      "id": 17,
+      "speaker": "嘉宾",
+      "text": "对，对，确实是这样的。但是就是人类会不会愿意去做这一两轮的沟通？说完了以后他是不是能记住？其实我目前用 ChatGPT 用下来，他对于你的一些新闻的偏好是有些记忆的，但是更复杂的偏好其实他的记忆没有那么完整。ChatGPT 刚出来的时候，我其实有问过他跟旅行相关的问题，但这次问他的时候他仍然没有记住当时给他的一些反馈。所以他并不是能够很完整地把你所有的反馈都记下来的。",
+      "start": "00:09:16",
+      "end": "00:09:48",
+      "start_seconds": 556,
+      "end_seconds": 588
+    },
+    {
+      "id": 18,
+      "speaker": "主持人",
+      "text": "对，我们知道其实 OpenAI 在推出这一轮的 ChatGPT Agent 以前，就刚刚我们反复提到他有两个 Agent ，一个是 Operator ，他处理的是跟电商购物相关的 Agent 的调用，另一个是 Deep Research ，是做深度研究的。然后我看他这次整个的发布啊，我自己的感受是他有一点点像这两个 Agent 之间的一个结合体。因为其实你自己也在开发 Agent 相关的产品，你觉得 OpenAI 在这个中间核心的技术壁垒是什么？就是把这两个 Agent 放在一起，他的难度大吗？",
+      "start": "00:09:48",
+      "end": "00:10:23",
+      "start_seconds": 588,
+      "end_seconds": 623
+    },
+    {
+      "id": 19,
+      "speaker": "嘉宾",
+      "text": "其实没有很大。这次的这个产品让我甚至于感觉是他们为了看到市面上有很多通用 Agent 出现，想要占领市场而做的一个 move ，而不是说他们真的已经准备好了。像他们发布会上甚至于给到的一定的产品的 demo ，其实也并不是很 ready 的一个状态。说句实话，他们做的很多的任务和市面上的通用 Agent 相比其实可能效果更差一些，速度又更慢一些。他为什么结合 Deep Research 和 Operator 这两个东西放在一块变成一个 Agent ，核心原因是因为 Deep Research 是帮你 retrieve information 的。",
+      "start": "00:10:23",
+      "end": "00:11:00",
+      "start_seconds": 623,
+      "end_seconds": 660
+    },
+    {
+      "id": 20,
+      "speaker": "男嘉宾",
+      "text": "我从哪里可以得到更完整的面向于用户需求的这么一个信息。Operator 是说基于这个信息我怎么去执行这个任务。过往的话基本上这两个方向是割裂开的。如果说要去了解更完善的信息，你就直接只能用 Deep Research 。用完了以后它可能给了你一个巨大的 report ，这个 report 也不足以让你去做任何事情，你可能只能拿这个 report 复制粘贴到某一个文档里面。然后 Operator 也是一样的，你必须要已经知道说你想要什么，然后基于你想要的东西，你再去找 Operator 说帮你去操作一些网页来完成这个任务。这两个都是可能在自己的这个领域里面做得比较好的。那他希望说可以从信息获取 Information Retrieval 到 Execution 这一端到端的体验能够把它打通，融合这两个。这是个比较 natural 的决策吧。但我目前看起来它相当于是个工程解决方案。就相当于是个判定，如果这个用户需要非常复杂的 Information Retrieval ，那你就去做 Deep Research 。完成了 Deep Research 以后，我拿着这个信息再去做执行。如果不需要，那就直接执行就好了。然后当中还有一个偏 coding 和 sandbox 的一个解决方案，它跟 Manus 很像的一个点是它确实有个 sandbox ，它可以去执行，比如说生成 PPTX 的文件，用 Python 的 script 写一些那种，比如说 bash 那种 script ，让你去 sandbox 里面去执行一些任务。所以它基本上就是一个从 Deep Research 到 Browser 到 Sandbox 的一个结合体。",
+      "start": "00:11:00",
+      "end": "00:12:12",
+      "start_seconds": 660,
+      "end_seconds": 732
+    },
+    {
+      "id": 21,
+      "speaker": "女嘉宾",
+      "text": "嗯，对。那你觉得它跟市面上的这种通用型的 AI Agent 它的主要区别是什么？或者说市面上所有这些通用型的 AI Agent 我们把它放在一个池子里，我们看各家他们的优劣势都分别是什么？因为我相信他们可能在解决不同场景的问题还是会有一些些区分度的。",
+      "start": "00:12:12",
+      "end": "00:12:30",
+      "start_seconds": 732,
+      "end_seconds": 750
+    },
+    {
+      "id": 22,
+      "speaker": "男嘉宾",
+      "text": "对，目前的通用 Agent ，我把 browser 和非 browser 全部列出来，可能包括这么几家。一个是 Perplexity ，一个是 OpenAI ，Anthropic 其实没有推出他们自己的通用 Agent ，但他们有 coding 的 Agent 。我们相对比较小一些吧，其实我们比较晚期才出来。有 Manus ，有 GenSpark 。可能在浏览器方面有 Utori ，Fellow ，还有 Fluid 。但 Fluid 可能更偏向 vertical 一些。首先在 browser 能力最强和 operating 的能力最强的，应该目前还是 OpenAI 。特别在 Deep Research 加 browser operation 放在一块以后，他们绝对是最强。如果你去看一些 benchmark 里面，比如说像最新出来的 BrowsingCamp ，他们能够在 BrowsingCamp 上面达到 50% 多的 benchmark score 。而别的最高现在目前也只有 20 多分，就是在开源环境下。然后在 browser 真的 execution 上面，Operator 做得还是相对比较好的。因为当年的 Operator 是跟很多有 API 、有 sandbox 的环境去对比的，它就只有一个 browser 。所以现在加上了 sandbox 的能力以后，Operator 加 OpenAI 的 sandbox 应该是会超越市面上别的一些工具的 browser 加 sandbox 的。但是它...",
+      "start": "00:12:30",
+      "end": "00:14:00",
+      "start_seconds": 750,
+      "end_seconds": 840
+    },
+    {
+      "id": 23,
+      "speaker": "男",
+      "text": "唯一的一个比较麻烦的点呢，就是在于 OpenAI 的 browser 尝试 do a little bit too much ，它什么东西都想往 browser 里面塞，导致它速度很慢。那 browser 就包括了 OpenAI 、 Phind 以及 MultiOn 的一部分，因为 MultiOn 也用 browser 。在另外一个方向就是完全只有 LLM ，然后再加一些 execution ，可能也能算 sandbox ，但是它是一个 limited sandbox ，它并不是可以 navigate 整个系统里面的所有的 package ，它有些预设 package ，然后去做这件事情的。当然我们忘记说 Perplexity 了。 Perplexity 在 browser 里面我觉得是做了一个相对比较另类的，它的 browser 不是说我做一个能够 navigate browser 的 agent ，而是说它在用户使用 browser 的时候，它给你一个 sidebar ，然后让你去说我希望在这个页面上做些什么，然后它去帮你执行。",
+      "start": "00:14:00",
+      "end": "00:14:50",
+      "start_seconds": 840,
+      "end_seconds": 890
+    },
+    {
+      "id": 24,
+      "speaker": "女",
+      "text": "对， browser 就是浏览器的意思， sandbox 就是虚拟机，所以刚刚其实你提到了基于浏览器跟虚拟机的这两种搭建方式，可不可以整体跟听众科普一下，现在整个 AI agent 它的搭建在底层架构上有哪几种？",
+      "start": "00:14:50",
+      "end": "00:15:10",
+      "start_seconds": 890,
+      "end_seconds": 910
+    },
+    {
+      "id": 25,
+      "speaker": "男",
+      "text": "现在的 agent 有这么 4 种大的方向，一个是基于浏览器的那种 agent ，然后第二种是浏览器加虚拟机的 agent 。在这种 agent 里面就会有很多通过虚拟机里面的代码以及命令行来完成的操作。然后第三种是只有虚拟机，但是在虚拟机内部有非常大的限制的那种 agent ，主要通过 LLM 的能力去生成代码，然后只能运行某一种类型的代码。然后最后一种就是一个可以横跨很多很多工具集成的这种 agent 。我先讲一下 browser 、非 browser ， browser 、 sandbox 和就像 Poki 可能是个另类，在所有的里面是个另类。 browser 、 sandbox 、纯 LLM 然后在 Poki 的这种。这 4 个方向呢都有互相可借鉴的地方，而且也有互相 overlap 的地方。 browser 的意义是在于说，我认为世界上所有的网页和所有的互联网服务都可以在某个网页上面呈现，所以我只需要我的 agent 能够看到那个网页，去操作那个网页，我就可以完成我的任务。那 browser 就是用户可视化的可以看到这个 browser based agent 在页面上点些哪个地方。它可以一页一页地去看说 browser 是不是跟人一样在操作这个网页。那它的缺点是什么？就是它很慢。而且它的 token consumption 特别特别高。原因在于你去看一个网页，就等于把那个 HTML 的文件直接拉下来，然后可能还包一些 JavaScript 的一些 scripts ，然后你把这些全部拉下来，然后就从 0 开始全部读一遍，就只为了操作一个网页。但是它确实是万能的。那第二个就是 sandbox 。 sandbox 的意义是我可以线下写一些 Python scripts ，写一些比如 bash script ，甚至写一些 JavaScript 的一些 scripts 。就直接在那个虚拟机环境里面直接去跑那个 script 来完成一些任务。你像你要去做数据分析，你完全就可以说这是一个表格一样的文件，然后我直接告诉虚拟机 agent 说我有这个文件...",
+      "start": "00:15:10",
+      "end": "00:17:00",
+      "start_seconds": 910,
+      "end_seconds": 1020
+    },
+    {
+      "id": 26,
+      "speaker": "嘉宾",
+      "text": "件，它的 title 是比如说是个 sales 文件的话，那就是时间，weekly sales，品类，各种各样的 title。然后你得到这个文件以后，你就直接告诉那个虚拟机说，你能不能照着这个帮我去作一个每周的 week over week 的 sales analysis。然后他就啪给你写一个 Python script，然后就帮你运行了，得到那个结果。虚拟机环境的好处就在于它可以运行任何的线下的，就是 open source 的那种 package。但它的缺点就在于它很多情况下无法访问互联网，特别是那种需要 OAuth 的那种产品，比如说你要去登陆你的 Facebook，这些东西它都是肯定做不到的。",
+      "start": "00:17:00",
+      "end": "00:17:35",
+      "start_seconds": 1020,
+      "end_seconds": 1055
+    },
+    {
+      "id": 27,
+      "speaker": "嘉宾",
+      "text": "第三种呢，就是 LLM 加 sandbox 放一块的那种 agent，它可能是 limit 一个大环境，Jupyter Notebook 是一个这样的例子，它并不给你完整的一个 sandbox，它这个例子里面连 browser 都没有。Jupyter Notebook 作为一个例子是它有一个 LLM 作为主体的一个 reasoning 的过程，然后它写代码也是完全靠这个 LLM。它有一个 sandbox 让它去运行一些代码去生成一些东西，然后再把它 render 出来。但那个 sandbox 甚至都不能叫一个 sandbox，因为它是个 very limited 的一个环境，就是说它只有三四个 package。它是 fully controlled，就是说这个环境内部它无法说我现在现有去下载一个开源的 package，比如说我现在需要临时去修改一张图片，这个任务如果在它原始的那个 package design 里面没有，它自己不会去说我去下载一个这个 package 然后去做这件事情。",
+      "start": "00:17:35",
+      "end": "00:18:15",
+      "start_seconds": 1055,
+      "end_seconds": 1095
+    },
+    {
+      "id": 28,
+      "speaker": "嘉宾",
+      "text": "所以这种设计是 Jupyter Notebook 比如说像那种 slide agent, sheet agent 他们在设计的时候就把它的那个可用的包裹给 limit 住，说我不再让用户去用更多的 package。就是一个相对来说比较封闭的一个环境内的一个工作流吧。在限制环境下用一个 LLM 做主体写代码，同时用一个小的那种环境去执行。",
+      "start": "00:18:15",
+      "end": "00:18:35",
+      "start_seconds": 1095,
+      "end_seconds": 1115
+    },
+    {
+      "id": 29,
+      "speaker": "嘉宾",
+      "text": "然后最后一种就是可能和我们还有以前的 Zapier, n8n, UiPath 这种一个工作流式的，但是工作流内部的每一个节点它是通过和第三方服务提供商直接集成来完成的这么一个做法。那这个的优势呢就在于说我可以保证每一个服务的 deliverable 是非常 solid 的，因为就是第三方服务比如说 Facebook 它就是 Facebook 给我们的 access，它不会出错。但与此同时它也有它的限制，就是它不能做 do everything。就是它很有可能会出现说这个用户想要在 personal 的 Facebook 账户上面发图片，那我们就做不到，因为 Facebook 只让 creator 和商业用户去自动化的发这种帖子。所以这是我们的和比如说以前的 UiPath 呀，Zapier 呀，n8n 的一条路径。",
+      "start": "00:18:35",
+      "end": "00:19:25",
+      "start_seconds": 1115,
+      "end_seconds": 1165
+    },
+    {
+      "id": 30,
+      "speaker": "嘉宾",
+      "text": "所以有这么四种类型吧。第二种和第三种之间的边界是很模糊的，唯一的区别就在于第二种的 sandbox 是 LLM 执行完了以后它所能够给你用使用的 sandbox 是一个几乎开放的一个 sandbox，就是你自己可以选择说我要去下载新的 package 再去执行，所以那个 sandbox 本身的能力是占整个能力做主体的。而第三种可能是 LLM 的能力在现有 package 底下能生成什么代码就已经...",
+      "start": "00:19:25",
+      "end": "00:20:00",
+      "start_seconds": 1165,
+      "end_seconds": 1200
+    },
+    {
+      "id": 31,
+      "speaker": "嘉宾",
+      "text": "限制了整个 agent 能力的主题了。",
+      "start": "00:20:00",
+      "end": "00:20:02",
+      "start_seconds": 1200,
+      "end_seconds": 1202
+    },
+    {
+      "id": 32,
+      "speaker": "主持人",
+      "text": "嗯，对对对，很精彩。那从用户的使用体验上说，如果我们说 Poki 跟 James Park 跟 Manus 跟 OpenAI 的 ChatGPT agent，你觉得比如说用户的体验它会有什么非常明显的不同吗？",
+      "start": "00:20:02",
+      "end": "00:20:15",
+      "start_seconds": 1202,
+      "end_seconds": 1215
+    },
+    {
+      "id": 33,
+      "speaker": "嘉宾",
+      "text": "其实有蛮多地方都还蛮不一样的。我们先讲 Manus 吧，因为他们是第一家出来的。Manus 的体验是，它尽可能用一个 sandbox 加上 browser 的环境来搭建一个几乎让人觉得万能的环境。我有一个 LLM 做一个 planning 主体。planning 完了以后，它进入到 browser 以后，它是另外一个 agent 在完成 browser navigation。它得到的信息，再用这个信息总结下来，再去进 sandbox 做执行，如果有必要的话。它确实可以做很多事情，虽然它有很多时候会出现 hallucination，因为它看整个上下文太长了。但是它确实理论上可以涵盖市面上你所需要的所有的功能。但同时它也被 browser 能力所限制住。比如说你要去真的发个帖，它就做不到。因为它对于整个页面的 navigation 说我要去选择那个小的 button，选择完了以后去上传一个图片，生成一个视频，各种各样的，这就很难。比如说你要去进一个 Google Sheets，说我要把 Google Sheets 里面的某一个 cell 把它改成某一个格式，它也比较难，因为这个 attention 的 space 太小了。browser 就是它的一个 main limitation。第二个点就是它很慢。这个是 Manus 跟 ChatGPT agent 的一个通病。因为你用了 browser，所以它的速度就会非常非常慢。30 多分钟做一个 task。",
+      "start": "00:20:15",
+      "end": "00:21:40",
+      "start_seconds": 1215,
+      "end_seconds": 1300
+    },
+    {
+      "id": 34,
+      "speaker": "主持人",
+      "text": "30 多分钟我觉得还是快的估计，因为我最开始使用的时候可能是一两个小时。但那个时候非常早。",
+      "start": "00:21:40",
+      "end": "00:21:45",
+      "start_seconds": 1300,
+      "end_seconds": 1305
+    },
+    {
+      "id": 35,
+      "speaker": "嘉宾",
+      "text": "对，现在肯定比以前要快了，因为他们的整个基建什么的都上来了。但是它的瓶颈会在哪？它的瓶颈甚至最后变成 network call。你 load 一个网页本身你可能就需要三四秒。那你这个是跳不掉的。ChatGPT 的优势在于他们 deep research 做得好。它能够做出一个很详尽的 report，然后你如果通过这个 report 再去执行某些任务，它会变得相对来说比较更 comprehensive 一些。Manus 的话可能它的总体优势可能在于它的 sandbox 的环境搭得可能比 ChatGPT 要搭得更好一些。但这个我还需更详尽地去 look into it。因为 ChatGPT 里面的 sandbox 它能做到什么程度还不太清楚。但我猜应该 Manus 在 sandbox 里面已经花了很多精力去 deploy 了，应该会有一个比较小的优势吧。James Park 是一开始有个 super agent，几乎说我可以做任何事情，但它后面就发现它能够处理的工具数量开始变得有限。所以它开始做 templates，比如说 slide 是一个 agent，比如说 AI call 是一个 agent，sheets 是个 agent，browser 也单独做了一个 agent。在同一个用例下面，它把它的用户体验作为它的核心目标，然后做一些 templates。不管你问什么问题，它总是用这样的 template 去生成 slides，总是用这些工具去搜索信息。使得它变成一个相对比较标化的工作流。它就越来越不是一个 general agent。它就变成一个...",
+      "start": "00:21:45",
+      "end": "00:23:00",
+      "start_seconds": 1305,
+      "end_seconds": 1380
+    },
+    {
+      "id": 36,
+      "speaker": "嘉宾",
+      "text": "有偏人为选择的这么一个 agent ，但它速度确实要比 Manus 跟 ChatGPT 要快一些。原因就是因为它没有那么大的 browser navigation ，同时它的 sandbox 本身是非常有限制的，它就只有这么一点工具在某一个 agent 里面。",
+      "start": "00:23:00",
+      "end": "00:23:14",
+      "start_seconds": 1380,
+      "end_seconds": 1394
+    },
+    {
+      "id": 37,
+      "speaker": "主持人",
+      "text": "这样是不是也更节省 tokens ？",
+      "start": "00:23:14",
+      "end": "00:23:16",
+      "start_seconds": 1394,
+      "end_seconds": 1396
+    },
+    {
+      "id": 38,
+      "speaker": "嘉宾",
+      "text": "会相对节省一些 tokens 。",
+      "start": "00:23:16",
+      "end": "00:23:18",
+      "start_seconds": 1396,
+      "end_seconds": 1398
+    },
+    {
+      "id": 39,
+      "speaker": "主持人",
+      "text": "对，它把大任务都拆成了细分的垂直的小任务，然后我猜它想做的是当它把应用场景一个一个完善，它可能就类似于一个承载了很多小任务的一个大平台。",
+      "start": "00:23:18",
+      "end": "00:23:27",
+      "start_seconds": 1398,
+      "end_seconds": 1407
+    },
+    {
+      "id": 40,
+      "speaker": "嘉宾",
+      "text": "对，它就会变成一个类似于像微信小程序一样的一个所在。可能最大不一样就是，它可能是目前所有的 agent 里面最快的。我们现在还没有把我们的 deep research agent 开出来，但是我们是有个 deep research agent 正在开发当中的。所以我们最后会有我们自己的 deep research agent 加上我们的 execution agent 放在一块，总体体验会有大幅提升。但是总体速度应该是市面上所有产品的 4 到 10 倍左右。为什么可以做到的原因就是因为，你不再需要用非常复杂的 sandbox ，你也不再需要去用非常复杂的 tool calling 。我们现在直接用第三方集成的 SDK 和工具，通过我们自己的 tool calling foundation model 去 call 这些 function 的话，整个速度是会大幅度提升的。没有了像 MCP 和现在市面上的这种在 tool calling 里面的巨长无比的 context 问题。所以它每次 tool call 的整个成本可能能够削减掉 50% 到 60% 。再加上我们自己的上下文的 engineering ，使得整个的 cost 在市面上至少跟 OpenAI 的 ChatGPT agent 跟 Manus 相比是个数量级的 difference 。跟像 verticalized Jasper 这样的可能是几倍的一个差距吧，在 token 使用上面。那我们确实是有劣势的，特别是跟 browser based 相比，我们并不是完全万能的。有一些任务，像你要去 personal account 里面去 post Facebook post ，versus 我们只能在 Facebook page 上面去 post ，然后 Instagram 也必须是 creator account 或者 business account ，但是个人账户我们没有办法帮你 post 。",
+      "start": "00:23:27",
+      "end": "00:24:58",
+      "start_seconds": 1407,
+      "end_seconds": 1498
+    },
+    {
+      "id": 41,
+      "speaker": "主持人",
+      "text": "哦，这是它只有企业用户才能去使用你们的 agent ，因为比如说你在接 Instagram 跟 Facebook 的接口的时候，它给到你的就是一个企业用户才能操作的界面？",
+      "start": "00:24:58",
+      "end": "00:25:11",
+      "start_seconds": 1498,
+      "end_seconds": 1511
+    },
+    {
+      "id": 42,
+      "speaker": "嘉宾",
+      "text": "不是企业用户，是 creator ，相当于说创作者或者企业账户。他们不希望个人用户全都用这个去 post ，post 完了以后没人上 Facebook 和 Instagram 。他们希望个人用户像 consumer 仍然可以每天去 Facebook 和 Instagram 上面自己去看那些帖子，然后去发帖子，这样有 engagement 。然后企业用户和创作者用户呢，他希望能够让他们去创作更多，所以为什么把 API 开给他们。然后每个平台都有他们自己的 limitation 。我觉得这个路径其实是相对比较符合商业逻辑的。因为你想象，所有的个人用户都通过一个 agent 想办法用 browser 去 hack Facebook 或者 Instagram 账户，或者是 hack 某一个平台，说我通过一个 agent 去爬虫你的网页来完成一个任务，那对于这个平台来说是一个损失。我把...",
+      "start": "00:25:11",
+      "end": "00:26:00",
+      "start_seconds": 1511,
+      "end_seconds": 1560
+    },
+    {
+      "id": 43,
+      "speaker": "男嘉宾",
+      "text": "把 browser 全都卡掉。所以如果你一开始就是跟着他们的商业逻辑走，以前有人会通过非常 manual 写代码的方式去完成这个产品 upload，那现在就会有人直接写一段文字，然后直接 vibe working，然后就直接把这个视频啊 creative 啊直接上传到这些 social media 平台上。别的平台也是一样的，它只给你所开放的权限，就是他们认为开发者和非个人用户或者非 consumer 用户真正会最需要用得上的一些工具。那如果你可以把这些都放到 agent 里面，那那些原来就会使用这些工具的人，他就会转过来说我写一行 prompt 就行了，不再需要写那么多代码。",
+      "start": "00:26:00",
+      "end": "00:26:45",
+      "start_seconds": 1560,
+      "end_seconds": 1605
+    },
+    {
+      "id": 44,
+      "speaker": "女嘉宾",
+      "text": "嗯，对，所以我理解其实像 Minus、Genspark 还有 OpenAI 的 ChatGPT agent，他们的商业模式其实是 2C 的，然后你的商业模式听起来现在应该是更偏 2B 的。",
+      "start": "00:26:45",
+      "end": "00:27:05",
+      "start_seconds": 1605,
+      "end_seconds": 1625
+    },
+    {
+      "id": 45,
+      "speaker": "男嘉宾",
+      "text": "现在这个时代下，B 端跟 C 端的模糊性很高，但是我们一定是在 Professional Plus 来使用我们的产品的。Professional below consumer 用户其实使用一个非常省时间的 AI agent 的这个概率不是很高。这也是为什么市面上很多 AI agent 的 retention 是非常差的原因。因为它没有重复性，它很多的工作流是用一次就结束了。而我们的很多的目前上来的用户，我们看到的是他每周都会在跑一模一样的 workflow。所以这是我们发现它有重复性在。",
+      "start": "00:27:05",
+      "end": "00:27:45",
+      "start_seconds": 1625,
+      "end_seconds": 1665
+    },
+    {
+      "id": 46,
+      "speaker": "女嘉宾",
+      "text": "那这个是不是也很取决于平台会给你们开放一些什么样的 SDK 工具跟它的 API 接口？假设我每天的微信太多了，然后我想有一个 agent 去帮我管理所有的信息，帮我去回复一些比较基础的信息。那其实前提还是说微信它要给这样的一个 agent 开放一个它的接口。那他们是不是愿意把这些接口开放给开发者呢？",
+      "start": "00:27:45",
+      "end": "00:28:10",
+      "start_seconds": 1665,
+      "end_seconds": 1690
+    },
+    {
+      "id": 47,
+      "speaker": "男嘉宾",
+      "text": "在美国的话，像这种开发者的 community 是很多大公司，特别是科技公司所崇尚的一个方向。所以大多数公司都有非常完善的 API 接口、SDK、package，甚至于说他们给到你的就是个非常简单的一个 curl 的接口，他也不给你 Python SDK 之类的。国内公司可能会相对差一些，它很多接口不开放给你。但微信的话，比如说企业微信，creator 那种级别的微信，也把接口放给你了，你也可以自动回复，什么都有。国内的整个生态其实也在慢慢在开放。特别是 MCP 这波出来了以后，有很多的公司都开始被迫开放他们的 SDK 跟 API。比如说高德地图就是一个例子，之前可能没有那么开放的高德地图，后面在 MCP 出来了以后，他们是首先把地图这个生态给完全打开的这么一家公司。所以其实有蛮多这样的例子的。我们目前有一些公司给到我们的开放一些平台的 API 或者接口是独家的，但有一些不是。总体来说，这个商业模式一定是偏 professional 的一个商业模式。因为有很多的 consumer 端的一些 use case，它就是非常 browser oriented。比如说你是浏览网页买东西。",
+      "start": "00:28:10",
+      "end": "00:29:00",
+      "start_seconds": 1690,
+      "end_seconds": 1740
+    },
+    {
+      "id": 48,
+      "speaker": "说话人 1",
+      "text": "travel request 也有偏 professional 和非 professional。像 professional 就比如说出差的这种，那你每次都是标化的，比如说你每两个礼拜要去飞一趟湾区，那你每次都住同一个酒店，那你就每两周帮你买一次这个机票。但如果是一个 consumer 他去出去旅行的话，那他就是我要去玩这个地方，然后我住的酒店也要去 explore 新的东西，然后我的航班要比如说今天我刚发了奖金我要飞商务舱了，那它有很多的变数在里面。所以这种用例它本身就更适合比如说可能 browser-based agent，因为他就只有一个 laptop 在他面前，他可以开那个 browser 去做事情。",
+      "start": "00:29:00",
+      "end": "00:29:35",
+      "start_seconds": 1740,
+      "end_seconds": 1775
+    },
+    {
+      "id": 49,
+      "speaker": "说话人 2",
+      "text": "对。在你跟大公司合作的过程中，他们去开放这个 API 接口他们的动力是什么？包括其实刚刚你也提到了像国内高德地图再去接入 MCP 协议，他们的动力又是什么呢？",
+      "start": "00:29:35",
+      "end": "00:29:48",
+      "start_seconds": 1775,
+      "end_seconds": 1788
+    },
+    {
+      "id": 50,
+      "speaker": "说话人 1",
+      "text": "首先第一点是整个 agent 的浪潮会从某种意义上来说取代正常的 web traffic。过往可能是一个人打开一个浏览器，然后在 Google search 里面打入一段搜索，得到这个搜索结果以后点一个网页，再去做某件事情，对吧，这是一个常规流程。但未来可能是你打开 ChatGPT，比如说你是做 consumer 端，你比如说打开 Poki，是你的 professional 端，你可能就打一段字说，今天早上我看到了 Replit 的 CEO 和 YC 的一个采访，你能不能直接把 YouTube 上面的那个 script 直接拉下来，帮我写一段报告告诉我他的那个 growth strategy 的 key takeaway 是什么，然后他就直接做完了。整个流程我从来没有打开过 YouTube，一个 agent 就从头到尾做完了这件事情。可能你以后 shopping 的 use case 也是一样，你可能从头到尾就只是打开了 ChatGPT，说我明天要去一个晚宴，需要一套正装，它已经知道了说我的身材是什么样子的，我多高，然后它就自动帮我说找到了这是最符合你的，然后把这个衣服 P 在了你的身上，你看一眼觉得好，然后就说现在这件有个折扣，然后就付款了，就可能是这么一个流程。那这个给我们的启示是什么？以前的那种所谓的工作流已经被改变了。他们不再是通过 browser 去 initiate 整个工作流的开端，去下单或者去得到这个信息，然后再去进入另外一个网页去进行操作。无法避免的是我认为在接下来 1 到 2 年的时间内，大多数的门户网站，不管你是 e-commerce 还是搜索还是视频网站，还是各种各样方面的门户网站，他们的流量一定会非常快速地下降。而它的入口变成了各个方向的 agent。这也是为什么当时 Google 要推出这个 A2A 的这个协议，每一家公司都可能会有自己的 agent，可能是 agent 跟 agent 之间的交互。那它如果能够占有这个协议的话，在 Gemini 里面完成这个协议的首先部署，那最后它就会是整个里面最大的赢家，因为它成为了 agent 的入口。ChatGPT 也是一样，Claude 也是一样。为什么他们要推出协议，也是他们想要占领这个 agent 入口的核心目的。那也是为什么 Poki 要推出协议的原因，就是我们也想占据 professional 这个场景的...",
+      "start": "00:29:48",
+      "end": "00:32:00",
+      "start_seconds": 1788,
+      "end_seconds": 1920
+    },
+    {
+      "id": 51,
+      "speaker": "男声1",
+      "text": "哎，你们为什么想自己推出协议，而不是就接一个标准的 MCP 协议？这样其实大家都是可以统一用的，然后你在一个更大更广的生态里面可以直接接入很多已经接好了的 app。",
+      "start": "00:32:00",
+      "end": "00:32:08",
+      "start_seconds": 1920,
+      "end_seconds": 1928
+    },
+    {
+      "id": 52,
+      "speaker": "男声2",
+      "text": "其实 MCP 现在的可用性是很差的。现在市面上应该快要两万个 MCP 了，其中可用的 MCP 大概不到两百个。而且大多数 MCP 都无人维护。导致的结果就是大多数的公司是不愿意花时间去做 MCP 协议的。我们的目标是说公司不再需要做 MCP 协议，你也不需要自己去做一个 MCP server，你就直接把 OpenAPI 给到我们，我们就 take care of the rest。所以公司在那些 service provider 公司的层面上来说，他们啥也不用干，他们就可以得到一个额外的流量入口。",
+      "start": "00:32:08",
+      "end": "00:32:34",
+      "start_seconds": 1928,
+      "end_seconds": 1954
+    },
+    {
+      "id": 53,
+      "speaker": "泓君",
+      "text": "嗯，对。然后你刚刚在描述整个未来在接入了 agent 以后，互联网它会发生一个什么样形态的变化，比如说门户网站它的流量会大幅的下降。就像你听到 Replit 的 CEO 的一段演讲，你就直接在 ChatGPT 或者自己 Pocket 上就完成所有对演讲的复述了。其实我是在想这样一个问题啊，因为我自己的身份是一个创作者，我俩身份是不一样的。那你觉得未来这个对创作者的影响是什么呢？如果我现在做一档播客，假设我们上一期内容，那腾讯算法广告大赛它是有一个口播广告在里面的。只有更多的人听这个播客，大家才可以听到这个广告，它才能支撑一个播客的商业模式运转下去，大家才能持续的赚到钱，然后能把这档节目持续的运营下去。那如果没有这样一个过程了，还有人在下面说，哎，这期播客为什么没有开 AI 总结？对，就不去听这个播客了，就直接去看这个 AI 总结。那其实对广告其实是一种流量的折损。",
+      "start": "00:32:34",
+      "end": "00:33:38",
+      "start_seconds": 1954,
+      "end_seconds": 2018
+    },
+    {
+      "id": 54,
+      "speaker": "男声2",
+      "text": "我觉得广告这个行业会永远存在，但是它的发生形式会发生改变。为什么市面上有很多专注做广告的 AI 公司，他们想要去看在 LLM 时代或者 agent 时代，广告要如何被插入。那我举个简单的例子，在播客里面插播广告这件事情，未来会变成一个什么样子的。现在的播客大多数除了平台方收你钱以外，播客提供者本身是不收你钱的。比如说硅谷 101 录的一个播客，大家都是免费听的。如果你在 YouTube 上面只是用了 YouTube 的广告，然后 YouTube 通过那个广告给你们分成。那未来可能是说，我们需要去 access 你的这个播客本身，这个知识产权就是值价钱的。每一次通过调用也好，通过网页访问也好，去找到你们这个播客的那个时间，或者说得到你这个信息的那一刻，任何的 agent 方就要向你付款了。你不再需要去担任广告流量的负责方，广告是由 agent 来完成的。agent 说，哎，我得到了这个信息以后，我怎么去在整个工作流或者说在用户体验当中插入广告。agent 就可以问说，哎，我们现在得到了这个对比，你想要选哪一个 agent 去 start playing around with。这个时候它就有一个 ranking 的机制在那，因为这个地方……",
+      "start": "00:33:38",
+      "end": "00:35:00",
+      "start_seconds": 2018,
+      "end_seconds": 2100
+    },
+    {
+      "id": 55,
+      "speaker": "男嘉宾",
+      "text": "给你没有 black and white 的 answer 对吧，那它就有一个 ranking 机制，它这个时候推荐哪个 agent 去 for the user 去 try，它就可以向那个 agent 的公司去收钱了。所以广告在这个时候发生，而支持每个 API 每一个第三方的插件的产品本身或者说知识产权本身是可以直接收费的。所以对于创作者生态以及 SaaS 生态从某种意义上来说是变好了而不是变差了。你不再需要去在 Google 上面投广告，你也不再需要去免费的把你的内容发给 YouTube 让他去帮你投放，而是有一个 agent 直接向你付费，通过他自己的广告机制去 cover 他自己的 cost。我不觉得说你们会受到很大的冲击。",
+      "start": "00:35:00",
+      "end": "00:35:38",
+      "start_seconds": 2100,
+      "end_seconds": 2138
+    },
+    {
+      "id": 56,
+      "speaker": "丁教",
+      "text": "对，整体上我觉得其实流量分成这样一个模式它会变得越来越弱，然后呢如果 agent 调用了很多创作者的内容，怎么给创作者付费其实是未来可能会讨论的一个问题。然后我觉得稍微有一点点疑问的就是基于流量的这套方式呢，因为比如说你有推荐算法，你一个页面可以显示 10 条播客的内容或者是 12 条你想要点击的一个视频信息，但是比如说一个 agent 它在回答一个问题的时候，我觉得现在它还是比较聚焦于精准，它可能引用的范围就相对更小了。",
+      "start": "00:35:38",
+      "end": "00:36:11",
+      "start_seconds": 2138,
+      "end_seconds": 2171
+    },
+    {
+      "id": 57,
+      "speaker": "男嘉宾",
+      "text": "其实上礼拜在 ICML 的时候有一个专门做推荐系统的人，然后我们俩其实聊到了这件事情。panel 之后有一个 researcher 上来问我说，那你觉得推荐系统之后会是一个什么样的发展路径？我当时告诉他我觉得推荐系统的大方向可能会受到巨大挤压。在 agent 的整个框架下面它还是一个推荐系统的一个端到端的 multi-round decision making 的一个过程。但是呢，它每一次给你的交互其实只是给你一条信息的结果或者说几条最相关信息的结果。这个时候它的整个决策线不再是按照排行第一、排行第二、排行第三这样的方式去决策了，而是时间是它的决策点。因为一个人和一个 agent 之间的交互的总时长是基本固定的，就是说这个 agent 好我就会交互时间久一点。它的目标可能是说我在每一个时间点上我给你推荐的东西可以让你所 consume 的 time 和它能够得到的回报成正比。那这个时候它的整个原始的推荐系统的算法可能就没那么成立了。因为原来的推荐系统算法是说我可能每一条点击的概率是跟它的排行所成正比的。而现在成为了说我每一次给你推荐或者给你回复的这个信息基本上都是你必定会去点的东西，但是你会有第二轮跟我交互的过程。那我下一次你花这个时间跟我交互，我所占用这个时间成本给你推荐的东西，这一条就必须是最精确的。这样会使得你跟我有更多的交互。所以它的目标就变成了说我不是有 5 条 10 条在一个页面给你呈现，而是说我可能有 5 轮 10 轮的 conversation...",
+      "start": "00:36:11",
+      "end": "00:38:00",
+      "start_seconds": 2171,
+      "end_seconds": 2280
+    },
+    {
+      "id": 58,
+      "speaker": "男嘉宾",
+      "text": "然后每一轮我的目标是让你跟我做下一轮的交互。这个时候就跟传统推荐系统的算法就完全不一样了。所以当时我跟他说，我觉得整个推荐系统，特别是这种 rank based 推荐系统的长期的发展的潜力可能会被极度压缩。因为它可能没有 rank 了，它更多的是一个 sequential 的，然后 experience based，exploration based 的这么一个交互机制。你可能唯一的目标就是，每一条我都是给你最精确的，能够在不损失我未来的 opportunity cost 的情况下，我在同等级别的 content 里面选择一个我可以有更多收入的这么一个 content。当然我也不是 100% 确定说这个一定是未来的方向，但我个人从目前的这个 agent 发展趋势来说，感觉是这么一个方向。",
+      "start": "00:38:00",
+      "end": "00:38:45",
+      "start_seconds": 2280,
+      "end_seconds": 2325
+    },
+    {
+      "id": 59,
+      "speaker": "女主持人",
+      "text": "我觉得非常有意思，而且整个之后，比如说创作者的生态会怎么演变，也是我们一直非常关注的一个话题。我注意到其实在整个这次 OpenAI 它的发布会里面，它其实也提到了它在用强化学习的底层架构，然后呢我知道强化学习的架构也是你的强项，你可不可以跟听众简单介绍一下，用强化学习的架构好在哪，它对应的是什么？",
+      "start": "00:38:45",
+      "end": "00:39:15",
+      "start_seconds": 2325,
+      "end_seconds": 2355
+    },
+    {
+      "id": 60,
+      "speaker": "男嘉宾",
+      "text": "我觉得先要简单解释一下的，就是强化学习的架构有很多种。有完全以 LLM 为核心的 token based 的这种强化学习的方向，也有我们这种整个 action 本身，就是我要让 agent 去决策的这个点，可能不再是一个 language token 为决策 element 的这么一个决策方式。这两种决策方式没有好坏之分，但是它们的用力也不太一样。但是总体来说，为什么要用 RL 的 framework 去完成 agent 训练的原因就是因为有目标在。不管是 deep research，它可能只需要从 token by token 的 generation 的方式去尽可能地搜索相关信息，然后完成一整个 report。还是说 agentic system 里面像 Poki 一样说，我的工具可能就是一个 tokenized 的东西，然后我可能通过很多个工具放在一块可以解决一个问题。它都是为了以目标为驱动的。跟过往的一个 LLM 训练很大不同的呢，在于说 LLM 本身的训练是可以通大量的 supervised learning data 来完成的。就是 auto-regressive 的这种 training 方式。而 agentic system 坚信很难。Deep research 仍然可以用一些，但是到了 tool calling 这一部分，单一的 tool calling 可以通过数据来完成，但是当变成工具链的时候，就很难再完成一个 auto-regressive 的 training 了。原因呢是因为市面上不存在一个，比如说我有这么一个任务，然后这个任务所对应的是这 50 个 tool call，然后把这个数据喂给一个 language model 让它去训练对吧，没有人去创建过这个数据。也不可能通过互联网去得到这个数据，因为互联网上也没有人产生过这种数据。所以只能靠人为标注了，如果你非要用这样的数据的话。",
+      "start": "00:39:15",
+      "end": "00:40:45",
+      "start_seconds": 2355,
+      "end_seconds": 2445
+    },
+    {
+      "id": 61,
+      "speaker": "女主持人",
+      "text": "嗯，你觉得有哪些任务比如说它用监督学习微调的方式更加容易，有哪些任务它是一定要通过这种强化学习的方式来做呢？这两者之间我想它针对的任务可能也是不太一样的。",
+      "start": "00:40:45",
+      "end": "00:41:00",
+      "start_seconds": 2445,
+      "end_seconds": 2460
+    },
+    {
+      "id": 62,
+      "speaker": "嘉宾",
+      "text": "对，目前的共识是针对于世界上已经有的很多的写作数据、文本、视频、图片，这一系列有大量已标注数据的这种任务，一般来说通过监督学习就已经可以得到一个很高的水平。然后再通过 RLHF 的这种 post-training 的方式使得这个能力再上一个台阶，使得可以更符合人类大多数 preference 的一个效果。为什么要做的原因是因为你大量的监督数据其实很多数据掺杂着好坏嘛，并不是每一个数据点都是人类所喜欢的。那它训练完了以后是完全泛化到所有的互联网上的数据，那下一步就是说我能不能以人类喜好为目标去 fine-tune 一下我的模型，使得它更倾向于人类喜好的模式。那这是 RLHF 的目的。再后面为什么现在甚至于要讲 RL pre-training 了？原因是在于很多的任务是只有目标驱动的。",
+      "start": "00:41:00",
+      "end": "00:41:45",
+      "start_seconds": 2460,
+      "end_seconds": 2505
+    },
+    {
+      "id": 63,
+      "speaker": "主持人",
+      "text": "有哪些公司在做 RL pre-training？",
+      "start": "00:41:45",
+      "end": "00:41:48",
+      "start_seconds": 2505,
+      "end_seconds": 2508
+    },
+    {
+      "id": 64,
+      "speaker": "嘉宾",
+      "text": "现在只有研究的组在做 RL pre-training，但我们其实就已经开始做一些类似于 RL pre-training 的东西了。但它还有一些 prior knowledge，那些没法靠 pre-training 得到，但是其实它已经基本上把中间的那些很多的 training 的过程给扔掉了。但我就不细讲这个方向，我先讲讲以 RL 为核心的训练机制为了解决什么问题。就是说很多的任务是以目标驱动的，比如说写代码，比如说数学、物理，就金融机构的一些东西，然后再比如说城市规划呀，你做 operations research，supply chain 呀这些东西，它都是有明确目标的。世界机制也很完整，如果 A 发生了会出现 B。那在这种情况下 pre-training 就变得不是很有必要。第一，你这种专业型的、目标为驱动的这些场景，你可以想象大多数都是没有任何的数据的。数学跟代码是唯一的两个可能有相对比较多的数据点的一些场景。除此之外，我刚刚说的剩下的那些点基本上都没什么数据。你很难在互联网上得到大量的数据去完成这个训练。第二，本质上它要解决的问题是非常泛化的，而市面上已经出现的数据大多数都是非常聚焦在一些经常会发生的 coding 问题和代码问题和数学问题。而那些非常高深难测的那些数学问题它是从来没有出现过的。那它就必须要通过一个 counterfactual 的形式，就是说我要生成一些这世界上从来没有出现过的代码、数学、物理、规划等等等等的这种输出，然后靠一个 ground truth evaluator 来告诉我做得对不对，然后去 self-train。那这种训练方式是非常适合于这种有 ground truth，能够做出精确判断的这种用例，然后去进行优化的。这个时候是 RL 最闪光的时候了。其实有很多 researcher 在网上都说过，就是说其实现在最大的问题是 verification。我如果能够找到一个 good verifier，那我可以 consider the problem solved。因为可以通过 RL 去完全对于这个 verifier 的 optimization 就可以了。那接下来我会讲一个我个人认为可能有一定非共识的一件事情。在 verifier 之上，我们...",
+      "start": "00:41:48",
+      "end": "00:44:00",
+      "start_seconds": 2508,
+      "end_seconds": 2640
+    },
+    {
+      "id": 65,
+      "speaker": "Zhiqing",
+      "text": "可能下一步最需要完成的一件事情就是怎么去提升 verification 方向的模型或者 verification 机制的泛化性。以及当这个 agent 本身输出在 deviate from what people have seen in the world 的时候，如何能够使 verifier 可以 adapt 到新的输出上面去，然后使得 verifier 可以完成更好的 verification 。这个如果有人能做出来，我们就可能会真正踏入向 super human intelligence 迈进的这么一条路，因为它可能产出的知识就是人类所不拥有的了。",
+      "start": "00:44:00",
+      "end": "00:44:33",
+      "start_seconds": 2640,
+      "end_seconds": 2673
+    },
+    {
+      "id": 66,
+      "speaker": "Tianyu",
+      "text": "这个如果能做出来它是可以解决幻觉的问题吗？",
+      "start": "00:44:33",
+      "end": "00:44:36",
+      "start_seconds": 2673,
+      "end_seconds": 2676
+    },
+    {
+      "id": 67,
+      "speaker": "Zhiqing",
+      "text": "我觉得幻觉问题是另外一个问题，这个东西很容易产生幻觉。这个方向就像我们当年看到 AlphaZero 打败人类一样，它所能够走出的一些路子是跟人类正常想象当中想象不到的一些路子。可以通过这个机制甚至可以发现新的物理定理，它可能可以真正去 discover human 所不拥有的 knowledge 。这个可能是下一步我觉得真正迈向 super intelligence 的一个关键点。但是目前还没有什么很好的一个突破。",
+      "start": "00:44:36",
+      "end": "00:45:05",
+      "start_seconds": 2676,
+      "end_seconds": 2705
+    },
+    {
+      "id": 68,
+      "speaker": "Tianyu",
+      "text": "对，你说到这个点让我想起了 OpenAI 对 AGI 的 5 个层次的划分，其实也是因为 OpenAI 在这一轮跟微软争夺控制权的问题上，把他们之前跟微软签的一份协议给曝光了。我觉得整个路径就是在沿着你说的这个方向走。它的 AGI 的第 1 个层级就是聊天机器人，我们可以理解成 ChatGPT ，对话型 AI ，很好理解。第 2 个是推理型的 AI ，这也是大家在去年其实看到的一个方向。第 3 个方向就是 AI agent ，代理型 AI 或者 AI 智能体，这个 AI 不仅能思考，还能替代人类去执行这种多步骤的自主操作，完成一系列的任务，比如说我们刚刚说的旅行定航班定酒店这一类的。看起来今年也在朝着这个方向迈进了。第 4 个等级的 AI 就是创新型 AI ，它把它叫做 Innovators 。它说的是这个人工智能需要具备创造性思维，它能够自主地发明新的工具或者方案。比如说在药物发现中，它可以去发现一个新的分子。那这个时候其实 AI 它就已经可以提出人类没有想过的办法，然后自己去找到这种创新型的解决方案，就是你刚刚说的，如果有了这个方案， AI 是不是在创作性的问题上可以超越人的范畴去提出一些人没有想到的解决方式。现在看起来我们今年在整个市面上看到的是大家对 AI agent 的一个非常热的市场在爆发，但是你刚刚说的这一点让我想到了 OpenAI 它定义的第 4 个等级。它说的第 5 个等级就是组织型或者是超人级的 AI ， AI 可以独立承担一个组织的全部职责，远超常人，有一点类似于我们说的超级的 AGI 。",
+      "start": "00:45:05",
+      "end": "00:46:53",
+      "start_seconds": 2705,
+      "end_seconds": 2813
+    },
+    {
+      "id": 69,
+      "speaker": "Zhiqing",
+      "text": "我不得不说的一个点就是，他们对于 AI 能力的定义其实是偏产品能力的。它不是偏技术能力的。",
+      "start": "00:46:53",
+      "end": "00:47:00",
+      "start_seconds": 2813,
+      "end_seconds": 2820
+    },
+    {
+      "id": 70,
+      "speaker": "男",
+      "text": "其实从某种意义上来说，2 跟 3 之间没有一个巨大的跨越性。然后 1 看你怎么定义它了，因为聊天机器人可以是非常非常普通的聊天机器人，也可能是像现在我们看到的这些聊天机器人，对吧。然后 4 跟 5 之间我个人认为也没有很大的 gap 。主要是 3 到 4 之间有个巨大的 gap 。这个 gap 的核心原因就是我刚刚说的那个 verification 能力的无法跨越。从人的角度来举例子吧，因为人可能是，他的学习方式其实跟 RL 很像。比如说你小时候学一个东西，你可能可以判断的东西都是在你的知识范围之内的。比如说你学会了加法，那你只能判断 1 加 1 等于多少，2 加 2 等于多少。你没法直接去泛化到说 3 减 2 等于多少。这个 reasoning 的过程并不是一个靠内在知识就可以完成提升的一个问题。像我们现在所说的 verifiable 的，像比如说 reinforcement fine-tuning ，这些都是以一个内在 verification 体系就可以完成的知识迭代。我有这么一个 verification ，它是永久固定的，你可以通过这个 verification 去不停地提升，或者说我预置了给到你一定 verification 的 knowledge ，你根据这个 knowledge 就可以不停提升。但如果说一个 agent 可以做到 20 位数的加减法了，但他从来没有见过减法这个东西，他仍然没有办法 verify 说一个减法是对还是错。",
+      "start": "00:47:00",
+      "end": "00:48:08",
+      "start_seconds": 2820,
+      "end_seconds": 2888
+    },
+    {
+      "id": 71,
+      "speaker": "女",
+      "text": "那我觉得人也是啊。对吧，假设我学的是数学，或者说我从来没有学过生物，我的数学领域的知识，我不知道生物的底层逻辑的话，我也很难泛化。",
+      "start": "00:48:08",
+      "end": "00:48:18",
+      "start_seconds": 2888,
+      "end_seconds": 2898
+    },
+    {
+      "id": 72,
+      "speaker": "男",
+      "text": "对，所以这个地方最难的一个点，两个地方。一，如何通过一个人类给定的简单的描述，可能是减法跟加法的关系是什么，直接能够从 A 推理到 B 的 verification 是什么。如果可以做到这一点，那 agent 的整个 verification 泛化性就直接上到下一个台阶。然后第二点是，他能不能通过自我探索，基于现有知识的 grounding 去完成对于未来知识 verification 的一个延伸。这个也非常难。比如说你已经知道了大多数的碱和酸之间会生成比如说二氧化碳，那你能不能对二氧化碳的性质进行一个简单的自我了解，并且去对于未来可能会出现对二氧化碳的问题做出一个 verification 。这个也是非常难的。然后未来如果出现了类似的 agent 本身产生的结果，我能够去 verify 说这个结果是对还是错。这个也非常非常难。",
+      "start": "00:48:18",
+      "end": "00:49:20",
+      "start_seconds": 2898,
+      "end_seconds": 2960
+    },
+    {
+      "id": 73,
+      "speaker": "女",
+      "text": "所以我理解就刚刚比如说我们在说到 AGI 的五个等级的时候，从第三个代理型 AI 到创新型 AI ，它可能是跨越从低于人类水平到一下子超过人类的平均水平，甚至是超过最好的人类的那一个水平的一个时间节点。",
+      "start": "00:49:20",
+      "end": "00:49:40",
+      "start_seconds": 2960,
+      "end_seconds": 2980
+    },
+    {
+      "id": 74,
+      "speaker": "男",
+      "text": "对，所以 3 到 4 之间是远超过 1、2、3 跟 4、5 之间的 gap 的。我觉得 5 可能还有一个很微妙的东西。agent 跟 agent 之间会不会出现人之间的 politics 。因为如果 agent 跟 agent 之间是 decentralized 的……",
+      "start": "00:49:40",
+      "end": "00:50:00",
+      "start_seconds": 2980,
+      "end_seconds": 3000
+    },
+    {
+      "id": 75,
+      "speaker": "男",
+      "text": "decentralized 的话，那他们的 objective 可能会让这件事有 misalignment 的。那在 decentralized multi-agent system 里面，它就有可能会出现 politics。",
+      "start": "00:50:00",
+      "end": "00:50:09",
+      "start_seconds": 3000,
+      "end_seconds": 3009
+    },
+    {
+      "id": 76,
+      "speaker": "女",
+      "text": "你指的是人与人之间的，比如说办公室政治斗争，就是类似于这样子的？",
+      "start": "00:50:09",
+      "end": "00:50:13",
+      "start_seconds": 3009,
+      "end_seconds": 3013
+    },
+    {
+      "id": 77,
+      "speaker": "男",
+      "text": "对，但是在 agent 环境下会出现一个完全不一样的，因为他们的 objective 会互相冲突，一旦出现互相冲突以后会卡死在那，甚至于有点像在计算机系统里面的那种 racing condition，直接 lock 在那。",
+      "start": "00:50:13",
+      "end": "00:50:25",
+      "start_seconds": 3013,
+      "end_seconds": 3025
+    },
+    {
+      "id": 78,
+      "speaker": "女",
+      "text": "死锁问题。",
+      "start": "00:50:25",
+      "end": "00:50:26",
+      "start_seconds": 3025,
+      "end_seconds": 3026
+    },
+    {
+      "id": 79,
+      "speaker": "男",
+      "text": "对对对，就可能会出现类似的情况。但是 1、2、3 跟 4，这是一个鸿沟。这个是谁能解决的话，这个是一个非常非常大的一个突破。",
+      "start": "00:50:26",
+      "end": "00:50:35",
+      "start_seconds": 3026,
+      "end_seconds": 3035
+    },
+    {
+      "id": 80,
+      "speaker": "女",
+      "text": "你有看见有大公司在沿着你说的方向，用 RL 做 pre-training 这个路径去解决吗？包括做这个 verification 机制的泛化。",
+      "start": "00:50:35",
+      "end": "00:50:44",
+      "start_seconds": 3035,
+      "end_seconds": 3044
+    },
+    {
+      "id": 81,
+      "speaker": "男",
+      "text": "verification 机制的泛化目前还没有谁在做任何非常大的突破吧。目前大家能想到的就是说 human knowledge distillation 来做到 verification 的提升。RL pre-training 确实有很多人在提了。但是 RL pre-training 有一个致命弱点，因为 RL 是一个 completely counterfactual learning 的一个过程。那它会给你无法避免带来一个问题就在于，它会不会出现一个能够解决问题但 human 看不懂的解决方案。比如说我们写一个代码 verification，能够 verify input 是什么，output 是什么。然后这个 agent 写了一段代码，它确实 work 了，但是里面所有的 operator 全是你看不懂的。比如说 object 的 variable 的 definition 都是一些乱码，它的加减乘除都是用那些非常复杂的，甚至用编译语言写出来的东西，然后把它给硬生生塞进了原来的那种代码里面。人类就看不懂这东西发生了什么，但它就是能 work。这个也是它的一个致命弱点。所以它的那个 reward definition 会非常重要，比如说 human readability 要怎么样。但是 human readability 你没有办法用个 rule 来解决对吧？所以你就变成没有办法 unverifiable。",
+      "start": "00:50:44",
+      "end": "00:51:55",
+      "start_seconds": 3044,
+      "end_seconds": 3115
+    },
+    {
+      "id": 82,
+      "speaker": "女",
+      "text": "整个听下来世界也很危险啊。我大概听到这里能理解为什么 Geoffrey Hinton 他会那么悔恨自己去创造了 AI 的底层吗？比如说当这个 AI 它已经可以用人类不知道的语言写出超越人类知识的时候，就这个时候还是蛮危险的。",
+      "start": "00:51:55",
+      "end": "00:52:14",
+      "start_seconds": 3115,
+      "end_seconds": 3134
+    },
+    {
+      "id": 83,
+      "speaker": "男",
+      "text": "那应该 Rich Sutton 更悔恨一点。因为 Geoffrey Hinton 所创造的 neural network 更多的是能够 represent human 的 knowledge。而要做 counterfactual 的 knowledge discovery 或者说 policy 的 discovery，还得靠 RL。所以如果说悔恨的话，那 Rich Sutton 可能会更悔恨一点。我觉得最终的一个事情还是，如果说要谈到 regulatory 的这个 information，我觉得 eventually 对于 reward design 可能是需要有一定的 regulatory 的 efforts 的。训练的时候给 agent 是什么样的一个 incentive，它可能会决定说这个 agent 训练出来是什么样子。",
+      "start": "00:52:14",
+      "end": "00:52:45",
+      "start_seconds": 3134,
+      "end_seconds": 3165
+    },
+    {
+      "id": 84,
+      "speaker": "女",
+      "text": "嗯嗯，对。其实关于刚刚我们在比较强化学习跟 SFT，就是监督微调学习，我们在比较这两者的时候呢，我也听到了这样一个说法，就在我有一期节目里面讲过，比如说我们假设用强化学习的效果是比这个 SFT 的效果要好个两倍，但是它消耗的 token 的数量...",
+      "start": "00:52:45",
+      "end": "00:53:00",
+      "start_seconds": 3165,
+      "end_seconds": 3180
+    },
+    {
+      "id": 85,
+      "speaker": "说话人 1",
+      "text": "可能在十倍之多。這是對於現在大家馬上要商業化、馬上要應用來說，它的這個性價比算不過來，你怎麼看？",
+      "start": "00:53:00",
+      "end": "00:53:07",
+      "start_seconds": 3180,
+      "end_seconds": 3187
+    },
+    {
+      "id": 86,
+      "speaker": "说话人 2",
+      "text": "對，這個是很正常的。因為 reinforcement fine-tuning 的做法是說，我只有一個 reward function，我沒有任何的其他信息，我要去完成那個目標。而 supervised fine-tuning 是說我已經有標準答案了，我只是需要想辦法去靠近那個標準答案就好了。這個無法避免的就是 RL fine-tuning 的價格會更高。但是長期以往有更複雜的任務，它就沒有辦法做 supervised fine-tuning，因為它沒有標準答案了。所以它就不再是一個選擇性問題。現在為什麼會有個選擇性問題，是因為我們解決的問題還不夠複雜。到了未來問題會越來越複雜，當它問題到了極度複雜的時候，就沒有選擇。",
+      "start": "00:53:07",
+      "end": "00:53:50",
+      "start_seconds": 3187,
+      "end_seconds": 3230
+    },
+    {
+      "id": 87,
+      "speaker": "说话人 1",
+      "text": "嗯，對。然後你剛剛提到強化學習跟監督學習微調的這些方式的不太一樣的一個大點啊，就我理解，強化學習就是在你沒有標註數據的時候，你也可以用這種方法。但是比如說傳統的方法，這個數據必須是標註的。而且這個可能已經慢慢地成為業界的一個共識了。那基於這個，Meta 為什麼還要收購 Scale AI？",
+      "start": "00:53:50",
+      "end": "00:54:15",
+      "start_seconds": 3230,
+      "end_seconds": 3255
+    },
+    {
+      "id": 88,
+      "speaker": "说话人 2",
+      "text": "數據的重要性在現在的這個大時代下是下降的。但是有一個方向是無法避免，就是數據的標註性在 multi-modality，特別是在視頻和圖片數據上，是目前還完全無法跳開的一件事情。因為它的 verification 能力會基於，比如說我們要基於視頻跟 image 的 reinforcement fine-tuning，它作為 image input 的解析能力要達到很高的一個程度，而且沒有辦法靠 human rule 來完成。它必須要靠模型的解析能力去把那個 video 和圖片的 content 整個解析出來。在這個 content 之上，human 才能寫 rule 說我怎麼去 verify 它。那這個解析能力就變得非常的難。因為我們現在都知道圖片裡面的很多細節、視頻裡面的很多細節，現在其實我們的模型是沒有辦法很好地解析的。特別是那種 multi-modal 的模型，它其實還是更多的偏向於 text 的能力。所以我的總體感覺是他們可能想在 multi-modality 上面發力。而 multi-modality 上面以及 robotics 上面標註目前是還跳不開的一個問題。所以這個方向可能會是 Meta 接下來會發力的一個點。",
+      "start": "00:54:15",
+      "end": "00:55:20",
+      "start_seconds": 3255,
+      "end_seconds": 3320
+    },
+    {
+      "id": 89,
+      "speaker": "说话人 1",
+      "text": "所以第一步多模態上還是得有先解析好了的，或者標註好了的數據，相當於是把所有的數據先有一個基礎的訓練以後，我們再看強化學習能怎麼處理？",
+      "start": "00:55:20",
+      "end": "00:55:32",
+      "start_seconds": 3320,
+      "end_seconds": 3332
+    },
+    {
+      "id": 90,
+      "speaker": "说话人 2",
+      "text": "我現在看的整個路徑都是這樣。ChatGPT 最早是我有大量大量的數據，我訓練出了一個模型。你這個基礎模型再做一些 supervised fine-tuning，把它變成一個精煉的基礎模型。精煉的基礎模型之上，最早是說我們拿一些數據去訓練一個 reward model，然後通過這個 reward model 再去訓練我的 language model，用 RL 去訓練 language model，讓它變得泛化性更強，或者說它能夠在未知領域能夠達到更好的效果。現在慢慢就變成了 reinforcement fine-tuning，就是說我不要那個 reward model，我就用現在大家的共識或者說 LLM as a judge 去訓練這個模型。那這個已經...",
+      "start": "00:55:32",
+      "end": "00:56:00",
+      "start_seconds": 3332,
+      "end_seconds": 3360
+    },
+    {
+      "id": 91,
+      "speaker": "男",
+      "text": "慢慢慢慢会变成一个共识。在 multi-modality 上面现在还处于第一第二步，我现在有大量的数据，我现在在训练一个基础模型，基础模型训练完了以后我做一些 RLHF fine-tuning。那我怎么能够去做一个标准化的 judge verifier 或者说一个 rule-based 的 verifier？这个是目前不存在的一个东西，而且非常难做。因为一个 image 本身它没有标准答案，所以它可能会说我先通过数据来训练一个 reward model，然后使得我 multi-modality 的能力比它最大，然后再说 OK 我 multi-modality 的能力已经很强了，我能不能去通过这个输入输出的能力把它变成一个 verifier，然后通过这个 verifier 我再去做 reinforcement fine-tuning。我觉得整个 life cycle 都是这样在转的，到目前为止。",
+      "start": "00:56:00",
+      "end": "00:56:55",
+      "start_seconds": 3360,
+      "end_seconds": 3415
+    },
+    {
+      "id": 92,
+      "speaker": "女",
+      "text": "对，那你觉得 Scale AI 它在标注图片跟视频的这些数据上，更像是一个技术含量很高的一个工作，还是说它其实就是一个我找很多工人来给这个数据打标，只要找的人多然后打的标多，它就可以成为一个数据库很多的地方，还是说它这个中间其实有很多要考验你技术的环节？",
+      "start": "00:56:55",
+      "end": "00:57:18",
+      "start_seconds": 3415,
+      "end_seconds": 3438
+    },
+    {
+      "id": 93,
+      "speaker": "男",
+      "text": "我觉得第一点最难的地方就是文字的人为打标还稍微简单一点，图片的人为打标就变得更难了。比如说你要生成一个产品图，这个产品图是好还是坏， 100 个人估计有 100 个说法。那它怎么能够标化那个产品图好坏呢？这个非常非常难，所以这里面其实有 alignment 的问题。这个 alignment 问题是个技术问题，我觉得短时间内可能很难解决。他们可能会先写一个非常复杂的 rubrics，然后去训练这些人，说这些图哪些比较好哪些比较不好。然后 robotics 就变得更难了，在这个情况下 robot 干了这么一件事情是好还是不好？人可能都看不懂说这个 robot 在干嘛，但 robot 可能自己心里有 plan，说我可能要先做这个再做那个再做那个可以完成这个目标，但人可能完全不懂说这个 robot 为什么干这件事情。所以 multi-modal 以后再加上 multi-modal 加 action，这一整串下来其实需要很多很多数据的支持。所以我觉得 data 是个中期问题。如果你说非常短期，缺资源啊人才啊，中期可能会在 data 上面有瓶颈，长期可能还是一个 optimization RL 的问题。所以它短中长期所需要的资源和能力都不太一样。而 Meta 可能希望说它能够从某种意义上解决它自己的中期的数据问题，使得它自己 multi-modality 的能力会有比较大的提升吧。",
+      "start": "00:57:18",
+      "end": "00:58:50",
+      "start_seconds": 3438,
+      "end_seconds": 3530
+    },
+    {
+      "id": 94,
+      "speaker": "女",
+      "text": "嗯，它挖的这批人算是在解决长期问题吗？",
+      "start": "00:58:50",
+      "end": "00:58:54",
+      "start_seconds": 3530,
+      "end_seconds": 3534
+    },
+    {
+      "id": 95,
+      "speaker": "男",
+      "text": "对。",
+      "start": "00:58:54",
+      "end": "00:58:55",
+      "start_seconds": 3534,
+      "end_seconds": 3535
+    },
+    {
+      "id": 96,
+      "speaker": "女",
+      "text": "短期是什么？是算力？",
+      "start": "00:58:55",
+      "end": "00:58:56",
+      "start_seconds": 3535,
+      "end_seconds": 3536
+    },
+    {
+      "id": 97,
+      "speaker": "男",
+      "text": "对，我们最早不是遇到了卡不够啊各种各样的问题嘛，那个问题已经解决了嘛。现在就到了中期问题了，中期就是说我们可能已经解决了一些在文字上的代码上面的 optimization 的问题，但现在 multi-modality 上面是不是也能解决这些问题？在数据上还是有缺口的。那之前的那些数据缺口在 GPT-4o 之后的一整批的 iteration 里面其实已经基本上完成了对于代码和文字上面的这些 iteration，那现在就到了 multi-modality 上面，等于是一模一样的 Gantt chart，然后它只是把这个东西横移过来了而已。",
+      "start": "00:58:56",
+      "end": "00:59:00",
+      "start_seconds": 3536,
+      "end_seconds": 3540
+    },
+    {
+      "id": 98,
+      "speaker": "女",
+      "text": "嗯，对，但是也会有",
+      "start": "00:59:00",
+      "end": "00:59:00",
+      "start_seconds": 3540,
+      "end_seconds": 3540
+    },
+    {
+      "id": 99,
+      "speaker": "丁教",
+      "text": "新的问题产生，比如说刚才我们提到的审美、图片的标注、视频的标注。",
+      "start": "00:59:00",
+      "end": "00:59:04",
+      "start_seconds": 3540,
+      "end_seconds": 3544
+    },
+    {
+      "id": 100,
+      "speaker": "嘉宾",
+      "text": "对。但我觉得都是时间问题。",
+      "start": "00:59:04",
+      "end": "00:59:06",
+      "start_seconds": 3544,
+      "end_seconds": 3546
+    },
+    {
+      "id": 101,
+      "speaker": "丁教",
+      "text": "对。那你觉得你自己做这个 Poki AI，你搭 AI Agent 的底层的开发哲学跟逻辑是什么？",
+      "start": "00:59:06",
+      "end": "00:59:12",
+      "start_seconds": 3546,
+      "end_seconds": 3552
+    },
+    {
+      "id": 102,
+      "speaker": "嘉宾",
+      "text": "最核心的逻辑是说，我们现在认为 AI Agent 的使用不像当年 ChatGPT 刚出来的时候那么简单。但我们希望 AI Agent 的使用就跟 ChatGPT 一样简单。不只是在用户层面、consumer 层面，而是说对于任何的企业、开发者、professional 来说，他们调用一个 Agent 就是对着一个简单的 API，一行 prompt，就完成了整个 Agent 的调用。得到的就是你最后的结果。而你不用去担心中间出现各种各样的 browser 的环境，各种各样的问题都不再存在，这是我们的开发逻辑。这是为什么我们尽可能避免了非常复杂的 infra 架构，而是通过很多的集成，把更多的能力全都压在 Agent 本身的模型里面。而不是说我通过一个 language model，然后通过不停地去调用市面上更多的 infrastructure 去 bypass 这个工具的能力，把工具的数量去压缩。某种意义上说，你用 browser 就是用一个工具代替了几千个工具。但是同时也意味着你的模型所需要的能力会更小一些。而我们的方式是说，我们希望模型的能力变得最强，然后工具就直接把它铺开，你就直接去想用什么工具就用什么工具就好了。就相当于一个 Agent 可以操作整个 internet 和一个 Agent 只能看一个网页，这样的一个区别。",
+      "start": "00:59:12",
+      "end": "01:00:25",
+      "start_seconds": 3552,
+      "end_seconds": 3625
+    },
+    {
+      "id": 103,
+      "speaker": "丁教",
+      "text": "模型的能力用到最强还是接其他的基座大模型吗？还是你们自己也会开发自己的模型？",
+      "start": "01:00:25",
+      "end": "01:00:31",
+      "start_seconds": 3625,
+      "end_seconds": 3631
+    },
+    {
+      "id": 104,
+      "speaker": "嘉宾",
+      "text": "我们会开发自己的模型。我们现在的很多的 tool calling、tool selection 的这些能力都是我们自己的模型在做了。未来的话可能连 language model 的部分会跟我们的模型直接结合在一块，变成一个单一模型。那个时候就从用户的 input 到语义理解，到工具选择、planning，到最后的结果，全都变成同一个 Agent 来完成。这个时候这个 Agent 会变得非常好用，因为它不再像很多市面上的这种 Agent 一样，它需要有大量的来来回回的 infra 之间的跳转。而是说你直接把 prompt 输进一个 API，这个 API 就可以给到你最后的 deliverable 的结果了。",
+      "start": "01:00:31",
+      "end": "01:01:10",
+      "start_seconds": 3631,
+      "end_seconds": 3670
+    },
+    {
+      "id": 105,
+      "speaker": "丁教",
+      "text": "为什么要开发自己的模型？这个是所有的通用型 Agent 它必须具备的一个技能还是说它也可以直接搭模型？",
+      "start": "01:01:10",
+      "end": "01:01:18",
+      "start_seconds": 3670,
+      "end_seconds": 3678
+    },
+    {
+      "id": 106,
+      "speaker": "嘉宾",
+      "text": "如果你用 browser，你用那些 sandbox，我用了 sandbox，然后让另外一个 coding Agent 去完成 coding 的过程，然后再给到我结果，你可以不用自己开发大模型。原因是在于你把工具压缩了，我去依赖于另外一个写代码的 Agent 去跳过这些工具的使用。或者说我选择了一个 browser 的 Agent，我去跳过你选择工具的使用。这个就是通过压缩工具的数量，选择更 general 的工具来完成你的目标，而不是说直接选择工具。为什么我们要去训练自己的模型的原因呢？第一，成本很高。你从一开始去解析用户理解、planning，到你选择 sandbox，sandbox...",
+      "start": "01:01:18",
+      "end": "01:02:00",
+      "start_seconds": 3678,
+      "end_seconds": 3720
+    },
+    {
+      "id": 107,
+      "speaker": "男嘉宾",
+      "text": "第一，它的成本很高，Browser 还有 Vision 的部分。第二，它速度很慢。第三，它的泛化性差。它训练的时候见过很多很多的网页，当你进入到专业场景以后它就很难。我举个例子，有朋友问我们要的一个 feature 是说，我能不能从 PostHog，就是一个 analyze web traffic 的一个网站上面，这是个很复杂的网页，去找到这个用户本身的 behavior，基于这个用户的 behavior 的一些 metrics，然后去导入一个 analysis 的一个 script，然后在这个 script 里面得到这个 presentation 的几个 figure，这个 figure 再放进一个 report 里面生成一个 PDF。就这么一个 agent flow，你是不可能通过 browser 加 sandbox 来完成的。你必须要直接去 access 那个工具去得到那个最精确的数据，然后再去做分析。那这个流程就变成了我们的优势。类似于这种用户设立其实非常非常多，在广告分析里面，在用户分析里面，其实有很多很多的工具是在互联网上面的，但是正常的 browser 是肯定搞不定的，因为他们在训练当中从来没见过。所以我们能够通过我们的 foundation model 把成本降下来，把泛化性提升，把它的适用的 workflow 的类型有很大程度的拓展。而不只是限定于说那几个最简单的购物啊，写 slides 啊，做一些 research 啊这种。其实有很多很多专业性的 workflow 是他们解决不了的。",
+      "start": "01:02:00",
+      "end": "01:03:20",
+      "start_seconds": 3720,
+      "end_seconds": 3800
+    },
+    {
+      "id": 108,
+      "speaker": "女主持人",
+      "text": "所以我理解其实你们搭的是一个垂直的选 agent 的模型对不对？",
+      "start": "01:03:20",
+      "end": "01:03:25",
+      "start_seconds": 3800,
+      "end_seconds": 3805
+    },
+    {
+      "id": 109,
+      "speaker": "男嘉宾",
+      "text": "选工具的模型，我们不选 agent。它不只是选单一工具，它是选一个 sequence of 工具。就是一个推理加工具选择的一个模型。",
+      "start": "01:03:25",
+      "end": "01:03:35",
+      "start_seconds": 3805,
+      "end_seconds": 3815
+    },
+    {
+      "id": 110,
+      "speaker": "女主持人",
+      "text": "对，因为我看见大家在谈到 AI 的时候啊，大家其实一般有两种派别。一种是说我把越来越多的问题交给 AI，然后端到端的训练，它主打的就是一个人更少的干预，让 AI 去犯错误，让 AI 去学习。那另外一种呢，就是说我们在真实的应用中还是产品跟用户体验优先，那这种情况下我们就要减少幻觉。减少幻觉的方式就是说我们还是要拆分一些细节，让它的工作流稍微能确认的地方能够更加确认，让产品跟应用能够先用起来，跟落地。这你觉得你自己的产品哲学上你更偏向于哪种？",
+      "start": "01:03:35",
+      "end": "01:04:05",
+      "start_seconds": 3815,
+      "end_seconds": 3845
+    },
+    {
+      "id": 111,
+      "speaker": "男嘉宾",
+      "text": "就是我作为一个 CEO 现在一半的我是一个产品人，一半的我是一个 researcher。做一个 researcher 我同意第一个观点，因为越是 general 的环境能训练出越强的模型。做一个产品人呢，我会选择第二种。因为用户的体验跟模型的能力是不成正比的。我们的模型能力肯定很强，但是最后的用户的体验可以是非常糟糕的。举个简单的例子，我们之前自己遇到的问题，就是我们的模型其实选择工具从头到尾都是对的。我们其实我们的工具是可以发帖到所有的平台的，就以社媒运营作为例子好了。之前我们其实有一段时间，那个社媒运营本身，就我发布完了以后那个 link 没有给到你。有很多用户就非常 get confused，like，我这发完发到哪去了呢？他也不知道说自己应该跑到那个账户里面自己去看，是不是有新的视频出现了，或者有新的图片出现了。然后就导致说能力其实都端到端打通了呀，但是就是这个用户不知道说你的产品在干什么。",
+      "start": "01:04:05",
+      "end": "01:05:00",
+      "start_seconds": 3845,
+      "end_seconds": 3900
+    },
+    {
+      "id": 112,
+      "speaker": "嘉宾",
+      "text": "然后还有一个另外的例子就是我们比如说生成 Google Slides，我们之前是就给你个 Google Slides link，你自己去看。但现在我们会直接把那个 Google Slides 直接 embed 在我们的网页里面，你就直接可以原地在 Poki 里面就直接可以修改 Google Slides。大家就会觉得说这个东西是完全 in my control 的一个东西，而不是说我还要跑到另外一个网页里面去再改完，改完了回来再看你生成点什么东西。所以它有很多这种用户细节在里面，跟你模型能力毫不相关。那在这种情况下，作为一个产品或者作为一家创业公司，你就必须要去打磨产品的细节。而模型能力是决定你的产品下限的，而产品的上限是由你的产品细节决定的。",
+      "start": "01:05:00",
+      "end": "01:05:35",
+      "start_seconds": 3900,
+      "end_seconds": 3935
+    },
+    {
+      "id": 113,
+      "speaker": "主持人",
+      "text": "对，我们刚刚好多次提到了 Rich Sutton 教授，他是强化学习的奠基人之一，也是 2025 年的图灵奖得主，因为我知道你在斯坦福读博自己学的也是强化学习嘛，所以你跟 Rich Sutton 他的渊源是什么？",
+      "start": "01:05:35",
+      "end": "01:05:50",
+      "start_seconds": 3935,
+      "end_seconds": 3950
+    },
+    {
+      "id": 114,
+      "speaker": "嘉宾",
+      "text": "Rich Sutton 跟我的导师是铁哥们。在他们提出 RL 这个概念，当时提出 temporal difference learning 的时候就认识了。然后我的导师当年是证明 Q-learning 最基础的 temporal difference off-policy learning 的那个理论能够被 function approximation 完成的那篇 paper 是我导师写的。然后我在 Stanford 读博的时候其实见过好几次 Rich Sutton，甚至有一次在我导师家里，然后 Rich Sutton 来开 party，然后大家就在一起吃烧烤啥的。有很多点为什么我提到 Rich Sutton，第一是他的这个经历跟很多人不太一样。他当年其实是罹患癌症的。他那个时候其实有好几年都没有任何工作。一度非常非常艰难。但是他从来没有放弃 RL 这个 research 方向。后来他去了 University of Alberta，然后 Alberta 其实给了他挺大的支持，但他其实整个人身体的状态其实一直都不是很好。即便很多人都说 RL 是个玄学，那时候也没有放弃过。第二个就是他这个人，我跟他交流过几次，然后他非常 principled。他的 PhD 学生是我们公司的 research scientist。所以还有更多的渊源在里面。我们其实有聊很多的这种我们 startup 想法，然后聊模型的想法。他其实有非常多的前瞻性的想法，就是他不会拘泥于现在比如说 LLM 的能力，或者说 foundation model 是不是会取代 RL。就是因为他的坚持，所以现在有了 RL 整个行业的基石。与此同时有现在那么大的发展。虽然现在市面上有很多 hype，很多人其实并不是特别懂 RL，但所有人都在说我们要 do RL whatever。但真正能够把 RL optimize 好的其实整个行业也就这么几十号人吧。然后你可以看到都 concentrate 在这些人发的 paper 和做的产品里面。我觉得未来还是有很大的潜力的，而且也非常感谢他能够对这个行业和他自己的领域有那么强的坚持，否则也没有我们现在的那么大的发展。",
+      "start": "01:05:50",
+      "end": "01:07:40",
+      "start_seconds": 3950,
+      "end_seconds": 4060
+    },
+    {
+      "id": 115,
+      "speaker": "主持人",
+      "text": "嗯，然后你提到你跟 Rich Sutton 在聊天的时候他提到了很多非常前瞻性的想法，你觉得有哪些想法是非常打动你的，或者让你印象深刻？",
+      "start": "01:07:40",
+      "end": "01:07:55",
+      "start_seconds": 4060,
+      "end_seconds": 4075
+    },
+    {
+      "id": 116,
+      "speaker": "嘉宾",
+      "text": "我觉得他跟我提了很多次叫 model plasticity 这个问题。模型本身你...",
+      "start": "01:07:55",
+      "end": "01:08:00",
+      "start_seconds": 4075,
+      "end_seconds": 4080
+    },
+    {
+      "id": 117,
+      "speaker": "男嘉宾",
+      "text": "训练是不可以无限制地对它训练的。就是你训练到某一个程度，它就会 fall apart 。其实在 RL 领域之前很经常看到叫 catastrophic forgetting ，就是说当你训练很久很久以后，它开始忘记所有过往的学习到的知识，然后整个模型像疯了一样，它所有的原来的 policy 都消失了。",
+      "start": "01:08:00",
+      "end": "01:08:16",
+      "start_seconds": 4080,
+      "end_seconds": 4096
+    },
+    {
+      "id": 118,
+      "speaker": "女嘉宾",
+      "text": "这个出现过吗？",
+      "start": "01:08:16",
+      "end": "01:08:17",
+      "start_seconds": 4096,
+      "end_seconds": 4097
+    },
+    {
+      "id": 119,
+      "speaker": "男嘉宾",
+      "text": "出现过，很多文章里面都提到过这种事情。这是为什么你一开始模型要变得足够大。其实就像海绵一样，然后你往里面不停地注水，然后你注水注到一定程度它满了，那你再往里面注水会发生什么？就是它会流出来一些。但流出来的不一定是注入的水，很有可能是原来已经有的水。那如果原来已经有的一部分水是很重要的水，就像你大脑里面不停地灌输知识，然后到最后你过载了，然后把加减乘除忘了，那是不是剩下的所有的知识体系就直接 fall apart ？这个问题本身叫 model plasticity ，就是说它的可塑性到了某种程度就直接崩溃了。然后你要怎么去解决这个问题叫 continual learning 。现在可能你有一天会人类生成 1 个 terabytes of data ，那 10 天是 10 个 terabytes ，那未来可能生成数据会越来越多。那你怎么能够用一个模型无限地去训练它，让它仍然能够对未来的知识进行获取呢？这是不可能的。",
+      "start": "01:08:17",
+      "end": "01:09:08",
+      "start_seconds": 4097,
+      "end_seconds": 4148
+    },
+    {
+      "id": 120,
+      "speaker": "女嘉宾",
+      "text": "你觉得现在整个模型的训练，比如说到了 GPT-4 甚至是 GPT-5 这个，它的数据量已经到极限了吗？",
+      "start": "01:09:08",
+      "end": "01:09:16",
+      "start_seconds": 4148,
+      "end_seconds": 4156
+    },
+    {
+      "id": 121,
+      "speaker": "男嘉宾",
+      "text": "还没有，没有没有。模型的 size 是一个 linear 在增长的一个过程，但是我们的数据量是一个指数在往上涨的过程。到了某一个阶段一定会碰壁的。没有办法这样 scale 下去。其实我们在 PPO 训练的时候就已经遇到过这个问题了。因为我们训练的模型比较小，然后我们的工具量又很大，我们的数据量也挺大的。然后我们其实用小模型训练，训练到某一个点它就突然之间整个 performance 就会掉得非常厉害。然后我们必须要把它模型变得更大一号，然后再去训练才能不出这个 catastrophic forgetting 的情况。它取决于你的 use case ，有些 use case 你可能小模型有一定的数量它已经发生了。然后另外一个他一直提的就是 reward design 的问题。在未来的世界，如果 RL 作为核心的模型的优化机制了，那去设计这个 reward model 的这个人，他有什么样的标准？这个 reward 本身是怎么去设计能够保证它的 moral standard ？这是个非常麻烦的事情。因为你应该知道 RL 是一个 sequential decision making 的问题，也就是它的 reward 是相加的。你可能定义一个单步的 reward 是 make sense 的，当它被加起来以后，变成很多步以后，它就变得并不是一个你可预测的。因为它的那个总体的 reward 是跟着 policy ，就是那个 agent 的 policy 或者它的决策机制所改变的。所以它的设计可能跟你原来的想法可能已经背道而驰了。然后还有一个问题，比如说你有多个 reward 怎么办？那你要同时优化四五个不同的目标，那在这种情况下你怎么能够做到 balance 这些目标，然后能够在这个目标当中找到一个每个项目都做得相对比较好的状态？这也是个问题。然后他也提出过这个想法叫 generalized value function ，怎么能够去...",
+      "start": "01:09:16",
+      "end": "01:11:00",
+      "start_seconds": 4156,
+      "end_seconds": 4260
+    },
+    {
+      "id": 122,
+      "speaker": "男",
+      "text": "学到一个同时优化多个 objective 的一个 value function。Value function 就是在 RL 里面去决策说我下一步去到哪个状态能够达到更优解的这么一件事情。然后它可以在一个状态下得到多个目标所对应的值。这样的话它可以去判断说我要怎么去平衡这些对应的这些 objectives。",
+      "start": "01:11:00",
+      "end": "01:11:21",
+      "start_seconds": 4260,
+      "end_seconds": 4281
+    },
+    {
+      "id": 123,
+      "speaker": "女",
+      "text": "嗯，挺有意思的。你觉得你从他身上学到了什么？",
+      "start": "01:11:21",
+      "end": "01:11:25",
+      "start_seconds": 4281,
+      "end_seconds": 4285
+    },
+    {
+      "id": 124,
+      "speaker": "男",
+      "text": "我觉得就是如果你自己觉得 first principle 是对的，就不要放弃，坚持自己的路。有很多东西中期、短期、长期所看到的结果都很不一样。然后有些东西你可能短期内你可以看到很多的结果，但你会卡死在那儿。但有些你可能 take a step back，真正去专注于你认为 first principle 是对的东西，你可能长期会得到更好的结果。",
+      "start": "01:11:25",
+      "end": "01:11:50",
+      "start_seconds": 4285,
+      "end_seconds": 4310
+    },
+    {
+      "id": 125,
+      "speaker": "女",
+      "text": "嗯。你说到现在对 RL 研究得特别深的人是以哪些高校或者以哪些中心为原点的？",
+      "start": "01:11:50",
+      "end": "01:11:59",
+      "start_seconds": 4310,
+      "end_seconds": 4319
+    },
+    {
+      "id": 126,
+      "speaker": "男",
+      "text": "就是以 OpenAI 早期的这批人，Peter Abbeel 的学生，可能现在 PI 里面的这批人，Sergey Levine 的学生，Rich Sutton 的学生基本上都在学界。除此之外也有很多现在已经分支出来的好的教授吧。学界偏多一些。但是学界一个问题就是大家做 RL 都做得太理论了。然后写很多 regret bound 呀，写些新的 theory 呀之类的。Industry 的话可能就是 DeepMind 的那批人，David Silver 为核心的这一批 DeepMind 的人，还有我导师也在 DeepMind。可能对 RL 的领域是最了解然后做得最好的。然后 Microsoft 也有，比如说像 Langford。Langford 的话其实是做 RL 的理论方向很早期很先驱的人之一。但是这个核心人群并不大。基本上不管他们怎么换地方，你都看到是这几个核心人底下的学生啊，或者跟他们 work together 的这些人衍生出来的。",
+      "start": "01:11:59",
+      "end": "01:13:08",
+      "start_seconds": 4319,
+      "end_seconds": 4388
+    },
+    {
+      "id": 127,
+      "speaker": "女",
+      "text": "嗯，对。你觉得伦敦会是一个 RL 的大本营吗？因为我其实是想到当年 AlphaGo、AlphaZero 那一段历史的时候，其实那个时候是强化学习非常火的一段时间。它可能也是一个最早的一批人在研究强化学习的方向的也算是一个小热潮吧。你觉得那个时候研究这个强化学习跟现在大家去研究强化学习，它方向上会有很大的不同吗？",
+      "start": "01:13:08",
+      "end": "01:13:38",
+      "start_seconds": 4388,
+      "end_seconds": 4418
+    },
+    {
+      "id": 128,
+      "speaker": "男",
+      "text": "就 15 到 18 年是 AlphaGo、AlphaZero、MuZero 到后面有一些比如说 StarCraft 游戏里面的 RL 发展的一个巅峰。到了那个之后就开始沉寂了。然后所有人都说 LLM 可以 solve everything，然后到现在突然间 RL 又变火了。我自己看下来呢，是觉得伦敦的 David Silver 他们这批人做的 RL 是有一个他自己的一个 style 的。他有一个 formal verification 的一个方式，一定能够知道 true or not。基于这个 verification 的方式去训练一个非常 dedicated agent，这个 agent 只能解决一个问题的那种。他没有真的说我通过一个非常通用的 decision making 的 action space 去训练一个可以解决很多问题的 verifiable 的一个 agent。",
+      "start": "01:13:38",
+      "end": "01:14:00",
+      "start_seconds": 4418,
+      "end_seconds": 4440
+    },
+    {
+      "id": 129,
+      "speaker": "嘉宾",
+      "text": "但是现在伦敦其实做 RL 的人也不止 DeepMind ，有很多人在做 RL 。我觉得大本营上感觉还是会是湾区。因为 OpenAI 跟 DeepMind 的人都在那，大概率还是以那边为核心。",
+      "start": "01:14:00",
+      "end": "01:14:15",
+      "start_seconds": 4440,
+      "end_seconds": 4455
+    },
+    {
+      "id": 130,
+      "speaker": "主持人",
+      "text": "OpenAI 是不是也是 15 到 17 年左右是花了很多时间去研究强化学习的，因为我记得他们早期的研究有各种游戏里面的推方块，我觉得那些好像都是强化学习去解决问题的。",
+      "start": "01:14:15",
+      "end": "01:14:35",
+      "start_seconds": 4455,
+      "end_seconds": 4475
+    },
+    {
+      "id": 131,
+      "speaker": "嘉宾",
+      "text": "对，最早的时候是 Gym environments ，他们希望能够通过一些比较简单的游戏证明 RL 的 goal-oriented 解决问题的能力。但是因为这些游戏就止于游戏。18 年为什么慢慢 RL 开始沉寂的一个核心原因，是因为大家都认为 RL 是一个游戏环境的产物。它没有一个真正能够解决实际问题的能力。但是直到现在，我不得不承认的一点是，到目前为止 RL 还是作为一个 LLM 之上的 optimizer 。它并不是从零开始训练出了一个机制可以解决通用问题的。所以现在大家说 RL pre-training ，这个也是一个值得去深究的一件事情，这个事如果能做成的话，那意味着可以从零开始训练一个完全通用的 RL 解决方案。这个会是一个非常大的一个成果。",
+      "start": "01:14:35",
+      "end": "01:15:25",
+      "start_seconds": 4475,
+      "end_seconds": 4525
+    },
+    {
+      "id": 132,
+      "speaker": "主持人",
+      "text": "对，刚刚在我们整个的聊天过程中，我自己的感受是你的整个思维方式包括你的眼界是非常非常超前的，但是当你真正去做产品或者去跟投资人卖一个想法的时候，他们可能有时候越超前是越没有共识的，你会遇到类似的困难吗？",
+      "start": "01:15:25",
+      "end": "01:15:45",
+      "start_seconds": 4525,
+      "end_seconds": 4545
+    },
+    {
+      "id": 133,
+      "speaker": "嘉宾",
+      "text": "有，其实上礼拜在 ICML 我们聊 panel 的时候其中有一个问题是怎么跟投资人聊特别 technical 的 startup 项目。我个人认为是不要尝试去 sell your idea 。除非你的 idea 是共识。但是一旦你的 idea 是超共识的话，那也没有任何的意义去投你的项目。我的一般观点是如果要跟投资人聊的话，利用市场的共识。但是在这个共识之上加一个 logic leap 。比如说市场共识是 RL agent is the hot thing ，大家都觉得这个东西有 future 。你唯一的那个 hop 是说，你怎么能够实现它，同时你实现它的时候你有什么优势。你要告诉他说我训练这个 RL agent 的方式跟所有人都不一样，其实是没有任何意义的，所有人都不会理解你为什么跟别人不一样。但你要切入的是你要解决的这个问题在你的技术基础之上是很有意义的。同时你为什么有这个 unfair advantage 就可以了。",
+      "start": "01:15:45",
+      "end": "01:16:35",
+      "start_seconds": 4545,
+      "end_seconds": 4595
+    },
+    {
+      "id": 134,
+      "speaker": "主持人",
+      "text": "嗯。刚刚其实我们在谈到你做这个 AI agent 底层哲学的时候我也把两种不同的思维方式丢给你，同时我们刚刚在评价几家不同的 AI agent 公司的时候，比如说 James Park 、Manners 、OpenAI 的 ChatGPT ，还有 Fellow ，所有的公司大家用的方法都不太一样。你觉得未来 agent 大家能在中间脱颖而出的核心的点是什么？是技术路线、产品还是什么样的决策？",
+      "start": "01:16:35",
+      "end": "01:16:55",
+      "start_seconds": 4595,
+      "end_seconds": 4615
+    },
+    {
+      "id": 135,
+      "speaker": "嘉宾",
+      "text": "我觉得这些公司最后都会走向一个不一样的……",
+      "start": "01:16:55",
+      "end": "01:17:00",
+      "start_seconds": 4615,
+      "end_seconds": 4620
+    },
+    {
+      "id": 136,
+      "speaker": "男嘉宾",
+      "text": "有点像当年早期的像 Mistral，像 OpenAI，像 Anthropic，大家后面都走了不一样的路。最后会有一个区分化 diversified 的过程。然后大家会发现这个 agent 都越发展越不一样。原因就是因为 founder 也很不一样。其实人在里面就会自然的发展出很多的不一样的 diversified 的一些 decisions。第二我觉得技术方向确实它会是一个决定一家公司能否存活下去的核心。原因在于 agentic system 它的成本很高，虽然你融了很多钱，但是很多 AI 公司的一个核心痛点就是你融了钱，你的 growth 越快，你死得越快。因为你都是入不敷出的在做 growth。然后你下一轮融资的时候给所有的投资人一看你的 gross profit，全是负的 50% 什么的。第一反应就是这东西就算我投了，你下一轮你有什么办法把它转正吗？你说你没有。那投资人也不会买账。总的来说就变成了一个无限消耗的过程。那技术的提升会使得你可以把这个 gross profit 转正。所以对投资人来说那是行，只要你能增长，那就值得投。所以技术路径是你能够活下来的核心。但是最后的产品的形态以及最后的市场的格局会是 founder 以及这个团队的 decision 所导致的。而且会区分度很大。",
+      "start": "01:17:00",
+      "end": "01:18:14",
+      "start_seconds": 4620,
+      "end_seconds": 4694
+    },
+    {
+      "id": 137,
+      "speaker": "泓君",
+      "text": "对，讲得特别好。确实是如果你技术路径选错了，那可能整个 AI 的成本就太高了。短时间还可以靠融资维持，但是这不是一个长时间它能一直维持的事情。",
+      "start": "01:18:14",
+      "end": "01:18:25",
+      "start_seconds": 4694,
+      "end_seconds": 4705
+    },
+    {
+      "id": 138,
+      "speaker": "男嘉宾",
+      "text": "对对对。当然很多公司的估值很高，都快上一个 billion 了。可能 acquire 的可能性不太大，但是小一点团队的现在相对 quality 比较高的那种团队被 acquire 的概率其实都挺大的。所以我现在这个市场可能接下来 1 到 2 年都会是一个非常疯狂的大鱼吃小鱼的过程。所以我们可以拭目以待。我觉得接下来 1 到 2 年的商业市场会是个非常有意思的一个故事。",
+      "start": "01:18:25",
+      "end": "01:18:54",
+      "start_seconds": 4705,
+      "end_seconds": 4734
+    },
+    {
+      "id": 139,
+      "speaker": "泓君",
+      "text": "嗯，好的好的，太精彩了。谢谢。",
+      "start": "01:18:54",
+      "end": "01:18:57",
+      "start_seconds": 4734,
+      "end_seconds": 4737
+    },
+    {
+      "id": 140,
+      "speaker": "男嘉宾",
+      "text": "感谢。",
+      "start": "01:18:57",
+      "end": "01:18:58",
+      "start_seconds": 4737,
+      "end_seconds": 4738
+    },
+    {
+      "id": 141,
+      "speaker": "泓君",
+      "text": "好的，这就是我们今天的节目。如果大家有什么样的想法，可以给我们写评论，写留言。另外呢，如果大家对整个硅谷每天在发生什么感兴趣，我们也有档关于硅谷热点的轻解读节目，叫做 101 Weekly。大家可以在小宇宙还有 Spotify 上来搜索到我们的节目。同时呢，也可以在各大视频网站看硅谷 101 的视频。最后，如果大家喜欢我们的播客，也可以在你所收听的音频渠道来订阅我们。我是泓君，感谢大家的收听。谢谢。",
+      "start": "01:18:58",
+      "end": "01:19:34",
+      "start_seconds": 4738,
+      "end_seconds": 4774
+    }
+  ]
+}

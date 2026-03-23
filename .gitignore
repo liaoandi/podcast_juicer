@@ -22,7 +22,12 @@ ENV/
 
 # 数据文件（排除配置文件）
 batch_output*/
-output/
+# output: 只追踪 transcript 和 notes，忽略其余
+output/*
+!output/sv101_ep*/
+!output/notes/
+output/sv101_ep*/*
+!output/sv101_ep*/*_transcript_gemini.json
 data/*
 !data/README.md
 to_delete_archive/
