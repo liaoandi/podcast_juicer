@@ -5,11 +5,16 @@
 set -uo pipefail
 # 注意: 不用 set -e，单集失败不应阻止后续集数
 
+export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.config/secrets/liaoandi_vertex_ai_key.json"
+
 SCRIPTS="/Users/antonio/Desktop/podcast_juicer/scripts"
 OUTPUT="/Users/antonio/Desktop/podcast_juicer/output"
 NOTES_DIR="$OUTPUT/notes"
 PYTHON="/Users/antonio/Desktop/podcast_juicer/venv/bin/python3"
 PROGRESS_MD="/Users/antonio/Desktop/podcast_juicer/batch_progress.md"
+
+TRASH="/Users/antonio/Desktop/podcast_juicer/output/_trash"
+mkdir -p "$TRASH"
 
 TOTAL=0
 SUCCESS=0
@@ -18,6 +23,14 @@ SKIP=0
 
 log() {
     echo "[$(date '+%H:%M:%S')] $*"
+}
+
+# 安全删除: mv 到 _trash 目录
+safe_rm() {
+    local f="$1"
+    if [ -f "$f" ]; then
+        mv "$f" "$TRASH/$(basename "$f").$(date +%s)" 2>/dev/null || true
+    fi
 }
 
 # 单集全流程: step1 → step2 → step3 → step4
@@ -141,14 +154,14 @@ for ep in 194 196; do
     for f in "$signals" "$verified" "$notes"; do
         if [ -f "$f" ]; then
             log "  清理旧文件: $(basename $f)"
-            rm -f "$f"
+            safe_rm "$f"
         fi
     done
 
-    # 删除旧的（不完整的）transcript，让 step1 从 .progress 断点续传
+    # 移走旧的（不完整的）transcript，让 step1 从 .progress 断点续传
     if [ -f "$transcript" ]; then
         log "  清理不完整 transcript"
-        rm -f "$transcript"
+        safe_rm "$transcript"
     fi
 
     run_pipeline "$ep"
@@ -190,11 +203,11 @@ for round in 1 2 3; do
         log "  [轮次 $round/3] ep${ep}"
 
         # 清理旧 transcript（让 step1 从 .progress 续传）
-        rm -f "$transcript"
+        safe_rm "$transcript"
         # 清理旧 step2-4 产出
-        rm -f "$dir/sv101_ep${ep}_signals.json" \
-              "$dir/sv101_ep${ep}_verified_signals.json" \
-              "$NOTES_DIR/sv101_ep${ep}_investment_notes.md"
+        safe_rm "$dir/sv101_ep${ep}_signals.json"
+        safe_rm "$dir/sv101_ep${ep}_verified_signals.json"
+        safe_rm "$NOTES_DIR/sv101_ep${ep}_investment_notes.md"
 
         if run_pipeline "$ep"; then
             log "  ep${ep}: 第 $round 轮成功!"
@@ -246,10 +259,10 @@ for round in 1 2 3; do
         log ""
         log "  [轮次 $round/3] ep${ep}"
 
-        rm -f "$transcript"
-        rm -f "$dir/sv101_ep${ep}_signals.json" \
-              "$dir/sv101_ep${ep}_verified_signals.json" \
-              "$NOTES_DIR/sv101_ep${ep}_investment_notes.md"
+        safe_rm "$transcript"
+        safe_rm "$dir/sv101_ep${ep}_signals.json"
+        safe_rm "$dir/sv101_ep${ep}_verified_signals.json"
+        safe_rm "$NOTES_DIR/sv101_ep${ep}_investment_notes.md"
 
         if run_pipeline "$ep"; then
             log "  ep${ep}: 第 $round 轮成功!"

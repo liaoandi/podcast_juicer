@@ -15,6 +15,7 @@ PROGRESS_MD="/Users/antonio/Desktop/podcast_juicer/batch_progress.md"
 TOTAL=0
 SUCCESS=0
 FAIL=0
+SKIP=0
 
 log() {
     echo "[$(date '+%H:%M:%S')] $*"
@@ -34,7 +35,7 @@ run_full_pipeline() {
 
     if [ ! -f "$mp3" ]; then
         log "  ep${ep}: SKIP (无 MP3)"
-        FAIL=$((FAIL + 1))
+        SKIP=$((SKIP + 1))
         return 1
     fi
 
@@ -114,5 +115,5 @@ done
 
 log ""
 log "============================================================"
-log "完成: $SUCCESS succeeded, $FAIL failed (共 $TOTAL)"
+log "完成: $SUCCESS succeeded, $FAIL failed, $SKIP skipped (共 $TOTAL)"
 log "============================================================"

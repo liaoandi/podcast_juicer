@@ -13,9 +13,24 @@
 
 import json
 import os
+import shutil
 import sys
 import time
 from gemini_utils import get_gemini_client, DEFAULT_MODEL, clean_json
+
+
+# 项目根目录
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_TRASH_DIR = os.path.join(_PROJECT_ROOT, "output", "_trash")
+
+
+def _safe_remove(path):
+    """mv to _trash instead of deleting"""
+    if not os.path.exists(path):
+        return
+    os.makedirs(_TRASH_DIR, exist_ok=True)
+    dest = os.path.join(_TRASH_DIR, f"{os.path.basename(path)}.{int(time.time())}")
+    shutil.move(path, dest)
 from google.genai import types
 
 
@@ -66,7 +81,7 @@ def split_audio(audio_path, chunk_seconds=MAX_CHUNK_SECONDS, skip_intro=SKIP_INT
 
     # 清理旧的 chunk 文件（防止上次崩溃残留）
     for old_chunk in glob.glob(f"{base}_chunk*.mp3"):
-        os.remove(old_chunk)
+        _safe_remove(old_chunk)
 
     chunks = []
     start = effective_start
@@ -432,12 +447,12 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
         # 全部成功，清理临时文件
         for f in [progress_file, progress_file + ".tmp"]:
             if os.path.exists(f):
-                os.remove(f)
+                _safe_remove(f)
 
     # 清理 chunk 音频文件
     for chunk_path, _, _ in chunks:
         if chunk_path != audio_file and os.path.exists(chunk_path):
-            os.remove(chunk_path)
+            _safe_remove(chunk_path)
 
     return output_file
 
