@@ -390,8 +390,14 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
                 'end_seconds': approx_end,
             })
 
+    # 检查是否有失败的 chunk
+    failed_chunks = [i for i, entry in enumerate(chunk_results) if entry is None or (entry and not entry[2])]
+
     total_elapsed = time.time() - total_start
-    print(f"\n✅ 转录完成!")
+    if failed_chunks:
+        print(f"\n⚠️ 转录部分完成（{len(failed_chunks)}/{len(chunks)} 个 chunk 失败）")
+    else:
+        print(f"\n✅ 转录完成!")
     print(f"   总段落: {len(all_segments)}")
     print(f"   总耗时: {total_elapsed:.1f}s ({total_elapsed/60:.1f}min)")
 
@@ -414,10 +420,21 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    # 清理临时文件（progress 完成即删，chunk 文件移到 archive）
-    for f in [progress_file, progress_file + ".tmp"]:
-        if os.path.exists(f):
-            os.remove(f)
+    if failed_chunks:
+        # 保留 .progress 以便断点补跑失败的 chunk
+        _save_progress()
+        print(f"\n⚠️ 保留 .progress 文件，重跑可自动补齐失败的 chunk:")
+        for i in failed_chunks:
+            _, start_sec, end_sec = chunks[i]
+            print(f"   chunk {i+1}: {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}")
+        print(f"   重跑命令: python step1_transcribe_gemini.py {audio_file} ...")
+    else:
+        # 全部成功，清理临时文件
+        for f in [progress_file, progress_file + ".tmp"]:
+            if os.path.exists(f):
+                os.remove(f)
+
+    # 清理 chunk 音频文件
     for chunk_path, _, _ in chunks:
         if chunk_path != audio_file and os.path.exists(chunk_path):
             os.remove(chunk_path)
@@ -439,4 +456,9 @@ if __name__ == "__main__":
     participants_file = sys.argv[2] if len(sys.argv) > 2 else None
     output_file = sys.argv[3] if len(sys.argv) > 3 else None
 
-    transcribe_audio(audio_file, participants_file, output_file)
+    result = transcribe_audio(audio_file, participants_file, output_file)
+
+    # 有失败 chunk 时 exit(1)，阻止下游 step 在不完整转录上运行
+    progress_file = (output_file or audio_file.rsplit('.', 1)[0] + '_transcript_gemini.json') + '.progress'
+    if os.path.exists(progress_file):
+        sys.exit(1)
