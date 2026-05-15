@@ -261,13 +261,18 @@ def process_single(url, audio_url=None, force=False):
         print(f"  [更新] metadata: publish={metadata['publish_date']}")
 
     # ── Step 1: Gemini 音频转录（一步到位：转录 + 说话人 + 书面化）──
-    if force or _needs_rerun([audio_file, participants_file], transcript_file):
-        if not run_step("Step 1: Gemini 音频转录",
-                       [PYTHON_BIN, 'step1_transcribe_gemini.py', audio_file, participants_file, transcript_file]):
-            # 检查文件是否生成（进程可能非零退出但文件已生成）
+    progress_file = transcript_file + ".progress"
+    if force or os.path.exists(progress_file) or _needs_rerun([audio_file], transcript_file):
+        step1_ok = run_step(
+            "Step 1: Gemini 音频转录",
+            [PYTHON_BIN, 'step1_transcribe_gemini.py', audio_file, participants_file, transcript_file],
+        )
+        if not step1_ok or os.path.exists(progress_file):
             if not os.path.exists(transcript_file):
-                print(f"  ❌ 转录文件未生成")
-                return False
+                print("  ❌ 转录文件未生成")
+            elif os.path.exists(progress_file):
+                print(f"  ❌ 转录未完成，仍有断点文件: {progress_file}")
+            return False
         # Sanity check
         if not _check_transcript(transcript_file):
             return False

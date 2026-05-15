@@ -13,7 +13,7 @@ import sys
 import time
 from datetime import datetime
 from google.genai import types
-from gemini_utils import get_gemini_client, DEFAULT_MODEL
+from gemini_utils import get_gemini_client, DEFAULT_MODEL, patch_dns
 
 # 导入数据源模块
 HAS_DATA_SOURCES = False
@@ -32,6 +32,7 @@ except ImportError:
 # 配置 — 验证用 pro 模型（需要深度推理判断信号真伪）
 LOCATION = "global"
 GEMINI_MODEL = DEFAULT_MODEL
+GEMINI_TIMEOUT_SECONDS = int(os.getenv("GEMINI_TIMEOUT_SECONDS", "180"))
 
 class VertexVerifier:
     def __init__(self, project_id=None, location=None, model=None, record_date=None):
@@ -49,12 +50,14 @@ class VertexVerifier:
         self.record_date = record_date
 
         print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location}")
+        patch_dns()
 
         # 初始化客户端（使用默认配置）
         # get_gemini_client handles credentials and project_id internally
         self.client = get_gemini_client(
             project_id=project_id,
-            location=self.location
+            location=self.location,
+            timeout=GEMINI_TIMEOUT_SECONDS,
         )
 
         # 初始化数据源

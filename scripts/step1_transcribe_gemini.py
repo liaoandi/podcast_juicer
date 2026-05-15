@@ -12,11 +12,14 @@
 """
 
 import json
+import multiprocessing
 import os
+import queue
+import signal
 import shutil
 import sys
 import time
-from gemini_utils import get_gemini_client, DEFAULT_MODEL, clean_json
+from gemini_utils import get_gemini_client, DEFAULT_MODEL, clean_json, patch_dns
 
 
 # 项目根目录
@@ -40,6 +43,16 @@ TRANSCRIBE_LOCATION = "global"
 # 每段音频最大时长（秒），超过则分段处理
 MAX_CHUNK_SECONDS = 180  # 3 分钟（thinking 模型最佳长度）
 MAX_WORKERS = 1  # 串行转录（避免 API 499 取消）
+TRANSCRIBE_TIMEOUT_SECONDS = int(os.getenv("TRANSCRIBE_TIMEOUT_SECONDS", "180"))
+TRANSCRIBE_WALL_TIMEOUT_SECONDS = int(
+    os.getenv("TRANSCRIBE_WALL_TIMEOUT_SECONDS", str(max(90, TRANSCRIBE_TIMEOUT_SECONDS + 30)))
+)
+FALLBACK_CHUNK_SECONDS = int(os.getenv("FALLBACK_CHUNK_SECONDS", "60"))
+FALLBACK_CHUNK_SECONDS_LADDER = [
+    int(x)
+    for x in os.getenv("FALLBACK_CHUNK_SECONDS_LADDER", "60,30,15").split(",")
+    if x.strip()
+]
 
 
 def get_audio_duration(audio_path):
@@ -154,17 +167,26 @@ def transcribe_chunk(client, audio_bytes, participants_info=None, chunk_note=Non
     """转录单个音频片段"""
     prompt = build_transcribe_prompt(participants_info, chunk_note)
 
-    response = client.models.generate_content(
-        model=TRANSCRIBE_MODEL,
-        contents=[
-            types.Part(inline_data=types.Blob(data=audio_bytes, mime_type='audio/mpeg')),
-            prompt
-        ],
-        config=types.GenerateContentConfig(
-            temperature=0.1,
-            max_output_tokens=65536,
+    def _timeout_handler(_signum, _frame):
+        raise TimeoutError(f"Gemini call timed out after {TRANSCRIBE_WALL_TIMEOUT_SECONDS}s")
+
+    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+    signal.alarm(TRANSCRIBE_WALL_TIMEOUT_SECONDS)
+    try:
+        response = client.models.generate_content(
+            model=TRANSCRIBE_MODEL,
+            contents=[
+                types.Part(inline_data=types.Blob(data=audio_bytes, mime_type='audio/mpeg')),
+                prompt
+            ],
+            config=types.GenerateContentConfig(
+                temperature=0.1,
+                max_output_tokens=65536,
+            )
         )
-    )
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
 
     raw_text = ""
     try:
@@ -172,7 +194,53 @@ def transcribe_chunk(client, audio_bytes, participants_info=None, chunk_note=Non
     except Exception:
         raw_text = ""
 
-    return clean_json(raw_text)
+    parsed = clean_json(raw_text)
+    if parsed is None and raw_text:
+        return {"_raw_text": raw_text[:500]}
+    return parsed
+
+
+def _transcribe_chunk_worker(result_queue, audio_bytes, participants_info, chunk_note):
+    """Run one Gemini request in a child process so the parent can hard-timeout it."""
+    try:
+        patch_dns()
+        client = get_gemini_client(
+            location=TRANSCRIBE_LOCATION,
+            timeout=TRANSCRIBE_TIMEOUT_SECONDS,
+        )
+        result = transcribe_chunk(client, audio_bytes, participants_info, chunk_note)
+        result_queue.put({"ok": True, "result": result})
+    except Exception as exc:
+        result_queue.put({"ok": False, "error": repr(exc)})
+
+
+def transcribe_chunk_isolated(audio_bytes, participants_info=None, chunk_note=None):
+    """Transcribe a chunk in a killable subprocess."""
+    ctx = multiprocessing.get_context("fork")
+    result_queue = ctx.Queue(maxsize=1)
+    proc = ctx.Process(
+        target=_transcribe_chunk_worker,
+        args=(result_queue, audio_bytes, participants_info, chunk_note),
+    )
+    proc.start()
+    proc.join(TRANSCRIBE_WALL_TIMEOUT_SECONDS)
+
+    if proc.is_alive():
+        proc.terminate()
+        proc.join(5)
+        if proc.is_alive():
+            proc.kill()
+            proc.join(5)
+        raise TimeoutError(f"Gemini call timed out after {TRANSCRIBE_WALL_TIMEOUT_SECONDS}s")
+
+    try:
+        payload = result_queue.get_nowait()
+    except queue.Empty:
+        raise RuntimeError(f"Gemini worker exited with code {proc.exitcode} and no result")
+
+    if not payload.get("ok"):
+        raise RuntimeError(payload.get("error", "Gemini worker failed"))
+    return payload.get("result")
 
 
 def format_timestamp(seconds):
@@ -181,6 +249,44 @@ def format_timestamp(seconds):
     m = int((seconds % 3600) // 60)
     s = int(seconds % 60)
     return f"{h:02d}:{m:02d}:{s:02d}"
+
+
+def split_existing_chunk(chunk_path, absolute_start, absolute_end, chunk_seconds=FALLBACK_CHUNK_SECONDS):
+    """把失败的 chunk 再切成更短的小段，返回 [(path, absolute_start, absolute_end), ...]"""
+    import subprocess
+
+    if absolute_end is None:
+        duration = get_audio_duration(chunk_path)
+        if duration is None:
+            return []
+        absolute_end = absolute_start + duration
+
+    total_duration = max(0, absolute_end - absolute_start)
+    if total_duration <= chunk_seconds:
+        return []
+
+    base = os.path.splitext(chunk_path)[0]
+    subchunks = []
+    relative_start = 0
+    sub_idx = 0
+
+    while relative_start < total_duration:
+        sub_duration = min(chunk_seconds, total_duration - relative_start)
+        sub_start = absolute_start + relative_start
+        sub_end = sub_start + sub_duration
+        sub_path = f"{base}_retry{sub_idx}.mp3"
+
+        subprocess.run([
+            'ffmpeg', '-i', chunk_path,
+            '-ss', str(relative_start), '-t', str(sub_duration),
+            '-y', sub_path
+        ], capture_output=True, check=True)
+
+        subchunks.append((sub_path, sub_start, sub_end))
+        relative_start += sub_duration
+        sub_idx += 1
+
+    return subchunks
 
 
 def parse_approx_time(time_str, offset=0, chunk_end=None):
@@ -197,6 +303,7 @@ def parse_approx_time(time_str, offset=0, chunk_end=None):
 
     if not time_str:
         return offset
+
     try:
         parts = time_str.strip().split(':')
         if len(parts) == 3:
@@ -237,8 +344,20 @@ def parse_approx_time(time_str, offset=0, chunk_end=None):
         return offset
 
 
+def is_deadline_error(exc):
+    message = str(exc)
+    return (
+        "DEADLINE_EXCEEDED" in message
+        or "Deadline" in message
+        or "timed out" in message
+        or "timeout" in message.lower()
+    )
+
+
 def transcribe_audio(audio_file, participants_file=None, output_file=None):
     """使用 Gemini 转录完整音频"""
+
+    patch_dns()
 
     if not os.path.exists(audio_file):
         print(f"❌ 音频文件不存在: {audio_file}")
@@ -263,9 +382,8 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
     print(f"\n📦 准备音频片段...")
     chunks = split_audio(audio_file)
 
-    # 初始化客户端
     print(f"\n🔗 连接 Gemini...")
-    client = get_gemini_client(location=TRANSCRIBE_LOCATION)
+    print(f"   单次调用本地超时: {TRANSCRIBE_WALL_TIMEOUT_SECONDS}s")
 
     # 并行转录
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -279,24 +397,114 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
         if len(chunks) > 1:
             chunk_note = f"这是第 {i+1}/{len(chunks)} 段，时间范围 {format_timestamp(start_sec)} - {format_timestamp(end_sec or 0)}"
 
+        def _fallback_split_transcribe():
+            fallback_seconds = FALLBACK_CHUNK_SECONDS_LADDER[0] if FALLBACK_CHUNK_SECONDS_LADDER else FALLBACK_CHUNK_SECONDS
+            subchunks = split_existing_chunk(chunk_path, start_sec, end_sec, fallback_seconds)
+            if not subchunks:
+                return None
+
+            def _transcribe_piece(piece_path, piece_start, piece_end, label, ladder_idx):
+                with open(piece_path, 'rb') as f:
+                    piece_bytes = f.read()
+
+                piece_note = (
+                    f"这是第 {i+1}/{len(chunks)} 段的重试小段 {label}，"
+                    f"时间范围 {format_timestamp(piece_start)} - {format_timestamp(piece_end)}"
+                )
+                piece_result = None
+                for piece_attempt in range(2):
+                    try:
+                        piece_result = transcribe_chunk_isolated(piece_bytes, participants_info, piece_note)
+                        break
+                    except Exception as e:
+                        if piece_attempt == 0:
+                            print(f"   [{i+1}.{label}] ⚠️ 小段重试: {str(e)[:60]}...")
+                            time.sleep(8)
+                        else:
+                            print(f"   [{i+1}.{label}] ❌ 小段失败: {str(e)[:60]}")
+
+                if piece_result and 'segments' in piece_result and piece_result['segments']:
+                    print(f"   [{i+1}.{label}] ✓ 小段 {format_timestamp(piece_start)}-{format_timestamp(piece_end)}: {len(piece_result['segments'])} 段")
+                    return piece_result['segments']
+
+                if piece_result:
+                    keys = list(piece_result.keys()) if isinstance(piece_result, dict) else []
+                    print(f"   [{i+1}.{label}] ❌ 小段无有效 segments: {keys}")
+
+                next_idx = ladder_idx + 1
+                if next_idx >= len(FALLBACK_CHUNK_SECONDS_LADDER):
+                    return None
+
+                next_seconds = FALLBACK_CHUNK_SECONDS_LADDER[next_idx]
+                smaller_chunks = split_existing_chunk(piece_path, piece_start, piece_end, next_seconds)
+                if not smaller_chunks:
+                    return None
+
+                print(f"   [{i+1}.{label}] ↳ 再切成 {len(smaller_chunks)} 个 {next_seconds}s 小段")
+                nested_segments = []
+                for nested_idx, (nested_path, nested_start, nested_end) in enumerate(smaller_chunks):
+                    nested_label = f"{label}.{nested_idx+1}"
+                    try:
+                        nested_result = _transcribe_piece(
+                            nested_path,
+                            nested_start,
+                            nested_end,
+                            nested_label,
+                            next_idx,
+                        )
+                        if not nested_result:
+                            return None
+                        nested_segments.extend(nested_result)
+                    finally:
+                        if os.path.exists(nested_path):
+                            _safe_remove(nested_path)
+                return nested_segments
+
+            print(f"   [{i+1}] ↳ fallback: 切成 {len(subchunks)} 个 {fallback_seconds}s 小段")
+            combined_segments = []
+            for sub_idx, (sub_path, sub_start, sub_end) in enumerate(subchunks):
+                try:
+                    sub_segments = _transcribe_piece(
+                        sub_path,
+                        sub_start,
+                        sub_end,
+                        str(sub_idx + 1),
+                        0,
+                    )
+                    if not sub_segments:
+                        return None
+
+                    combined_segments.extend(sub_segments)
+                finally:
+                    if os.path.exists(sub_path):
+                        _safe_remove(sub_path)
+
+            return combined_segments
+
         max_retries = 3
         for attempt in range(max_retries):
             try:
-                result = transcribe_chunk(client, audio_bytes, participants_info, chunk_note)
+                result = transcribe_chunk_isolated(audio_bytes, participants_info, chunk_note)
                 if result and 'segments' in result:
                     return i, start_sec, end_sec, result['segments']
                 # LLM 返回了非标准格式
                 if result:
                     print(f"   [{i+1}] ⚠️ 返回格式异常，缺少 segments 字段: {list(result.keys())}")
-                return i, start_sec, end_sec, None
+                fallback_segments = _fallback_split_transcribe()
+                return i, start_sec, end_sec, fallback_segments
             except Exception as e:
+                if is_deadline_error(e):
+                    print(f"   [{i+1}] ❌ 超时/Deadline: {str(e)[:80]}")
+                    fallback_segments = _fallback_split_transcribe()
+                    return i, start_sec, end_sec, fallback_segments
                 if attempt < max_retries - 1:
                     wait = 10 * (attempt + 1)
                     print(f"   [{i+1}] ⚠️ 重试: {str(e)[:60]}...")
                     time.sleep(wait)
                 else:
                     print(f"   [{i+1}] ❌ 失败: {str(e)[:60]}")
-                    return i, start_sec, end_sec, None
+                    fallback_segments = _fallback_split_transcribe()
+                    return i, start_sec, end_sec, fallback_segments
 
     # ── 增量存储：每个 chunk 完成后立刻写入，支持断点续跑 ──
     if not output_file:
@@ -350,25 +558,36 @@ def transcribe_audio(audio_file, participants_file=None, output_file=None):
     else:
         print(f"\n✅ 所有 chunk 已完成，直接合并")
 
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = {}
-        for i, (chunk_path, start_sec, end_sec) in remaining:
-            future = executor.submit(_transcribe_one, i, chunk_path, start_sec, end_sec)
-            futures[future] = i
+    def _record_chunk_result(idx, start_sec, end_sec, segs):
+        chunk_results[idx] = (start_sec, end_sec, segs)
+        if segs:
+            print(f"   [{idx+1}/{len(chunks)}] ✓ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: {len(segs)} 段")
+        else:
+            print(f"   [{idx+1}/{len(chunks)}] ✗ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: 无结果")
+        # 每个 chunk 完成后立刻保存进度
+        _save_progress()
 
-        for future in as_completed(futures):
+    if workers == 1:
+        for i, (chunk_path, start_sec, end_sec) in remaining:
             try:
-                idx, start_sec, end_sec, segs = future.result()
-                chunk_results[idx] = (start_sec, end_sec, segs)
-                if segs:
-                    print(f"   [{idx+1}/{len(chunks)}] ✓ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: {len(segs)} 段")
-                else:
-                    print(f"   [{idx+1}/{len(chunks)}] ✗ {format_timestamp(start_sec)}-{format_timestamp(end_sec or 0)}: 无结果")
-                # 每个 chunk 完成后立刻保存进度
-                _save_progress()
+                idx, start_sec, end_sec, segs = _transcribe_one(i, chunk_path, start_sec, end_sec)
+                _record_chunk_result(idx, start_sec, end_sec, segs)
             except Exception as e:
-                i = futures[future]
                 print(f"   [{i+1}/{len(chunks)}] ❌ 异常: {e}")
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = {}
+            for i, (chunk_path, start_sec, end_sec) in remaining:
+                future = executor.submit(_transcribe_one, i, chunk_path, start_sec, end_sec)
+                futures[future] = i
+
+            for future in as_completed(futures):
+                try:
+                    idx, start_sec, end_sec, segs = future.result()
+                    _record_chunk_result(idx, start_sec, end_sec, segs)
+                except Exception as e:
+                    i = futures[future]
+                    print(f"   [{i+1}/{len(chunks)}] ❌ 异常: {e}")
 
     # 按顺序合并结果（跳过 None 条目）
     all_segments = []

@@ -19,11 +19,12 @@ import json
 import os
 import sys
 from google.genai import types
-from gemini_utils import get_gemini_client, DEFAULT_MODEL
+from gemini_utils import get_gemini_client, DEFAULT_MODEL, patch_dns
 
 # 配置
 LOCATION = "global"
 GEMINI_MODEL = DEFAULT_MODEL
+GEMINI_TIMEOUT_SECONDS = int(os.getenv("GEMINI_TIMEOUT_SECONDS", "180"))
 
 def load_featured_companies(featured_companies_file=None):
     """加载关注公司列表"""
@@ -97,12 +98,14 @@ class GeminiSignalExtractor:
         self.model_name = model or GEMINI_MODEL
 
         print(f"🔧 初始化 Vertex AI: {self.model_name} @ {self.location}")
+        patch_dns()
 
         # 初始化客户端
         # get_gemini_client handles credentials and project_id internally
         self.client = get_gemini_client(
             project_id=project_id,
-            location=self.location
+            location=self.location,
+            timeout=GEMINI_TIMEOUT_SECONDS,
         )
 
     def build_extraction_prompt(self, segments, featured_companies):
